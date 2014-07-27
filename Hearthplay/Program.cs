@@ -24,7 +24,7 @@ namespace Hearthplay
                 Decks[1] = DeckTwo;
             }
 
-            public void RunTrial( )
+            public void RunTrial( bool SwitchOrder )
             {
                 // Set up initial game state
                 Random R = new Random( );
@@ -40,8 +40,9 @@ namespace Hearthplay
                 while( AuthoritativeState.VictoryState == VictoryState.Undetermined )
                 {
                     int ToAct = AuthoritativeState.PlayerToAct;
+                    ToAct = SwitchOrder ? Math.Abs( ToAct - 1 ) : ToAct;
                     Move M = Players[ToAct].ChooseMove( Views[ToAct] );
-                    Console.WriteLine( AuthoritativeState.DescribeMove( M ) );
+                    //Console.WriteLine( AuthoritativeState.DescribeMove( M ) );
                     AuthoritativeState.ProcessMove( M );
                     Views[0].ProcessMove( M );
                     Views[1].ProcessMove( M );
@@ -59,8 +60,8 @@ namespace Hearthplay
 
                 ++Trials;
 
-                Console.WriteLine( "Result {0}", AuthoritativeState.VictoryState );
-                Console.ReadLine( );
+                //Console.WriteLine( "Result {0}", AuthoritativeState.VictoryState );
+                //Console.ReadLine( );
             }
         }
 
@@ -90,15 +91,18 @@ namespace Hearthplay
                 Deck,
                 Deck );
 
-            var Timer = System.Diagnostics.Stopwatch.StartNew( );
-            for( int i=0; i < 100000; ++i )
+            for( int i=0; i < 2; ++i )
             {
-                T.RunTrial( );
+                var Timer = System.Diagnostics.Stopwatch.StartNew( );
+                for( int j = 0; j < 50000; ++j )
+                {
+                    T.RunTrial( i == 1 );
+                }
+                Timer.Stop( );
+                Console.WriteLine( "Player one: {0}% ", 100 * (T.Wins[0] / (double)T.Trials) );
+                Console.WriteLine( "Player two: {0}% ", 100 * (T.Wins[1] / (double)T.Trials) );
+                Console.WriteLine( "{0} trials in {1} seconds", T.Trials, Timer.Elapsed.TotalSeconds );
             }
-            Timer.Stop( );
-            Console.WriteLine( "Player one: {0}% ", 100*(T.Wins[0] / (double)T.Trials) );
-            Console.WriteLine( "Player two: {0}% ", 100*(T.Wins[1] / (double)T.Trials) );
-            Console.WriteLine( "{0} trials in {1} seconds", T.Trials, Timer.Elapsed.TotalSeconds );
 
             Console.ReadLine( );
         }
