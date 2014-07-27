@@ -8,7 +8,13 @@ namespace Hearthplay
 {
     enum CardType
     {
-        Minion
+        Minion,
+        Spell,
+    }
+
+    enum SpellEffects
+    {
+        AddMana,
     }
 
     class Card
@@ -21,10 +27,23 @@ namespace Hearthplay
         // For minions
         public int Attack;
         public int Health;
+
+        // For spells, maybe battlecries later
+        public SpellEffects Effect;
+        public int EffectParam;
     }
 
     static class Cards
     {
+        public static readonly Card Coin = new Card
+        {
+            Type = CardType.Spell,
+            Name = "Coin",
+            ManaCost = 0,
+            Effect = SpellEffects.AddMana,
+            EffectParam = 1
+        };
+
         public static readonly Card MurlocRaider = new Card
         {
             Type = CardType.Minion,

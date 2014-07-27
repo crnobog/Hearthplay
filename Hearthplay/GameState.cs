@@ -155,9 +155,10 @@ namespace Hearthplay
             {
                 Players[1].DrawOne( );
             }
+            Players[1].Hand.Add( Cards.Coin );
 
-            Players[PlayerToAct].DrawOne( );
-            Players[PlayerToAct].Hero.BeginTurn( );
+            Players[0].DrawOne( );
+            Players[0].Hero.BeginTurn( );
         }
 
         public GameState( GameState ToClone )
@@ -308,15 +309,27 @@ namespace Hearthplay
 
             ToAct.Hero.Mana -= ToPlay.ManaCost;
 
-            ToAct.Minions.Add( new Minion 
-            { 
-                Card = ToPlay, 
-                Attack = ToPlay.Attack, 
-                Health = ToPlay.Health,
-                MaxHealth = ToPlay.Health,
-                SummonedThisTurn = true,
-                AttackedThisTurn = false
-            } );
+            if( ToPlay.Type == CardType.Minion )
+            {
+                ToAct.Minions.Add( new Minion
+                {
+                    Card = ToPlay,
+                    Attack = ToPlay.Attack,
+                    Health = ToPlay.Health,
+                    MaxHealth = ToPlay.Health,
+                    SummonedThisTurn = true,
+                    AttackedThisTurn = false
+                } );
+            }
+            else
+            {
+                switch( ToPlay.Effect )
+                {
+                    case SpellEffects.AddMana:
+                        ToAct.Hero.Mana += ToPlay.EffectParam;
+                        break;
+                }
+            }
         }
 
         public string DescribeMove( Move M )

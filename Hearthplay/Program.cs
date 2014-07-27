@@ -41,7 +41,7 @@ namespace Hearthplay
                 {
                     int ToAct = AuthoritativeState.PlayerToAct;
                     Move M = Players[ToAct].ChooseMove( Views[ToAct] );
-                    //Console.WriteLine( AuthoritativeState.DescribeMove( M ) );
+                    Console.WriteLine( AuthoritativeState.DescribeMove( M ) );
                     AuthoritativeState.ProcessMove( M );
                     Views[0].ProcessMove( M );
                     Views[1].ProcessMove( M );
@@ -59,8 +59,8 @@ namespace Hearthplay
 
                 ++Trials;
 
-                //Console.WriteLine( "Result {0}", AuthoritativeState.VictoryState );
-                //Console.ReadLine( );
+                Console.WriteLine( "Result {0}", AuthoritativeState.VictoryState );
+                Console.ReadLine( );
             }
         }
 
