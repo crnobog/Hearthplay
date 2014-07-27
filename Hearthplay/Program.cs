@@ -81,9 +81,12 @@ namespace Hearthplay
                 Cards.WarGolem, Cards.WarGolem, Cards.WarGolem, 
             };
 
+            Move[][] MoveBuffers = new Move[2][];
+            MoveBuffers[0] = new Move[GameState.MaxPossibleMoves()];
+            MoveBuffers[1] = new Move[GameState.MaxPossibleMoves()];
             TrialRunner T = new TrialRunner( 
-                ( ) => new RandomAI( ), 
-                ( ) => new RandomAI( ),
+                ( ) => new RandomAI( MoveBuffers[0] ), 
+                ( ) => new RandomAI( MoveBuffers[1] ),
                 Deck,
                 Deck );
 

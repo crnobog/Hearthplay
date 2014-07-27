@@ -14,11 +14,17 @@ namespace Hearthplay
     class RandomAI : AI
     {
         Random RNG = new Random( );
+        Move[] MoveBuffer;
+
+        public RandomAI( Move[] InMoveBuffer )
+        {
+            MoveBuffer = InMoveBuffer;
+        }
 
         public Move ChooseMove( GameState State )
         {
-            var Moves = State.GetPossibleMoves( );
-            Move M = Moves[RNG.Next( 0, Moves.Count )];
+            int Moves = State.GetPossibleMoves( MoveBuffer );
+            Move M = MoveBuffer[RNG.Next( 0, Moves )];
             return M;
         }
     }

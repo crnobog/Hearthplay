@@ -81,8 +81,8 @@ namespace Hearthplay
 
     class Player
     {
-        const int MaxMinions = 7;
-        const int MaxCardsInHand = 10;
+        public const int MaxMinions = 7;
+        public const int MaxCardsInHand = 10;
 
         public List<Minion> Minions = new List<Minion>( MaxMinions );
         public Hero Hero = new Hero();
@@ -133,6 +133,15 @@ namespace Hearthplay
 
         public VictoryState VictoryState = VictoryState.Undetermined;
 
+        public static int MaxPossibleMoves()
+        {
+            int Num = 1; // End turn
+            Num += (Player.MaxMinions + 1) * (Player.MaxMinions + 1); // All character attacking all enemy characters
+            Num += (Player.MaxMinions + 1) * (Player.MaxCardsInHand); // Play a card in hand targeting each possible character
+
+            return Num;
+        }
+
         public GameState( List<Card> DeckOne, List<Card> DeckTwo )
         {
             Players[0]= new Player( DeckOne );
@@ -170,13 +179,12 @@ namespace Hearthplay
             }
         }
 
-        public List<Move> GetPossibleMoves( )
+        public int GetPossibleMoves( Move[] Moves )
         {
             Player ToAct = Players[PlayerToAct];
             Player Opponent = Players[Math.Abs( PlayerToAct - 1 )];
 
-            int MaxMoves = 1 + ToAct.Hand.Count + (ToAct.Minions.Count + 1) * (Opponent.Minions.Count + 1);
-            List < Move > Moves = new List<Move>( MaxMoves );
+            int NumMoves = 0;
 
             // Attack each target with each minion
             for( int i=0; i < ToAct.Minions.Count; ++i )
@@ -187,11 +195,11 @@ namespace Hearthplay
                 for( int j=0; j < Opponent.Minions.Count; ++j )
                 {
                     // Attack minion
-                    Moves.Add( new Move { Type = MoveType.Attack, SourceIndex = i + 1, TargetIndex = j + 1 } );
+                    Moves[NumMoves++] = new Move { Type = MoveType.Attack, SourceIndex = i + 1, TargetIndex = j + 1 };
                 }
 
                 // Attack opponent
-                Moves.Add( new Move { Type = MoveType.Attack, SourceIndex = i + 1, TargetIndex = 0 } );
+                Moves[NumMoves++] =  new Move { Type = MoveType.Attack, SourceIndex = i + 1, TargetIndex = 0 };
             }
 
             // Play each card
@@ -199,14 +207,14 @@ namespace Hearthplay
             {
                 if( ToAct.Hand[i].ManaCost <= ToAct.Hero.Mana )
                 {
-                    Moves.Add( new Move { Type = MoveType.PlayCard, SourceIndex = i } );
+                    Moves[NumMoves++] = new Move { Type = MoveType.PlayCard, SourceIndex = i };
                 }
             }
 
             // End turn
-            Moves.Add( new Move { Type = MoveType.EndTurn } );
+            Moves[NumMoves++] = new Move { Type = MoveType.EndTurn };
 
-            return Moves;
+            return NumMoves;
         }
 
         public void ProcessMove( Move M )
