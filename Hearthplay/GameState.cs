@@ -43,7 +43,7 @@ namespace Hearthplay
         public bool SummonedThisTurn;
         public bool AttackedThisTurn { get; set; }
 
-        public Card Card;
+        public CardData Card;
 
         public Minion Clone(  )
         {
@@ -86,10 +86,10 @@ namespace Hearthplay
 
         public List<Minion> Minions = new List<Minion>( MaxMinions );
         public Hero Hero = new Hero();
-        public List<Card> Hand = new List<Card>( MaxCardsInHand );
-        public List<Card> Deck;
+        public List<CardData> Hand = new List<CardData>( MaxCardsInHand );
+        public List<CardData> Deck;
 
-        public Player( List<Card> InDeck )
+        public Player( List<CardData> InDeck )
         {
             Deck = InDeck;
             Hero.Health = 30;
@@ -100,15 +100,15 @@ namespace Hearthplay
         {
             Minions = ToClone.Minions.Select( m => m.Clone() ).ToList();
             Hero = ToClone.Hero.Clone();
-            Hand = new List<Card>( ToClone.Hand );
-            Deck = new List<Card>( ToClone.Deck );
+            Hand = new List<CardData>( ToClone.Hand );
+            Deck = new List<CardData>( ToClone.Deck );
         }
 
         public void DrawOne( )
         {
             if( Deck.Count > 0 )
             {
-                Hand.Add( Deck[Deck.Count-1] );
+                Hand.Add( Deck[Deck.Count-1]);
                 Deck.RemoveAt( Deck.Count - 1 );
             }
             else
@@ -142,7 +142,7 @@ namespace Hearthplay
             return Num;
         }
 
-        public GameState( List<Card> DeckOne, List<Card> DeckTwo )
+        public GameState( List<CardData> DeckOne, List<CardData> DeckTwo )
         {
             Players[0]= new Player( DeckOne );
             for( int i = 0; i < 3; ++i )
@@ -304,7 +304,7 @@ namespace Hearthplay
         void PlayCard( int SourceIndex )
         {
             Player ToAct = Players[PlayerToAct];
-            Card ToPlay = ToAct.Hand[SourceIndex];
+            CardData ToPlay = ToAct.Hand[SourceIndex];
             ToAct.Hand.RemoveAt( SourceIndex );
 
             ToAct.Hero.Mana -= ToPlay.ManaCost;

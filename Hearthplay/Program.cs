@@ -11,11 +11,11 @@ namespace Hearthplay
         class TrialRunner
         {
             Func<AI>[] CreatePlayer = new Func<AI>[2];
-            Card[][] Decks = new Card[2][];
+            CardData[][] Decks = new CardData[2][];
             public int Trials;
             public int[] Wins = new int[2];
 
-            public TrialRunner( Func<AI> PlayerOne, Func<AI> PlayerTwo, Card[] DeckOne, Card[] DeckTwo )
+            public TrialRunner( Func<AI> PlayerOne, Func<AI> PlayerTwo, CardData[] DeckOne, CardData[] DeckTwo )
             {
                 CreatePlayer[0] = PlayerOne;
                 CreatePlayer[1] = PlayerTwo;
@@ -28,7 +28,7 @@ namespace Hearthplay
             {
                 // Set up initial game state
                 Random R = new Random( );
-                GameState AuthoritativeState = new GameState( new List<Card>( Decks[0] ).Shuffle( R ), new List<Card>( Decks[1] ).Shuffle( R ) );
+                GameState AuthoritativeState = new GameState( new List<CardData>( Decks[0] ).Shuffle( R ), new List<CardData>( Decks[1] ).Shuffle( R ) );
 
                 AI[] Players = new AI[2];
                 Players[0] = CreatePlayer[0]( );
@@ -70,29 +70,31 @@ namespace Hearthplay
             // Build deck
             Card[] Deck = 
             { 
-                Cards.MurlocRaider, Cards.MurlocRaider, Cards.MurlocRaider,
-                Cards.RiverCrocolisk, Cards.RiverCrocolisk, Cards.RiverCrocolisk,
-                Cards.BloodfenRaptor, Cards.BloodfenRaptor, Cards.BloodfenRaptor,
-                Cards.BloodfenRaptor, Cards.BloodfenRaptor, Cards.BloodfenRaptor,
-                Cards.MagmaRager, Cards.MagmaRager, Cards.MagmaRager, 
-                Cards.ChillwindYeti, Cards.ChillwindYeti, Cards.ChillwindYeti, 
-                Cards.OasisSnapjaw, Cards.OasisSnapjaw, Cards.OasisSnapjaw,
-                Cards.BoulderfistOgre, Cards.BoulderfistOgre, Cards.BoulderfistOgre, 
-                Cards.CoreHound, Cards.CoreHound, Cards.CoreHound,
-                Cards.WarGolem, Cards.WarGolem, Cards.WarGolem, 
+                Card.MurlocRaider, Card.MurlocRaider, Card.MurlocRaider,
+                Card.RiverCrocolisk, Card.RiverCrocolisk, Card.RiverCrocolisk,
+                Card.BloodfenRaptor, Card.BloodfenRaptor, Card.BloodfenRaptor,
+                Card.BloodfenRaptor, Card.BloodfenRaptor, Card.BloodfenRaptor,
+                Card.MagmaRager, Card.MagmaRager, Card.MagmaRager, 
+                Card.ChillwindYeti, Card.ChillwindYeti, Card.ChillwindYeti, 
+                Card.OasisSnapjaw, Card.OasisSnapjaw, Card.OasisSnapjaw,
+                Card.BoulderfistOgre, Card.BoulderfistOgre, Card.BoulderfistOgre, 
+                Card.CoreHound, Card.CoreHound, Card.CoreHound,
+                Card.WarGolem, Card.WarGolem, Card.WarGolem, 
             };
+            CardData[] DeckData = Deck.Select( c => Cards.AllCards[(int)c] ).ToArray();
 
             Move[][] MoveBuffers = new Move[2][];
             MoveBuffers[0] = new Move[GameState.MaxPossibleMoves()];
             MoveBuffers[1] = new Move[GameState.MaxPossibleMoves()];
-            TrialRunner T = new TrialRunner( 
-                ( ) => new RandomAI( MoveBuffers[0] ), 
-                ( ) => new RandomAI( MoveBuffers[1] ),
-                Deck,
-                Deck );
 
             for( int i=0; i < 2; ++i )
             {
+                TrialRunner T = new TrialRunner(
+                    ( ) => new RandomAI( MoveBuffers[0] ),
+                    ( ) => new RandomAI( MoveBuffers[1] ),
+                    DeckData,
+                    DeckData );
+
                 var Timer = System.Diagnostics.Stopwatch.StartNew( );
                 for( int j = 0; j < 50000; ++j )
                 {

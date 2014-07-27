@@ -17,7 +17,7 @@ namespace Hearthplay
         AddMana,
     }
 
-    class Card
+    class CardData
     {
         // For all cards
         public CardType Type;
@@ -33,9 +33,39 @@ namespace Hearthplay
         public int EffectParam;
     }
 
+    enum Card
+    {
+        Unknown,
+        Coin,
+        MurlocRaider,
+        BloodfenRaptor,
+        RiverCrocolisk,
+        MagmaRager,
+        ChillwindYeti,
+        OasisSnapjaw,
+        BoulderfistOgre,
+        CoreHound,
+        WarGolem
+    }
+
     static class Cards
     {
-        public static readonly Card Coin = new Card
+       public static readonly List<CardData> AllCards;
+
+        static Cards( )
+        {
+            AllCards = new List<CardData>( );
+            foreach( string Name in Enum.GetNames(typeof(Card)) )
+            {
+                AllCards.Add( (CardData) typeof( Cards ).GetField( Name ).GetValue( null ) );
+            }
+        }
+
+        public static readonly CardData Unknown = new CardData
+        {
+        };
+
+        public static readonly CardData Coin = new CardData
         {
             Type = CardType.Spell,
             Name = "Coin",
@@ -44,7 +74,7 @@ namespace Hearthplay
             EffectParam = 1
         };
 
-        public static readonly Card MurlocRaider = new Card
+        public static readonly CardData MurlocRaider = new CardData
         {
             Type = CardType.Minion,
             Name = "Murloc Raider",
@@ -52,7 +82,7 @@ namespace Hearthplay
             Attack = 2,
             Health = 1
         };
-        public static readonly Card BloodfenRaptor = new Card
+        public static readonly CardData BloodfenRaptor = new CardData
         {
             Type = CardType.Minion,
             Name = "Bloodfen Raptor",
@@ -60,7 +90,7 @@ namespace Hearthplay
             Attack = 3,
             Health = 2
         };
-        public static readonly Card RiverCrocolisk = new Card
+        public static readonly CardData RiverCrocolisk = new CardData
         {
             Type = CardType.Minion,
             Name = "River Crocolisk",
@@ -68,7 +98,7 @@ namespace Hearthplay
             Attack = 2,
             Health = 3
         };
-        public static readonly Card MagmaRager = new Card
+        public static readonly CardData MagmaRager = new CardData
         {
             Type = CardType.Minion,
             Name = "Magma Rager",
@@ -76,14 +106,14 @@ namespace Hearthplay
             Attack = 5,
             Health = 1
         };
-        public static readonly Card ChillwindYeti = new Card { 
+        public static readonly CardData ChillwindYeti = new CardData { 
             Type = CardType.Minion, 
             Name = "Chillwind Yeti", 
             ManaCost = 4, 
             Attack = 4,
             Health = 5
         };
-        public static readonly Card OasisSnapjaw = new Card
+        public static readonly CardData OasisSnapjaw = new CardData
         {
             Type = CardType.Minion,
             Name = "Oasis Snapjaw",
@@ -91,7 +121,7 @@ namespace Hearthplay
             Attack = 2,
             Health = 7
         };
-        public static readonly Card BoulderfistOgre = new Card
+        public static readonly CardData BoulderfistOgre = new CardData
         {
             Type = CardType.Minion,
             Name = "Boulderfist Ogre",
@@ -99,7 +129,7 @@ namespace Hearthplay
             Attack = 6,
             Health = 7
         };
-        public static readonly Card CoreHound = new Card
+        public static readonly CardData CoreHound = new CardData
         {
             Type = CardType.Minion,
             Name = "Core Hound",
@@ -107,7 +137,7 @@ namespace Hearthplay
             Attack = 9,
             Health = 5
         };
-        public static readonly Card WarGolem = new Card
+        public static readonly CardData WarGolem = new CardData
         {
             Type = CardType.Minion,
             Name = "War Golem",
