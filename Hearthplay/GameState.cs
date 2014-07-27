@@ -108,7 +108,7 @@ namespace Hearthplay
         {
             if( Deck.Count > 0 )
             {
-                Hand.Add( Deck.Last( ) );
+                Hand.Add( Deck[Deck.Count-1] );
                 Deck.RemoveAt( Deck.Count - 1 );
             }
             else
@@ -222,19 +222,7 @@ namespace Hearthplay
             switch( M.Type )
             {
                 case MoveType.EndTurn:
-                    PlayerToAct = Math.Abs(PlayerToAct-1);
-                    Players[PlayerToAct].DrawOne( );
-                    Players[PlayerToAct].Hero.BeginTurn( );
-                    foreach( Minion m in Players[PlayerToAct].Minions )
-                    {
-                        m.BeginTurn( );
-                    }
-
-                    // HACK before fatigue goes in
-                    if( Players[0].Deck.Count == 0 && Players[1].Deck.Count == 0 )
-                    {
-                        VictoryState = Hearthplay.VictoryState.Draw;
-                    }
+                    EndTurn( );
                     break;
                 case MoveType.Attack:
                     Attack( M.SourceIndex, M.TargetIndex );
@@ -242,6 +230,23 @@ namespace Hearthplay
                 case MoveType.PlayCard:
                     PlayCard( M.SourceIndex );
                     break;
+            }
+        }
+
+        void EndTurn( )
+        {
+            PlayerToAct = Math.Abs( PlayerToAct - 1 );
+            Players[PlayerToAct].DrawOne( );
+            Players[PlayerToAct].Hero.BeginTurn( );
+            foreach( Minion m in Players[PlayerToAct].Minions )
+            {
+                m.BeginTurn( );
+            }
+
+            // HACK before fatigue goes in
+            if( Players[0].Deck.Count == 0 && Players[1].Deck.Count == 0 )
+            {
+                VictoryState = Hearthplay.VictoryState.Draw;
             }
         }
 
