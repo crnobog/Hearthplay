@@ -13,29 +13,20 @@ namespace Hearthplay
         bool AttackedThisTurn { get; set; }
     }
 
-    class Hero : Character
+    struct Hero
     {
         public int Attack { get { return 0; } }
         public int Health { get; set; }
         public int MaxHealth;
-        public int Mana;
-        public int MaxMana;
         public bool AttackedThisTurn { get; set; }
         
         public Hero Clone( )
         {
             return (Hero)MemberwiseClone( );
         }
-
-        public void BeginTurn( )
-        {
-            MaxMana = Math.Min( MaxMana + 1, 10 );
-            Mana = MaxMana;
-            AttackedThisTurn = false;
-        }
     }
 
-    class Minion : Character
+    struct Minion
     {
         public int Attack { get; set; }
         public int Health { get; set; }
@@ -89,6 +80,8 @@ namespace Hearthplay
         public Hero Hero = new Hero();
         public List<CardData> Hand = new List<CardData>( MaxCardsInHand );
         public List<CardData> Deck;
+        public int Mana;
+        public int MaxMana;
 
         public Player( List<CardData> InDeck )
         {
@@ -103,6 +96,8 @@ namespace Hearthplay
             Hero = ToClone.Hero.Clone();
             Hand = new List<CardData>( ToClone.Hand );
             Deck = new List<CardData>( ToClone.Deck );
+            Mana = ToClone.Mana;
+            MaxMana = ToClone.MaxMana;
         }
 
         public void DrawOne( )
@@ -159,7 +154,8 @@ namespace Hearthplay
             Players[1].Hand.Add( Cards.Coin );
 
             Players[0].DrawOne( );
-            Players[0].Hero.BeginTurn( );
+            Players[0].Mana = 1;
+            Players[0].MaxMana = 1;
         }
 
         public GameState( GameState ToClone )
@@ -207,7 +203,7 @@ namespace Hearthplay
             // Play each card
             for( int i = 0; i < ToAct.Hand.Count; ++i )
             {
-                if( ToAct.Hand[i].ManaCost <= ToAct.Hero.Mana )
+                if( ToAct.Hand[i].ManaCost <= ToAct.Mana )
                 {
                     Moves[NumMoves++] = new Move { Type = MoveType.PlayCard, SourceIndex = i };
                 }
@@ -242,10 +238,14 @@ namespace Hearthplay
         {
             PlayerToAct = Math.Abs( PlayerToAct - 1 );
             Players[PlayerToAct].DrawOne( );
-            Players[PlayerToAct].Hero.BeginTurn( );
-            foreach( Minion m in Players[PlayerToAct].Minions )
+            Players[PlayerToAct].Hero.AttackedThisTurn = false;
+            Players[PlayerToAct].MaxMana = Math.Min( 10, Players[PlayerToAct].MaxMana + 1 );
+            Players[PlayerToAct].Mana = Players[PlayerToAct].MaxMana;
+            for( int i=0; i < Players[PlayerToAct].Minions.Count; ++i )
             {
+                Minion m = Players[PlayerToAct].Minions[i];
                 m.BeginTurn( );
+                Players[PlayerToAct].Minions[i] = m;
             }
 
             // HACK before fatigue goes in
@@ -260,10 +260,13 @@ namespace Hearthplay
             Player Active = Players[PlayerToAct];
             Player Opponent = Players[Math.Abs(PlayerToAct-1)];
 
-            Active.Minions[SourceIndex].Health -= Opponent.Minions[TargetIndex].Attack;
-            Opponent.Minions[TargetIndex].Health -= Active.Minions[SourceIndex].Attack;
+            Minion Attacker = Active.Minions[SourceIndex];
+            Minion Victim = Opponent.Minions[TargetIndex];
 
-            Active.Minions[SourceIndex].AttackedThisTurn = true;
+            Attacker.Health -= Victim.Attack;
+            Victim.Health -= Attacker.Attack;
+
+            Attacker.AttackedThisTurn = true;
 
             // Handle minion death
             // TODO: Refactor when handling simultaneous minion death
@@ -271,10 +274,18 @@ namespace Hearthplay
             {
                 Active.Minions.RemoveAt( SourceIndex );
             }
+            else
+            {
+                Active.Minions[SourceIndex] = Attacker;
+            }
 
             if( Opponent.Minions[TargetIndex].Health <= 0 )
             {
                 Opponent.Minions.RemoveAt( TargetIndex );
+            }
+            else
+            {
+                Opponent.Minions[TargetIndex] = Victim;
             }
         }
 
@@ -283,9 +294,12 @@ namespace Hearthplay
             Player Active = Players[PlayerToAct];
             Player Opponent = Players[Math.Abs( PlayerToAct - 1 )];
 
-            Opponent.Hero.Health -= Active.Minions[SourceIndex].Attack;
+            Minion Attacker = Active.Minions[SourceIndex];
+            Attacker.AttackedThisTurn = true;
 
-            Active.Minions[SourceIndex].AttackedThisTurn = true;
+            Opponent.Hero.Health -= Attacker.Attack;
+
+            Active.Minions[SourceIndex] = Attacker;
 
             if( Opponent.Hero.Health <= 0 )
             {
@@ -299,7 +313,7 @@ namespace Hearthplay
             CardData ToPlay = ToAct.Hand[SourceIndex];
             ToAct.Hand.RemoveAt( SourceIndex );
 
-            ToAct.Hero.Mana -= ToPlay.ManaCost;
+            ToAct.Mana -= ToPlay.ManaCost;
 
             if( ToPlay.Type == CardType.Minion )
             {
@@ -318,7 +332,7 @@ namespace Hearthplay
                 switch( ToPlay.Effect )
                 {
                     case SpellEffects.AddMana:
-                        ToAct.Hero.Mana += ToPlay.EffectParam;
+                        ToAct.Mana += ToPlay.EffectParam;
                         break;
                 }
             }
@@ -329,21 +343,23 @@ namespace Hearthplay
             Player ToAct = Players[PlayerToAct];
             Player Opponent = Players[Math.Abs(PlayerToAct-1)];
 
+            string Prefix = String.Format( "Player {0} ({1}) ({2}/{3})", PlayerToAct, ToAct.Hero.Health, ToAct.Mana, ToAct.MaxMana );
+
             switch( M.Type )
             {
                 case MoveType.EndTurn:
-                    return String.Format( "Player {0}: End turn", PlayerToAct );
+                    return String.Format( "{0}: End turn", Prefix );
                 case MoveType.AttackMinion:
-                    return String.Format( "Player {2}: Attack {0} with {1}", 
+                    return String.Format( "{2}: Attack {0} with {1}", 
                         Opponent.Minions[M.TargetIndex].Card.Name,
                         ToAct.Minions[M.SourceIndex].Card.Name ,
-                        PlayerToAct
+                        Prefix
                         );
                 case MoveType.AttackHero:
-                    return String.Format( "Player {0}: Attack opponent with {1}", PlayerToAct, ToAct.Minions[M.SourceIndex].Card.Name);
+                    return String.Format( "{0}: Attack opponent with {1}", Prefix, ToAct.Minions[M.SourceIndex].Card.Name );
                 case MoveType.PlayCard:
-                    return String.Format( "Player {1}: Play {0}", Players[PlayerToAct].Hand[M.SourceIndex].Name,
-                        PlayerToAct );
+                    return String.Format( "{1}: Play {0}", Players[PlayerToAct].Hand[M.SourceIndex].Name,
+                        Prefix );
                 default: return "???";
             }
         }
