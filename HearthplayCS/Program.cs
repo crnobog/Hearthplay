@@ -91,13 +91,13 @@ namespace Hearthplay
             {
                 TrialRunner T = new TrialRunner(
                     ( ) => new RandomAI( MoveBuffers[0] ),
-                    ( ) => new CheatingMCTS( MoveBuffers[1], 100 ),
+                    ( ) => new CheatingMCTS( MoveBuffers[1], 1000 ),
                     //( ) => new RandomAI( MoveBuffers[1] ),
                     DeckData,
                     DeckData );
 
                 var Timer = System.Diagnostics.Stopwatch.StartNew( );
-                for( int j = 0; j < 100; ++j )
+                for( int j = 0; j < 1; ++j )
                 {
                     T.RunTrial( i == 1 );
                 }
