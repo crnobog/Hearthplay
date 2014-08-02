@@ -165,6 +165,22 @@ namespace Hearthplay
             Players[1] = new Player( ToClone.Players[1] );
         }
 
+        public GameState Clone( )
+        {
+            return new GameState( this );
+        }
+
+        public void PlayOutRandomly( Random R )
+        {
+            Move[] MoveBuffer = new Move[MaxPossibleMoves()];
+            while( VictoryState == VictoryState.Undetermined )
+            {
+                int Moves = GetPossibleMoves( MoveBuffer );
+                Move M = MoveBuffer[R.Next( 0, Moves )];
+                ProcessMove( M );
+            }
+        }
+
         void Victory( int Player )
         {
             if( Player == 0 )

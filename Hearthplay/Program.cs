@@ -10,6 +10,7 @@ namespace Hearthplay
     {
         class TrialRunner
         {
+            public string[] PlayerNames = new string[2];
             Func<AI>[] CreatePlayer = new Func<AI>[2];
             CardData[][] Decks = new CardData[2][];
             public int Trials;
@@ -22,6 +23,9 @@ namespace Hearthplay
 
                 Decks[0] = DeckOne;
                 Decks[1] = DeckTwo;
+
+                PlayerNames[0] = PlayerOne().ToString();
+                PlayerNames[1] = PlayerTwo().ToString();
             }
 
             public void RunTrial( bool SwitchOrder )
@@ -34,18 +38,14 @@ namespace Hearthplay
                 Players[0] = CreatePlayer[0]( );
                 Players[1] = CreatePlayer[1]( );
                 GameState[] Views = new GameState[2];
-                Views[0] = new GameState( AuthoritativeState );
-                Views[1] = new GameState( AuthoritativeState );
 
                 while( AuthoritativeState.VictoryState == VictoryState.Undetermined )
                 {
                     int ToAct = AuthoritativeState.PlayerToAct;
                     ToAct = SwitchOrder ? Math.Abs( ToAct - 1 ) : ToAct;
-                    Move M = Players[ToAct].ChooseMove( Views[ToAct] );
+                    Move M = Players[ToAct].ChooseMove( AuthoritativeState );
                     //Console.WriteLine( AuthoritativeState.DescribeMove( M ) );
                     AuthoritativeState.ProcessMove( M );
-                    Views[0].ProcessMove( M );
-                    Views[1].ProcessMove( M );
                 }
 
                 switch( AuthoritativeState.VictoryState )
@@ -91,18 +91,19 @@ namespace Hearthplay
             {
                 TrialRunner T = new TrialRunner(
                     ( ) => new RandomAI( MoveBuffers[0] ),
-                    ( ) => new RandomAI( MoveBuffers[1] ),
+                    ( ) => new CheatingMCTS( MoveBuffers[1], 100 ),
+                    //( ) => new RandomAI( MoveBuffers[1] ),
                     DeckData,
                     DeckData );
 
                 var Timer = System.Diagnostics.Stopwatch.StartNew( );
-                for( int j = 0; j < 50000; ++j )
+                for( int j = 0; j < 100; ++j )
                 {
                     T.RunTrial( i == 1 );
                 }
                 Timer.Stop( );
-                Console.WriteLine( "Player one: {0}% ", 100 * (T.Wins[0] / (double)T.Trials) );
-                Console.WriteLine( "Player two: {0}% ", 100 * (T.Wins[1] / (double)T.Trials) );
+                Console.WriteLine( "Player one - {1}: {0}% ", 100 * (T.Wins[0] / (double)T.Trials), T.PlayerNames[0] );
+                Console.WriteLine( "Player two - {1}: {0}% ", 100 * (T.Wins[1] / (double)T.Trials), T.PlayerNames[1] );
                 Console.WriteLine( "{0} trials in {1} seconds", T.Trials, Timer.Elapsed.TotalSeconds );
             }
 
