@@ -82,11 +82,11 @@ int main(int , char** )
 		}
 		printf("Game %d result %d\n", i, game.Winner);
 		printf("Player one (random) wins: %.1f%%\n", 100.0f * wins[0] / (float)(i+1));
-		printf("Player two (cheating MCTS) wins: %.1f%%\n", 100.0f * wins[1] / (float)(i+1));
+		printf("Player two (detMCTS) wins: %.1f%%\n", 100.0f * wins[1] / (float)(i+1));
 	}
 
 	printf("Player one (random) wins: %.1f%%\n", 100.0f * wins[0] / (float)games);
-	printf("Player two (cheating MCTS) wins: %.1f%%\n", 100.0f * wins[1] / (float)games);
+	printf("Player two (detMCTS) wins: %.1f%%\n", 100.0f * wins[1] / (float)games);
 
 	getc(stdin);
 
