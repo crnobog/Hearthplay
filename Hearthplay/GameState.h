@@ -5,12 +5,15 @@
 #include <cstdint>
 #include <utility>
 
-template< typename T, unsigned _Capacity, typename SizeType >
+template< typename T, unsigned _Capacity, typename _SizeType >
 class FixedVector
 {
+public:
+	typedef _SizeType SizeType;
 	static const SizeType Capacity = _Capacity;
 
-	T Data[Capacity];
+private:
+	T Data[_Capacity];
 	SizeType Size;
 
 public:
@@ -63,6 +66,18 @@ public:
 		}
 	}
 
+	inline void RemoveOne(const T& t)
+	{
+		for (SizeType i = 0; i < Size; ++i)
+		{
+			if (Data[i] == t)
+			{
+				RemoveAt(i);
+				return;
+			}
+		}
+	}
+
 	inline void Set(const T* source, SizeType num)
 	{
 		memcpy(&Data[0], source, num * sizeof(T));
@@ -76,6 +91,18 @@ public:
 			SizeType j = (rand() % (Size - i)) + i;
 			std::swap(Data[i], Data[j]);
 		}
+	}
+
+	inline bool Contains(const T& t) const
+	{
+		for (SizeType i = 0; i < Size; ++i)
+		{
+			if (Data[i] == t)
+			{
+				return true;
+			}
+		}
+		return false;
 	}
 };
 
@@ -101,7 +128,27 @@ struct Move
 	MoveType Type;
 	uint8_t SourceIndex;
 	uint8_t TargetIndex;
+
+	inline bool operator==(const Move& m) const
+	{
+		return Type == m.Type && SourceIndex == m.SourceIndex && TargetIndex == m.TargetIndex;
+	}
+
 };
+
+inline bool operator<(const Move& l, const Move& r)
+{
+	if (l.Type == r.Type)
+	{
+		if (l.SourceIndex == r.SourceIndex)
+		{
+			return l.TargetIndex < r.TargetIndex;
+		}
+		return l.SourceIndex < r.SourceIndex;
+	}
+
+	return l.Type < r.Type;
+}
 
 struct Minion
 {
@@ -146,7 +193,7 @@ struct GameState
 	Player Players[2];
 	EWinner Winner;
 	int8_t ActivePlayerIndex;
-	FixedVector<Move, MaxPossibleMoves, uint8_t> PossibleMoves;
+	FixedVector<Move, MaxPossibleMoves, uint16_t> PossibleMoves;
 
 	GameState();
 	GameState(const GameState& other);

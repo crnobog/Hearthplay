@@ -69,6 +69,7 @@
     <ClCompile Include="DeterminizedMCTS.cpp" />
     <ClCompile Include="GameState.cpp" />
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="SO_IS_MCTS.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Cards.h" />

@@ -30,6 +30,9 @@
     <ClCompile Include="DeterminizedMCTS.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="SO_IS_MCTS.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameState.h">

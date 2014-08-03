@@ -5,7 +5,7 @@
 #include <cstdio>
 
 #if 0
-#define DEBUG_GAME(...) __VA_ARGS
+#define DEBUG_GAME(...) __VA_ARGS__
 #else
 #define DEBUG_GAME(...)
 #endif
@@ -70,7 +70,7 @@ int main(int , char** )
 			}
 			else
 			{
-				m = DeterminizedMCTS(game, 10, 100);
+				m = SO_IS_MCTS::ChooseMove(game, 1000);
 			}
 			DEBUG_GAME(game.PrintMove(m));
 			game.ProcessMove(m);
@@ -82,11 +82,11 @@ int main(int , char** )
 		}
 		printf("Game %d result %d\n", i, game.Winner);
 		printf("Player one (random) wins: %.1f%%\n", 100.0f * wins[0] / (float)(i+1));
-		printf("Player two (detMCTS) wins: %.1f%%\n", 100.0f * wins[1] / (float)(i+1));
+		printf("Player two (SO-IS-MCTS) wins: %.1f%%\n", 100.0f * wins[1] / (float)(i+1));
 	}
 
 	printf("Player one (random) wins: %.1f%%\n", 100.0f * wins[0] / (float)games);
-	printf("Player two (detMCTS) wins: %.1f%%\n", 100.0f * wins[1] / (float)games);
+	printf("Player two (SO-IS-MCTS) wins: %.1f%%\n", 100.0f * wins[1] / (float)games);
 
 	getc(stdin);
 
