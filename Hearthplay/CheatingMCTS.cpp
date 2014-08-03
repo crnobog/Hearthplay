@@ -1,4 +1,4 @@
-#include "CheatingMCTS.h"
+#include "MCTS.h"
 #include "GameState.h"
 
 #include <memory>
@@ -35,6 +35,8 @@ struct MCTSNode
 		ChosenMove = m;
 		Parent = parent;
 	}
+
+	MCTSNode(const MCTSNode& other) = delete;
 
 	inline bool HasUntriedMoves()
 	{

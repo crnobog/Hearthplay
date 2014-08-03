@@ -66,12 +66,13 @@
   <ItemGroup>
     <ClCompile Include="Cards.cpp" />
     <ClCompile Include="CheatingMCTS.cpp" />
+    <ClCompile Include="DeterminizedMCTS.cpp" />
     <ClCompile Include="GameState.cpp" />
     <ClCompile Include="Main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Cards.h" />
-    <ClInclude Include="CheatingMCTS.h" />
+    <ClInclude Include="MCTS.h" />
     <ClInclude Include="GameState.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

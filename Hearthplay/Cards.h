@@ -14,7 +14,9 @@ enum class Card
 	OasisSnapjaw,
 	BoulderfistOgre,
 	CoreHound,
-	WarGolem
+	WarGolem,
+
+	MAX
 };
 
 enum class CardType : uint8_t

@@ -1,8 +1,14 @@
 #include "GameState.h"
 #include "Cards.h"
-#include "CheatingMCTS.h"
+#include "MCTS.h"
 
 #include <cstdio>
+
+#if 0
+#define DEBUG_GAME(...) __VA_ARGS
+#else
+#define DEBUG_GAME(...)
+#endif
 
 GameState SetupGame(const Card (&deck)[30] )
 {
@@ -52,9 +58,11 @@ int main(int , char** )
 		GameState game = SetupGame(deck);
 		while (game.Winner == EWinner::Undetermined)
 		{
-			//printf("\n");
-			//game.PrintState();
-			//printf("\n");
+			DEBUG_GAME( 
+				printf("\n");
+				game.PrintState();
+				printf("\n");
+			)
 			Move m;
 			if (game.ActivePlayerIndex == 0)
 			{
@@ -62,9 +70,9 @@ int main(int , char** )
 			}
 			else
 			{
-				m = CheatingMCTS(game, 100);
+				m = DeterminizedMCTS(game, 10, 100);
 			}
-			//game.PrintMove(m);
+			DEBUG_GAME(game.PrintMove(m));
 			game.ProcessMove(m);
 		}
 

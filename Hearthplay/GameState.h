@@ -69,7 +69,7 @@ public:
 		Size = num;
 	}
 
-	inline void Shuffle()
+	inline void Shuffle() // TODO: Use ,random>
 	{
 		for (SizeType i = 0; i < Size; ++i)
 		{
@@ -145,7 +145,7 @@ struct GameState
 
 	Player Players[2];
 	EWinner Winner;
-	uint8_t ActivePlayerIndex;
+	int8_t ActivePlayerIndex;
 	FixedVector<Move, MaxPossibleMoves, uint8_t> PossibleMoves;
 
 	GameState();

@@ -27,6 +27,9 @@
     <ClCompile Include="CheatingMCTS.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="DeterminizedMCTS.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameState.h">
@@ -35,7 +38,7 @@
     <ClInclude Include="Cards.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CheatingMCTS.h">
+    <ClInclude Include="MCTS.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

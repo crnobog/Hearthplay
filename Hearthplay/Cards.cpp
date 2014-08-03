@@ -1,5 +1,7 @@
 #include "Cards.h"
 
+#include <random>
+
 const CardData AllCards[] = {
 	{}, // Unknown,
 	{ CardType::Spell, 0, "The Coin", 0, 0 }, // Coin
