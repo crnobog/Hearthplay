@@ -3,6 +3,8 @@ Hearthplay
 
 Monte Carlo Tree Search for Hearthstone.
 
+## Results
+
 | Matchup | Player One Wins | Player Two Wins | Draws |
 | ------------- | ------------- | ------------- | ------------- |
 | Random vs Random  | 560 | 435 | 5 |
@@ -22,6 +24,15 @@ Monte Carlo Tree Search for Hearthstone.
 | SO-IS-MCTS vs DetMCTS      |  808  | 192  | 0 |
 | SO-IS-MCTS vs SO-IS-MCTS   |  822  | 178  | 0 |
 
-          
-        
+## Implemented Cards
 
+* The Coin
+* Murloc Raider
+* Bloodfen Raptor
+* River Crocolisk
+* Magma Rager
+* Chillwind Yeti
+* Oasis Snapjaw
+* Boulderfist Ogre
+* Core Hound
+* War Golem        
