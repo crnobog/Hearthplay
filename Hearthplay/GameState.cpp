@@ -101,7 +101,7 @@ void GameState::PlayCard(uint8_t SourceIndex, uint8_t /*TargetIndex*/)
 {
 	Player& ToAct = Players[ActivePlayerIndex];
 	const CardData* ToPlay = GetCardData(ToAct.Hand[SourceIndex]);
-	ToAct.Hand.RemoveAt(SourceIndex); // TODO: RemoveSwap?
+	ToAct.Hand.RemoveSwap(SourceIndex);
 
 	ToAct.Mana -= ToPlay->ManaCost;
 
