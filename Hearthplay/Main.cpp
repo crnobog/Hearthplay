@@ -1,9 +1,9 @@
 #include "GameState.h"
 #include "Cards.h"
 #include "MCTS.h"
+#include "Clock.h"
 
 #include <cstdio>
-#include <chrono>
 #include <random>
 
 #if 0
@@ -15,6 +15,7 @@
 std::random_device GlobalRandomDevice;
 
 typedef Move (*PlayFunction)(const GameState&);
+
 
 enum class AIType
 {
@@ -154,12 +155,23 @@ void AITournament(const Card (&deck)[30])
 {
 	std::mt19937 r(GlobalRandomDevice());
 	PlayResults results;
-	for (AIType player_one = AIType::Random; player_one != AIType::MAX; player_one = (AIType)(1 + (int)player_one))
+	for (int i = 0; i < 1000; ++i)
 	{
-		for (AIType player_two = AIType::Random; player_two != AIType::MAX; player_two = (AIType)(1 + (int)player_two))
+		for (AIType player_one = AIType::Random; player_one != AIType::MAX; player_one = (AIType)(1 + (int)player_one))
 		{
-			EWinner winner = PlayGame(r, deck, player_one, player_two);
-			results.AddResult(player_one, player_two, winner);
+			for (AIType player_two = AIType::Random; player_two != AIType::MAX; player_two = (AIType)(1 + (int)player_two))
+			{
+				auto t1 = HighResClock::now();
+				EWinner winner = PlayGame(r, deck, player_one, player_two);
+				auto t2 = HighResClock::now();
+				auto duration = std::chrono::duration_cast<std::chrono::milliseconds>( t2 - t1 );
+				printf("%s vs %s - Game finished in %.2f seconds - winner %d\n",
+					AINames[(int)player_one],
+					AINames[(int)player_two],
+					duration.count() / 1000.0f,
+					(int)winner );
+				results.AddResult(player_one, player_two, winner);
+			}
 		}
 	}
 
@@ -193,9 +205,11 @@ int main(int , char** )
 	};
 
 	std::mt19937 r(GlobalRandomDevice());
-	//AITournament(deck);
-	PlayGame(r, deck, AIType::SO_IS_MCTS, AIType::SO_IS_MCTS);
+	AITournament(deck);
+	//PlayGame(r, deck, AIType::SO_IS_MCTS, AIType::SO_IS_MCTS);
 	//BenchmarkRandomPlay(deck);
+
+	//getc(stdin);
 
 	return 0;
 }
