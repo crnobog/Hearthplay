@@ -10,8 +10,8 @@ namespace SO_IS_MCTS
 		MCTSNode* Parent;
 		Move ChosenMove; // The move that got us here from parent
 
-		std::unique_ptr<MCTSNode> Child;
-		std::unique_ptr<MCTSNode> Sibling;
+		MCTSNode* Child;
+		MCTSNode* Sibling;
 
 		uint32_t Visits;
 		uint32_t Wins;
@@ -41,7 +41,7 @@ namespace SO_IS_MCTS
 		inline auto GetUntriedMoves(const GameState& game) -> decltype(GameState::PossibleMoves)
 		{
 			auto moves = game.PossibleMoves;
-			for (MCTSNode* node = Child.get(); node; node = node->Sibling.get())
+			for (MCTSNode* node = Child; node; node = node->Sibling)
 			{
 				decltype(moves.Num()) idx;
 				if (moves.Find(node->ChosenMove, idx))
@@ -59,7 +59,7 @@ namespace SO_IS_MCTS
 
 		inline bool HasChildren()
 		{
-			return Child.get() != nullptr;
+			return Child != nullptr;
 		}
 
 		inline MCTSNode* UCTSelectChild( const GameState& state )
@@ -67,7 +67,7 @@ namespace SO_IS_MCTS
 			MCTSNode* best_child = nullptr;
 			float best_score = -1.0f;
 
-			for (MCTSNode* node = Child.get(); node; node = node->Sibling.get())
+			for (MCTSNode* node = Child; node; node = node->Sibling)
 			{
 				if (!state.PossibleMoves.Contains(node->ChosenMove))
 				{
@@ -93,26 +93,25 @@ namespace SO_IS_MCTS
 			return moves[dist(r)];
 		}
 
-		inline MCTSNode* AddChild(Move m)
+		inline MCTSNode* AddChild(Move m, MCTSNode* store)
 		{
-			std::unique_ptr<MCTSNode> new_node = std::make_unique<MCTSNode>(this, m);
-			if (Child.get() == nullptr)
+			MCTSNode* new_node = new(store) MCTSNode(this, m); // TODO placement
+			if (Child == nullptr)
 			{
-				Child = std::move(new_node);
-				return Child.get();
+				Child = new_node;
 			}
 			else
 			{
-				for (MCTSNode* node = Child.get(); node; node = node->Sibling.get())
+				for (MCTSNode* node = Child; node; node = node->Sibling)
 				{
-					if (node->Sibling.get() == nullptr)
+					if (node->Sibling == nullptr)
 					{
-						node->Sibling = std::move(new_node);
-						return node->Sibling.get();
+						node->Sibling = new_node;
+						break;
 					}
 				}
 			}
-			return nullptr; // Impossible
+			return new_node;
 		}
 	};
 
@@ -153,6 +152,9 @@ namespace SO_IS_MCTS
 		std::mt19937 r(GlobalRandomDevice());
 		MCTSNode root;
 
+		MCTSNode* store = (MCTSNode*)malloc(sizeof(MCTSNode) * iterations);
+		MCTSNode* store_head = store;
+
 		for (unsigned iter = 0; iter < iterations; ++iter)
 		{
 			GameState sim_state = Determinize(game, r);
@@ -164,7 +166,7 @@ namespace SO_IS_MCTS
 				MCTSNode* next_node = node->UCTSelectChild(sim_state);
 
 				// Update availability
-				for (MCTSNode* avail_node = node->Child.get(); avail_node; avail_node = avail_node->Sibling.get())
+				for (MCTSNode* avail_node = node->Child; avail_node; avail_node = avail_node->Sibling)
 				{
 					if (sim_state.PossibleMoves.Contains(avail_node->ChosenMove))
 					{
@@ -180,7 +182,7 @@ namespace SO_IS_MCTS
 			if (node->HasUntriedMoves(sim_state))
 			{
 				Move m = node->ChooseRandomUntriedMove(sim_state, r);
-				for (MCTSNode* avail_node = node->Child.get(); avail_node; avail_node = avail_node->Sibling.get())
+				for (MCTSNode* avail_node = node->Child; avail_node; avail_node = avail_node->Sibling)
 				{
 					if (sim_state.PossibleMoves.Contains(avail_node->ChosenMove))
 					{
@@ -189,7 +191,8 @@ namespace SO_IS_MCTS
 				}
 
 				sim_state.ProcessMove(m);
-				node = node->AddChild(m);
+				node = node->AddChild(m, store_head);
+				store_head += 1;
 				node->Availability++;
 			}
 
@@ -210,7 +213,7 @@ namespace SO_IS_MCTS
 		MCTSNode* best_node = nullptr;
 		uint32_t best_visits = 0;
 
-		for (MCTSNode* node = root.Child.get(); node; node = node->Sibling.get())
+		for (MCTSNode* node = root.Child; node; node = node->Sibling)
 		{
 			if (node->Visits > best_visits)
 			{
@@ -219,7 +222,9 @@ namespace SO_IS_MCTS
 			}
 		}
 
-		return best_node->ChosenMove;
+		Move m = best_node->ChosenMove;
+		free(store);
+		return m;
 	}
 
 }
