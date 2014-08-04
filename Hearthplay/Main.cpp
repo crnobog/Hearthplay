@@ -3,12 +3,99 @@
 #include "MCTS.h"
 
 #include <cstdio>
+#include <chrono>
 
 #if 0
 #define DEBUG_GAME(...) __VA_ARGS__
 #else
 #define DEBUG_GAME(...)
 #endif
+
+typedef Move (*PlayFunction)(const GameState&);
+
+enum class AIType
+{
+	Random,
+	CheatingMCTS,
+	DeterminizedMCTS,
+	SO_IS_MCTS,
+
+	MAX
+};
+
+const char* AINames[] = {
+	"Random",
+	"CheatingMCTS",
+	"DetMCTS",
+	"SO-IS-MCTS",
+};
+
+struct PairingResults
+{
+	uint32_t PlayerOneWins;
+	uint32_t PlayerTwoWins;
+	uint32_t Draws;
+};
+
+struct PlayResults
+{
+	PairingResults Results[(uint32_t)AIType::MAX * (uint32_t)AIType::MAX];
+
+	PlayResults()
+	{
+		memset(&Results, 0, sizeof(Results));
+	}
+
+	void AddResult(AIType player_one, AIType player_two, EWinner Winner)
+	{
+		PairingResults& res = Results[(uint32_t)player_two * (uint32_t)AIType::MAX + (uint32_t)player_one];
+		switch (Winner)
+		{
+		case EWinner::PlayerOne:
+			res.PlayerOneWins++;
+			break;
+		case EWinner::PlayerTwo:
+			res.PlayerTwoWins++;
+			break;
+		case EWinner::Draw:
+			res.Draws++;
+			break;
+		}
+	}
+
+	void Print()
+	{
+		for (AIType player_one = AIType::Random; player_one != AIType::MAX; player_one = (AIType)(1 + (int)player_one))
+		{
+			for (AIType player_two = AIType::Random; player_two != AIType::MAX; player_two = (AIType)(1 + (int)player_two))
+			{
+				PairingResults& res = Results[(uint32_t)player_two * (uint32_t)AIType::MAX + (uint32_t)player_one];
+				if (res.Draws + res.PlayerOneWins + res.PlayerTwoWins != 0)
+				{
+					printf("%s vs %s %d/%d/%d\n",
+						AINames[(int)player_one],
+						AINames[(int)player_two],
+						res.PlayerOneWins, res.PlayerTwoWins, res.Draws
+						);
+				}
+			}
+		}
+	}
+};
+
+Move PlayRandomMove(const GameState& state)
+{
+	uint16_t idx = rand() % state.PossibleMoves.Num();
+	return state.PossibleMoves[idx];
+}
+
+PlayFunction PlayFunctions[] = 
+{
+	PlayRandomMove,
+	[](const GameState& state) { return CheatingMCTS::ChooseMove(state, 1000); },
+	[](const GameState& state) { return DeterminizedMCTS::ChooseMove(state, 10, 100); },
+	[](const GameState& state) { return SO_IS_MCTS::ChooseMove(state, 1000); },
+};
 
 GameState SetupGame(const Card (&deck)[30] )
 {
@@ -35,6 +122,50 @@ GameState SetupGame(const Card (&deck)[30] )
 	return game;
 }
 
+void AITournament(const Card (&deck)[30])
+{
+	PlayResults results;
+	for (AIType player_one = AIType::Random; player_one != AIType::MAX; player_one = (AIType)(1 + (int)player_one))
+	{
+		for (AIType player_two = AIType::Random; player_two != AIType::MAX; player_two = (AIType)(1 + (int)player_two))
+		{
+			GameState game = SetupGame(deck);
+			while (game.Winner == EWinner::Undetermined)
+			{
+				DEBUG_GAME(
+					printf("\n");
+				game.PrintState();
+				printf("\n");
+				)
+					Move m;
+				if (game.ActivePlayerIndex == 0)
+				{
+					m = PlayFunctions[(int)player_one](game);
+				}
+				else
+				{
+					m = PlayFunctions[(int)player_two](game);
+				}
+				DEBUG_GAME(game.PrintMove(m));
+				game.ProcessMove(m);
+			}
+
+			results.AddResult(player_one, player_two, game.Winner);
+		}
+	}
+
+	results.Print();
+}
+
+void BenchmarkRandomPlay(const Card(&deck)[30])
+{
+	for (int i = 0; i < 1000; ++i)
+	{
+		GameState game = SetupGame(deck);
+		game.PlayOutRandomly();
+	}
+}
+
 int main(int , char** )
 {
 	Card deck[] =
@@ -51,44 +182,8 @@ int main(int , char** )
 		Card::WarGolem, Card::WarGolem, Card::WarGolem,
 	};
 
-	const int games = 1000;
-	int wins[2] = { 0, 0 };
-	for (int i = 0; i < games; ++i)
-	{
-		GameState game = SetupGame(deck);
-		while (game.Winner == EWinner::Undetermined)
-		{
-			DEBUG_GAME( 
-				printf("\n");
-				game.PrintState();
-				printf("\n");
-			)
-			Move m;
-			if (game.ActivePlayerIndex == 0)
-			{
-				m = game.PossibleMoves[rand() % game.PossibleMoves.Num()];
-			}
-			else
-			{
-				m = SO_IS_MCTS::ChooseMove(game, 1000);
-			}
-			DEBUG_GAME(game.PrintMove(m));
-			game.ProcessMove(m);
-		}
-
-		if (game.Winner != EWinner::Draw)
-		{
-			wins[(uint8_t)game.Winner]++;
-		}
-		printf("Game %d result %d\n", i, game.Winner);
-		printf("Player one (random) wins: %.1f%%\n", 100.0f * wins[0] / (float)(i+1));
-		printf("Player two (SO-IS-MCTS) wins: %.1f%%\n", 100.0f * wins[1] / (float)(i+1));
-	}
-
-	printf("Player one (random) wins: %.1f%%\n", 100.0f * wins[0] / (float)games);
-	printf("Player two (SO-IS-MCTS) wins: %.1f%%\n", 100.0f * wins[1] / (float)games);
-
-	getc(stdin);
+	AITournament(deck);
+	//BenchmarkRandomPlay(deck);
 
 	return 0;
 }
