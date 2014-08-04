@@ -111,9 +111,6 @@ namespace DeterminizedMCTS
 		}
 	};
 
-	std::uniform_int_distribution<uint16_t> hand_distribution((unsigned)Card::Coin, (unsigned)Card::MAX - 1);
-	std::uniform_int_distribution<uint16_t> deck_distribution((unsigned)Card::Coin + 1, (unsigned)Card::MAX - 1);
-
 	static GameState Determinize(const GameState& game, std::mt19937& r)
 	{
 		GameState new_state(game);
@@ -122,10 +119,15 @@ namespace DeterminizedMCTS
 		Player& active = new_state.Players[new_state.ActivePlayerIndex];
 		Player& opponent = new_state.Players[opponent_idx];
 
+		std::uniform_int_distribution<uint32_t> hand_distribution(0, DeckPossibleCards.size() );
+		std::uniform_int_distribution<uint32_t> deck_distribution(0, DeckPossibleCards.size() - 1);
+
 		// Randomize cards in opponent's hand
 		for (uint8_t i = 0; i < opponent.Hand.Num(); ++i)
 		{
-			opponent.Hand[i] = (Card)hand_distribution(r);
+			auto idx = hand_distribution(r);
+			Card c = idx == DeckPossibleCards.size() ? Card::Coin : DeckPossibleCards[idx];
+			opponent.Hand[i] = c;
 		}
 
 		// Shuffle my deck
@@ -134,7 +136,8 @@ namespace DeterminizedMCTS
 		// Randomize opponent's deck
 		for (uint8_t i = 0; i < opponent.Deck.Num(); ++i)
 		{
-			opponent.Deck[i] = (Card)deck_distribution(r);
+			Card c = DeckPossibleCards[deck_distribution(r)];
+			opponent.Deck[i] = c;
 		}
 
 		// This should not have actually changed the possible moves, but just to be safe against future changes
