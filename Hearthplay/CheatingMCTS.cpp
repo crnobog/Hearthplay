@@ -98,6 +98,8 @@ namespace CheatingMCTS
 
 	Move ChooseMove(const GameState& game, unsigned Iterations)
 	{
+		std::mt19937 r(GlobalRandomDevice());
+
 		MCTSNode root(game);
 		for (unsigned iter = 0; iter < Iterations; ++iter)
 		{
@@ -123,7 +125,7 @@ namespace CheatingMCTS
 				node = node->AddChild(m, sim_state);
 			}
 
-			sim_state.PlayOutRandomly();
+			sim_state.PlayOutRandomly(r);
 			bool won = sim_state.Winner == (EWinner)game.ActivePlayerIndex;
 			MCTS_DEBUG(printf( "Simulation result: %d\n", sim_state.Winner));
 

@@ -43,7 +43,11 @@ namespace SO_IS_MCTS
 			auto moves = game.PossibleMoves;
 			for (MCTSNode* node = Child.get(); node; node = node->Sibling.get())
 			{
-				moves.RemoveOne(node->ChosenMove);
+				decltype(moves.Num()) idx;
+				if (moves.Find(node->ChosenMove, idx))
+				{
+					moves.RemoveSwap(idx);
+				}
 			}
 			return moves;
 		}
@@ -112,18 +116,16 @@ namespace SO_IS_MCTS
 		}
 	};
 
-	static GameState Determinize(const GameState& game)
+	std::uniform_int_distribution<uint32_t> hand_distribution((unsigned)Card::Coin, (unsigned)Card::MAX - 1);
+	std::uniform_int_distribution<uint32_t> deck_distribution((unsigned)Card::Coin + 1, (unsigned)Card::MAX - 1);
+
+	static GameState Determinize(const GameState& game, std::mt19937& r)
 	{
 		GameState new_state(game);
 
 		int8_t opponent_idx = (int8_t)abs(new_state.ActivePlayerIndex - 1);
 		Player& active = new_state.Players[new_state.ActivePlayerIndex];
 		Player& opponent = new_state.Players[opponent_idx];
-
-		std::random_device rd;
-		std::mt19937 r(rd());
-		std::uniform_int_distribution<uint32_t> hand_distribution((unsigned)Card::Coin, (unsigned)Card::MAX - 1);
-		std::uniform_int_distribution<uint32_t> deck_distribution((unsigned)Card::Coin + 1, (unsigned)Card::MAX - 1);
 
 		// Randomize cards in opponent's hand
 		for (uint8_t i = 0; i < opponent.Hand.Num(); ++i)
@@ -132,7 +134,7 @@ namespace SO_IS_MCTS
 		}
 
 		// Shuffle my deck
-		active.Deck.Shuffle();
+		active.Deck.Shuffle(r);
 
 		// Randomize opponent's deck
 		for (uint8_t i = 0; i < opponent.Deck.Num(); ++i)
@@ -148,13 +150,12 @@ namespace SO_IS_MCTS
 
 	Move ChooseMove(const GameState& game, unsigned iterations)
 	{
-		std::random_device rd;
-		std::mt19937 r(rd());
+		std::mt19937 r(GlobalRandomDevice());
 		MCTSNode root;
 
 		for (unsigned iter = 0; iter < iterations; ++iter)
 		{
-			GameState sim_state = Determinize(game);
+			GameState sim_state = Determinize(game, r);
 
 			// Selection
 			MCTSNode* node = &root;
@@ -193,7 +194,7 @@ namespace SO_IS_MCTS
 			}
 
 			// Simulation
-			sim_state.PlayOutRandomly();
+			sim_state.PlayOutRandomly(r);
 		
 			// Backpropagation
 			bool won = sim_state.Winner == (EWinner)game.ActivePlayerIndex;

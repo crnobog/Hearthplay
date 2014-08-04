@@ -3,7 +3,10 @@
 #include "Cards.h"
 
 #include <cstdint>
+#include <random>
 #include <utility>
+
+extern std::random_device GlobalRandomDevice;
 
 template< typename T, unsigned _Capacity, typename _SizeType >
 class FixedVector
@@ -66,6 +69,12 @@ public:
 		}
 	}
 
+	inline void RemoveSwap(SizeType Index)
+	{
+		std::swap(Data[Index], Data[Size-1]);
+		--Size;
+	}
+
 	inline void RemoveOne(const T& t)
 	{
 		for (SizeType i = 0; i < Size; ++i)
@@ -84,11 +93,12 @@ public:
 		Size = num;
 	}
 
-	inline void Shuffle() // TODO: Use ,random>
+	inline void Shuffle( std::mt19937& r ) // TODO: Use ,random>
 	{
 		for (SizeType i = 0; i < Size; ++i)
 		{
-			SizeType j = (rand() % (Size - i)) + i;
+			std::uniform_int_distribution<uint32_t> dist(i, Size - 1); // Ideally use a template to generate shorts when SizeType is char
+			SizeType j = (SizeType)dist(r);
 			std::swap(Data[i], Data[j]);
 		}
 	}
@@ -99,6 +109,19 @@ public:
 		{
 			if (Data[i] == t)
 			{
+				return true;
+			}
+		}
+		return false;
+	}
+
+	inline bool Find(const T& t, SizeType& idx) const
+	{
+		for (SizeType i = 0; i < Size; ++i)
+		{
+			if (Data[i] == t)
+			{
+				idx = i;
 				return true;
 			}
 		}
@@ -199,7 +222,7 @@ struct GameState
 	GameState(const GameState& other);
 
 	void ProcessMove(const Move& m);
-	void PlayOutRandomly();
+	void PlayOutRandomly( std::mt19937& r );
 	void UpdatePossibleMoves();
 
 	void PrintMove(const Move& m) const;

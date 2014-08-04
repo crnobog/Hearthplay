@@ -111,7 +111,10 @@ namespace DeterminizedMCTS
 		}
 	};
 
-	static GameState Determinize(const GameState& game)
+	std::uniform_int_distribution<uint16_t> hand_distribution((unsigned)Card::Coin, (unsigned)Card::MAX - 1);
+	std::uniform_int_distribution<uint16_t> deck_distribution((unsigned)Card::Coin + 1, (unsigned)Card::MAX - 1);
+
+	static GameState Determinize(const GameState& game, std::mt19937& r)
 	{
 		GameState new_state(game);
 
@@ -119,11 +122,6 @@ namespace DeterminizedMCTS
 		Player& active = new_state.Players[new_state.ActivePlayerIndex];
 		Player& opponent = new_state.Players[opponent_idx];
 
-		std::random_device rd;
-		std::mt19937 r(rd());
-		std::uniform_int_distribution<uint32_t> hand_distribution((unsigned)Card::Coin, (unsigned)Card::MAX - 1);
-		std::uniform_int_distribution<uint32_t> deck_distribution((unsigned)Card::Coin + 1, (unsigned)Card::MAX - 1);
-	
 		// Randomize cards in opponent's hand
 		for (uint8_t i = 0; i < opponent.Hand.Num(); ++i)
 		{
@@ -131,7 +129,7 @@ namespace DeterminizedMCTS
 		}
 
 		// Shuffle my deck
-		active.Deck.Shuffle();
+		active.Deck.Shuffle(r);
 
 		// Randomize opponent's deck
 		for (uint8_t i = 0; i < opponent.Deck.Num(); ++i)
@@ -147,11 +145,12 @@ namespace DeterminizedMCTS
 
 	Move ChooseMove(const GameState& game, unsigned num_determinizations, unsigned num_iterations)
 	{
+		std::mt19937 r(GlobalRandomDevice());
 		std::map<Move, uint32_t> move_visits;
 
 		for (unsigned det = 0; det < num_determinizations; ++det)
 		{
-			GameState det_game = Determinize(game); // TODO: Determinize
+			GameState det_game = Determinize(game, r); // TODO: Determinize
 			MCTSNode root(det_game);
 
 			for (unsigned iter = 0; iter < num_iterations; ++iter)
@@ -178,7 +177,7 @@ namespace DeterminizedMCTS
 					node = node->AddChild(m, sim_state);
 				}
 
-				sim_state.PlayOutRandomly();
+				sim_state.PlayOutRandomly(r);
 				bool won = sim_state.Winner == (EWinner)game.ActivePlayerIndex;
 				MCTS_DEBUG(printf("Simulation result: %d\n", sim_state.Winner));
 

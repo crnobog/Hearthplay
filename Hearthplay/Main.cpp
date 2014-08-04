@@ -4,12 +4,15 @@
 
 #include <cstdio>
 #include <chrono>
+#include <random>
 
 #if 0
 #define DEBUG_GAME(...) __VA_ARGS__
 #else
 #define DEBUG_GAME(...)
 #endif
+
+std::random_device GlobalRandomDevice;
 
 typedef Move (*PlayFunction)(const GameState&);
 
@@ -97,13 +100,13 @@ PlayFunction PlayFunctions[] =
 	[](const GameState& state) { return SO_IS_MCTS::ChooseMove(state, 1000); },
 };
 
-GameState SetupGame(const Card (&deck)[30] )
+GameState SetupGame(const Card (&deck)[30], std::mt19937& r)
 {
 	GameState game;
 	game.Players[0].Deck.Set(deck, sizeof(deck) / sizeof(Card));
-	game.Players[0].Deck.Shuffle();
+	game.Players[0].Deck.Shuffle(r);
 	game.Players[1].Deck.Set(deck, sizeof(deck) / sizeof(Card));
-	game.Players[1].Deck.Shuffle();
+	game.Players[1].Deck.Shuffle(r);
 
 	game.Players[0].DrawOne();
 	game.Players[0].DrawOne();
@@ -122,9 +125,9 @@ GameState SetupGame(const Card (&deck)[30] )
 	return game;
 }
 
-EWinner PlayGame(const Card(&deck)[30], AIType player_one, AIType player_two)
+EWinner PlayGame(std::mt19937& r, const Card(&deck)[30], AIType player_one, AIType player_two)
 {
-	GameState game = SetupGame(deck);
+	GameState game = SetupGame(deck, r);
 	while (game.Winner == EWinner::Undetermined)
 	{
 		DEBUG_GAME(
@@ -149,12 +152,13 @@ EWinner PlayGame(const Card(&deck)[30], AIType player_one, AIType player_two)
 
 void AITournament(const Card (&deck)[30])
 {
+	std::mt19937 r(GlobalRandomDevice());
 	PlayResults results;
 	for (AIType player_one = AIType::Random; player_one != AIType::MAX; player_one = (AIType)(1 + (int)player_one))
 	{
 		for (AIType player_two = AIType::Random; player_two != AIType::MAX; player_two = (AIType)(1 + (int)player_two))
 		{
-			EWinner winner = PlayGame(deck, player_one, player_two);
+			EWinner winner = PlayGame(r, deck, player_one, player_two);
 			results.AddResult(player_one, player_two, winner);
 		}
 	}
@@ -164,10 +168,11 @@ void AITournament(const Card (&deck)[30])
 
 void BenchmarkRandomPlay(const Card(&deck)[30])
 {
+	std::mt19937 r(GlobalRandomDevice());
 	for (int i = 0; i < 1000; ++i)
 	{
-		GameState game = SetupGame(deck);
-		game.PlayOutRandomly();
+		GameState game = SetupGame(deck, r);
+		game.PlayOutRandomly(r);
 	}
 }
 
@@ -187,8 +192,9 @@ int main(int , char** )
 		Card::WarGolem, Card::WarGolem, Card::WarGolem,
 	};
 
+	std::mt19937 r(GlobalRandomDevice());
 	//AITournament(deck);
-	PlayGame(deck, AIType::SO_IS_MCTS, AIType::SO_IS_MCTS);
+	PlayGame(r, deck, AIType::SO_IS_MCTS, AIType::SO_IS_MCTS);
 	//BenchmarkRandomPlay(deck);
 
 	return 0;

@@ -1,6 +1,7 @@
 #include "GameState.h"
 
 #include <memory>
+#include <random>
 #include <algorithm>
 
 GameState::GameState()
@@ -30,11 +31,13 @@ void GameState::ProcessMove(const Move& m)
 	UpdatePossibleMoves();
 }
 
-void GameState::PlayOutRandomly()
+void GameState::PlayOutRandomly( std::mt19937& r )
 {
 	while (Winner == EWinner::Undetermined)
 	{
-		ProcessMove(PossibleMoves[rand() % PossibleMoves.Num()]);
+		std::uniform_int_distribution<decltype(PossibleMoves.Num())> move_dist(0, PossibleMoves.Num() - 1);
+		auto idx = move_dist(r);
+		ProcessMove(PossibleMoves[idx]);
 	}
 }
 
