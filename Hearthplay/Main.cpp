@@ -122,6 +122,31 @@ GameState SetupGame(const Card (&deck)[30] )
 	return game;
 }
 
+EWinner PlayGame(const Card(&deck)[30], AIType player_one, AIType player_two)
+{
+	GameState game = SetupGame(deck);
+	while (game.Winner == EWinner::Undetermined)
+	{
+		DEBUG_GAME(
+			printf("\n");
+		game.PrintState();
+		printf("\n");
+		)
+			Move m;
+		if (game.ActivePlayerIndex == 0)
+		{
+			m = PlayFunctions[(int)player_one](game);
+		}
+		else
+		{
+			m = PlayFunctions[(int)player_two](game);
+		}
+		DEBUG_GAME(game.PrintMove(m));
+		game.ProcessMove(m);
+	}
+	return game.Winner;
+}
+
 void AITournament(const Card (&deck)[30])
 {
 	PlayResults results;
@@ -129,28 +154,8 @@ void AITournament(const Card (&deck)[30])
 	{
 		for (AIType player_two = AIType::Random; player_two != AIType::MAX; player_two = (AIType)(1 + (int)player_two))
 		{
-			GameState game = SetupGame(deck);
-			while (game.Winner == EWinner::Undetermined)
-			{
-				DEBUG_GAME(
-					printf("\n");
-				game.PrintState();
-				printf("\n");
-				)
-					Move m;
-				if (game.ActivePlayerIndex == 0)
-				{
-					m = PlayFunctions[(int)player_one](game);
-				}
-				else
-				{
-					m = PlayFunctions[(int)player_two](game);
-				}
-				DEBUG_GAME(game.PrintMove(m));
-				game.ProcessMove(m);
-			}
-
-			results.AddResult(player_one, player_two, game.Winner);
+			EWinner winner = PlayGame(deck, player_one, player_two);
+			results.AddResult(player_one, player_two, winner);
 		}
 	}
 
@@ -182,7 +187,8 @@ int main(int , char** )
 		Card::WarGolem, Card::WarGolem, Card::WarGolem,
 	};
 
-	AITournament(deck);
+	//AITournament(deck);
+	PlayGame(deck, AIType::SO_IS_MCTS, AIType::SO_IS_MCTS);
 	//BenchmarkRandomPlay(deck);
 
 	return 0;
