@@ -4,7 +4,7 @@ Hearthplay
 Monte Carlo Tree Search for Hearthstone.
 
 | Matchup | Player One Wins | Player Two Wins | Draws |
-| ------------- | ------------- |
+| ------------- | ------------- | ------------- | ------------- |
 | Random vs Random  | 560 | 435 | 5 |
 | Random vs CheatingMCTS  | 0 | 1000 | 0 |
 | Random vs DetMCTS  | 0 | 1000 | 0 |
