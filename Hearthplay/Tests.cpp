@@ -42,77 +42,88 @@ bool MovePossible(const GameState& g, Move m)
 	return g.PossibleMoves.Contains(m);
 }
 
+typedef bool(*TestFunc)();
 
-
-bool Test_PlayerOne_Win_MinionAttackHero()
+struct TestCase
 {
-	GameState g;
-	g.ActivePlayerIndex = 0;
-	g.Players[1].Health = 2;
+	const char* Name;
+	TestFunc Func;
+};
 
-	AddMinionReadyToAttack(g, 0, Card::MurlocRaider);
+TestCase Tests[] = {
+		{ "PlayerOne_Win_MinionAttackHero", []( ) 
+			{
+				GameState g;
+				g.ActivePlayerIndex = 0;
+				g.Players[1].Health = 2;
 
-	g.UpdatePossibleMoves();
+				AddMinionReadyToAttack(g, 0, Card::MurlocRaider);
 
-	CHECK(CheckAndProcessMove(g, Move::AttackHero(0)));
-	CHECK(g.Winner == EWinner::PlayerOne);
+				g.UpdatePossibleMoves( );
 
-	return true;
-}
+				CHECK(CheckAndProcessMove(g, Move::AttackHero(0)));
+				CHECK(g.Winner == EWinner::PlayerOne);
 
-bool Test_PlayerTwo_Win_MinionAttackHero()
-{
-	GameState g;
-	g.ActivePlayerIndex = 1;
-	g.Players[0].Health = 2;
+				return true;
+			}
+		},
+		{
+			"PlayerTwo_Win_MinionAttackHero", []( ) 
+			{
+				GameState g;
+				g.ActivePlayerIndex = 1;
+				g.Players[0].Health = 2;
 
-	AddMinionReadyToAttack(g, 1, Card::MurlocRaider);
+				AddMinionReadyToAttack(g, 1, Card::MurlocRaider);
 
-	g.UpdatePossibleMoves( );
+				g.UpdatePossibleMoves( );
 
-	CHECK(CheckAndProcessMove(g, Move::AttackHero(0)));
-	CHECK(g.Winner == EWinner::PlayerTwo);
-	return true;
-}
+				CHECK(CheckAndProcessMove(g, Move::AttackHero(0)));
+				CHECK(g.Winner == EWinner::PlayerTwo);
+				return true;
 
-bool Test_Charge_MinionAttack_AttackHero( )
-{
-	GameState g;
-	
-	AddMinion(g, 0, Card::BluegillWarrior);
+			}
+		},
+		{
+			"Charge_MinionAttack_AttackHero", []( )
+			{
+				GameState g;
 
-	g.UpdatePossibleMoves( );
+				AddMinion(g, 0, Card::BluegillWarrior);
 
-	CHECK(CheckAndProcessMove(g, Move::AttackHero(0)));
-	CHECK(g.Players[1].Health == GameState::StartingHealth - GetCardData(Card::BluegillWarrior)->Attack );
-	return true;
-}
+				g.UpdatePossibleMoves( );
 
-bool Test_SummoningSickness_AttackHero( )
-{
-	GameState g;
-	AddMinion(g, 0, Card::BloodfenRaptor);
-	g.UpdatePossibleMoves( );
+				CHECK(CheckAndProcessMove(g, Move::AttackHero(0)));
+				CHECK(g.Players[1].Health == GameState::StartingHealth - GetCardData(Card::BluegillWarrior)->Attack);
+				return true;
+			}
+		},
+		{
+			"SummoningSickness_AttackHero", []( )
+			{
+				GameState g;
+				AddMinion(g, 0, Card::BloodfenRaptor);
+				g.UpdatePossibleMoves( );
 
-	CHECK(!MovePossible(g, Move::AttackHero(0)));
-	CHECK(CheckAndProcessMove(g, Move::EndTurn( )));
-	CHECK(CheckAndProcessMove(g, Move::EndTurn( )));
-	CHECK(CheckAndProcessMove(g, Move::AttackHero(0)));
+				CHECK(!MovePossible(g, Move::AttackHero(0)));
+				CHECK(CheckAndProcessMove(g, Move::EndTurn( )));
+				CHECK(CheckAndProcessMove(g, Move::EndTurn( )));
+				CHECK(CheckAndProcessMove(g, Move::AttackHero(0)));
 
-	return true;
-}
+				return true;
+			}
+		}
+};
 
 void RunTests( )
 {
-#define TEST( fun ) if( !fun() ) { \
-	AnyFailed = true; \
-	printf( #fun ## " failed\n" ); \
+	for (auto test : Tests)
+	{
+		if (!test.Func( ))
+		{
+			printf("Test %s failed\n", test.Name);
+		}
 	}
-
-	TEST(Test_PlayerOne_Win_MinionAttackHero);
-	TEST(Test_PlayerTwo_Win_MinionAttackHero);
-	TEST(Test_SummoningSickness_AttackHero);
-	TEST(Test_Charge_MinionAttack_AttackHero);
 
 	if (!AnyFailed)
 	{
