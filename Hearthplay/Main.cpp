@@ -2,6 +2,7 @@
 #include "Cards.h"
 #include "MCTS.h"
 #include "Clock.h"
+#include "Tests.h"
 
 #include <cstdio>
 #include <random>
@@ -155,7 +156,7 @@ void AITournament(const Card (&deck)[30])
 {
 	std::mt19937 r(GlobalRandomDevice());
 	PlayResults results;
-	for (int i = 0; i < 1000; ++i)
+	for (int i = 0; i < 1; ++i)
 	{
 		for (AIType player_one = AIType::Random; player_one != AIType::MAX; player_one = (AIType)(1 + (int)player_one))
 		{
@@ -188,8 +189,35 @@ void BenchmarkRandomPlay(const Card(&deck)[30])
 	}
 }
 
-int main(int , char** )
+struct Setting
 {
+	std::string name;
+	bool value;
+};
+
+Setting Setting_RunTournament = { "-tournament", false };
+Setting Setting_Wait= { "-wait", false };
+Setting Setting_RunTests= { "-runtests", false };
+
+Setting* Settings[] = {
+	&Setting_RunTournament,
+	&Setting_RunTests,
+	&Setting_Wait,
+};
+
+int main(int argc, char** argv )
+{
+	for (int i = 0; i < argc; ++i)
+	{
+		for (int j = 0; j < sizeof(Settings) / sizeof(Setting*); ++j)
+		{
+			if (argv[i] == Settings[j]->name)
+			{
+				Settings[j]->value = true;
+			}
+		}
+	}
+
 	Card deck[] =
 	{
 		Card::MurlocRaider, Card::MurlocRaider, Card::MurlocRaider,
@@ -205,11 +233,21 @@ int main(int , char** )
 	};
 
 	std::mt19937 r(GlobalRandomDevice());
-	AITournament(deck);
-	//PlayGame(r, deck, AIType::SO_IS_MCTS, AIType::SO_IS_MCTS);
-	//BenchmarkRandomPlay(deck);
 
-	//getc(stdin);
+	if (Setting_RunTests.value)
+	{
+		RunTests();
+	}
+
+	if (Setting_RunTournament.value)
+	{
+		AITournament(deck);
+	}
+
+	if (Setting_Wait.value)
+	{
+		getc(stdin);
+	}
 
 	return 0;
 }
