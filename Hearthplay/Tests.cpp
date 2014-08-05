@@ -135,6 +135,23 @@ TestCase Tests[] = {
 
 				return true;
 			}
+		},
+		{
+			"Minions that cannot attack", []( )
+			{
+				GameState g;
+				AddMinion(g, 0, Card::RagnarosTheFirelord);
+				AddMinion(g, 0, Card::AncientWatcher);
+				g.UpdatePossibleMoves( );
+
+				CHECK(CheckAndProcessMove(g, Move::EndTurn( )));
+				CHECK(CheckAndProcessMove(g, Move::EndTurn( )));
+
+				CHECK(!MovePossible(g, Move::AttackHero(0)));
+				CHECK(!MovePossible(g, Move::AttackHero(1)));
+
+				return true;
+			}
 		}
 };
 

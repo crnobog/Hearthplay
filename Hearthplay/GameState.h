@@ -93,6 +93,7 @@ enum class MinionFlags : uint8_t
 	Charge = 0x8,
 	DivineShield = 0x10,
 	Windfury = 0x20,
+	CannotAttack = 0x40,
 };
 
 inline MinionFlags operator|(MinionFlags l, MinionFlags r)
@@ -152,6 +153,10 @@ struct Minion
 		{
 			Flags |= MinionFlags::DivineShield;
 		}
+		if ((source_card->MinionFlags & MinionCardFlags::CannotAttack) != MinionCardFlags::None)
+		{
+			Flags |= MinionFlags::CannotAttack;
+		}
 	}
 
 	inline void BeginTurn()
@@ -188,7 +193,8 @@ struct Minion
 
 	inline bool CanAttack( )
 	{
-		return (!SummonedThisTurn() || HasCharge())
+		return (Flags & MinionFlags::CannotAttack) == MinionFlags::None
+			&& (!SummonedThisTurn() || HasCharge())
 			&& ((!WindfuryAttackedThisTurn() && HasWindfury())
 			|| !AttackedThisTurn()
 			);
