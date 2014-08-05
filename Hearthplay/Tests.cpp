@@ -4,11 +4,13 @@
 
 #include <string>
 
-bool AnyFailed = false;
+#define STRINGIZE(x) STRINGIZE2(x)
+#define STRINGIZE2(x) #x
+#define LINE_STRING STRINGIZE(__LINE__) 
 
 #define CHECK( foo ) \
 if( !(foo) ) { \
-	printf( "Check failed: " ## #foo "\n" ); \
+	printf( "Check failed(" LINE_STRING "): " ## #foo "\n" ); \
 	return false;\
 }
 
@@ -51,7 +53,8 @@ struct TestCase
 };
 
 TestCase Tests[] = {
-		{ "PlayerOne_Win_MinionAttackHero", []( ) 
+		{ 
+			"Player one wins by attacking hero with minion", []( ) 
 			{
 				GameState g;
 				g.ActivePlayerIndex = 0;
@@ -68,7 +71,7 @@ TestCase Tests[] = {
 			}
 		},
 		{
-			"PlayerTwo_Win_MinionAttackHero", []( ) 
+			"Player two wins by attacking hero with minion", []( ) 
 			{
 				GameState g;
 				g.ActivePlayerIndex = 1;
@@ -85,7 +88,7 @@ TestCase Tests[] = {
 			}
 		},
 		{
-			"Charge_MinionAttack_AttackHero", []( )
+			"Minion with charge attacks hero on turn it is summoned", []( )
 			{
 				GameState g;
 
@@ -99,7 +102,7 @@ TestCase Tests[] = {
 			}
 		},
 		{
-			"SummoningSickness_AttackHero", []( )
+			"Minion with summoning sickness attacking hero", []( )
 			{
 				GameState g;
 				AddMinion(g, 0, Card::BloodfenRaptor);
@@ -112,20 +115,42 @@ TestCase Tests[] = {
 
 				return true;
 			}
+		},
+		{
+			"Minion with divine shield attacked", []( )
+			{
+				GameState g;
+				AddMinion(g, 0, Card::ArgentSquire);
+				CHECK(g.Players[0].Minions[0].HasDivineShield( ) == true);
+
+				AddMinion(g, 1, Card::BloodfenRaptor);
+				g.UpdatePossibleMoves( );
+
+				CheckAndProcessMove(g, Move::EndTurn( ));
+				CheckAndProcessMove(g, Move::EndTurn( ));
+				
+				CHECK(CheckAndProcessMove(g, Move::AttackMinion(0, 0)));
+				CHECK(g.Players[0].Minions.Num( ) == 1);
+				CHECK(g.Players[0].Minions[0].HasDivineShield( ) == false);
+
+				return true;
+			}
 		}
 };
 
 void RunTests( )
 {
+	bool any_failed = false;
 	for (auto test : Tests)
 	{
 		if (!test.Func( ))
 		{
 			printf("Test %s failed\n", test.Name);
+			any_failed = true;
 		}
 	}
 
-	if (!AnyFailed)
+	if (!any_failed)
 	{
 		printf("All tests passed!\n");
 	}

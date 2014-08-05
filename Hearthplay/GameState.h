@@ -148,6 +148,10 @@ struct Minion
 		{
 			Flags |= MinionFlags::Charge;
 		}
+		if ((source_card->MinionFlags & MinionCardFlags::DivineShield) != MinionCardFlags::None)
+		{
+			Flags |= MinionFlags::DivineShield;
+		}
 	}
 
 	inline void BeginTurn()
@@ -166,6 +170,18 @@ struct Minion
 		}
 
 		Flags |= MinionFlags::AttackedThisTurn;
+	}
+
+	inline void TakeDamage(uint8_t damage)
+	{
+		if (HasDivineShield( ))
+		{
+			RemoveDivineShield( );
+		}
+		else
+		{
+			Health -= damage;
+		}
 	}
 
 	const char* GetName() const;
@@ -201,6 +217,11 @@ struct Minion
 	inline bool HasDivineShield( ) const
 	{
 		return (Flags & MinionFlags::DivineShield) != MinionFlags::None;
+	}
+
+	inline void RemoveDivineShield( )
+	{
+		Flags &= ~MinionFlags::DivineShield;
 	}
 
 	inline bool HasWindfury( ) const

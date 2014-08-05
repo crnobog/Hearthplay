@@ -144,8 +144,8 @@ void GameState::AttackMinion(uint8_t SourceIndex, uint8_t TargetIndex)
 	Minion& Attacker = Active.Minions[SourceIndex];
 	Minion& Victim = Opponent.Minions[TargetIndex];
 
-	Attacker.Health -= Victim.Attack;
-	Victim.Health -= Attacker.Attack;
+	Attacker.TakeDamage(Victim.Attack);
+	Victim.TakeDamage(Attacker.Attack);
 
 	Attacker.Attacked( );
 
