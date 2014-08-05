@@ -226,6 +226,22 @@ enum class SpellEffect
 	AddMana, // Coin and Innervate
 };
 
+enum class CardFlags
+{
+	None = 0x0,
+	NotFullyImplemented = 0x1,
+};
+
+inline CardFlags operator|(CardFlags l, CardFlags r)
+{
+	return (CardFlags)((int)l | (int)r);
+}
+
+inline CardFlags operator&(CardFlags l, CardFlags r)
+{
+	return (CardFlags)((int)l & (int)r);
+}
+
 
 enum class MinionCardFlags
 {
@@ -263,17 +279,18 @@ struct CardData
 	SpellEffect Effect;
 	uint8_t EffectParam;
 
+	CardFlags Flags;
+
 	// Vanilla minion constructor
-	CardData(uint8_t mana_cost, const char* name, uint8_t attack, uint8_t health);
+	CardData(uint8_t mana_cost, const char* name, uint8_t attack, uint8_t health, CardFlags card_flags = CardFlags::NotFullyImplemented );
 	// Minion with abilities constructor
-	CardData(uint8_t mana_cost, const char* name, uint8_t attack, uint8_t health, MinionCardFlags flags);
+	CardData(uint8_t mana_cost, const char* name, uint8_t attack, uint8_t health, MinionCardFlags minion_flags, CardFlags card_flags = CardFlags::NotFullyImplemented );
 
 	// Spell constructor
-	CardData(CardType type, uint8_t mana_cost, const char* name, SpellEffect effect, uint8_t effect_param);
+	CardData(CardType type, uint8_t mana_cost, const char* name, SpellEffect effect, uint8_t effect_param, CardFlags card_flag = CardFlags::NotFullyImplemented );
 };
 
-extern const CardData AllCards[];
-
-extern const std::vector<Card> DeckPossibleCards; // Cards that have been implemented
-
 const CardData* GetCardData(Card c);
+
+extern std::vector<Card> DeckPossibleCards;
+void FilterDeckPossibleCards( );

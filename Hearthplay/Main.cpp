@@ -199,15 +199,19 @@ struct Setting
 Setting Setting_RunTournament = { "-tournament", false };
 Setting Setting_Wait= { "-wait", false };
 Setting Setting_RunTests= { "-runtests", false };
+Setting Setting_PrintDeckPossibleCards = { "-printimplementedcards", false };
 
 Setting* Settings[] = {
 	&Setting_RunTournament,
 	&Setting_RunTests,
 	&Setting_Wait,
+	&Setting_PrintDeckPossibleCards
 };
 
 int main(int argc, char** argv )
 {
+	FilterDeckPossibleCards( );
+
 	for (int i = 0; i < argc; ++i)
 	{
 		for (int j = 0; j < sizeof(Settings) / sizeof(Setting*); ++j)
@@ -234,6 +238,19 @@ int main(int argc, char** argv )
 	};
 
 	std::mt19937 r(GlobalRandomDevice());
+
+	if (Setting_PrintDeckPossibleCards.value)
+	{
+		printf("Deck possible cards:\n");
+		uint32_t num = 0;
+		for (Card c : DeckPossibleCards)
+		{
+			const CardData* data = GetCardData(c);
+			printf("%s\n", data->Name);
+			++num;
+		}
+		printf("%u cards\n", num);
+	}
 
 	if (Setting_RunTests.value)
 	{

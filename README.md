@@ -27,12 +27,35 @@ Monte Carlo Tree Search for Hearthstone.
 ## Implemented Cards
 
 * The Coin
+* Wisp
+* Argent Squire
+* Goldshire Footman
 * Murloc Raider
+* Shieldbearer
+* Stonetusk Boar
+* Ancient Watcher
 * Bloodfen Raptor
+* Bluegill Warrior
+* Frostwolf Grunt
 * River Crocolisk
+* Ironfur Grizzly
 * Magma Rager
+* Scarlet Crusader
+* Silverback Patriarch
+* Wolfrider
 * Chillwind Yeti
+* Mogu'shan Warden
 * Oasis Snapjaw
+* Sen'jin Shieldmasta
+* Silvermoon Guardian
+* Stormwind Knight
+* Booty Bay Bodyguard
+* Fen Creeper
+* Argent Commander
 * Boulderfist Ogre
+* Lord of the Arena
+* Reckless Rocketeer
+* Sunwalker
 * Core Hound
-* War Golem        
+* War Golem
+31 cards
