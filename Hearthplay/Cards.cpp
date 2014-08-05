@@ -11,6 +11,7 @@ const CardData AllCards[] = {
 	// 1-mana neutral cards
 	{ 1, "Abusive Sergeant",		2, 1 },
 	{ 1, "Angry Chicken",			1, 1 },
+	{ 1, "Argent Squire",			1, 1, MinionCardFlags::DivineShield },
 	{ 1, "Bloodsail Corsair",		1, 2 },
 	{ 1, "Elven Archer",			1, 1 },
 	{ 1, "Goldshire Footman",		1, 2, MinionCardFlags::Taunt },
