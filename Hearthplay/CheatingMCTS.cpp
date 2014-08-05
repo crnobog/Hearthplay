@@ -25,12 +25,14 @@ namespace CheatingMCTS
 		uint32_t Wins;
 
 		MCTSNode(const GameState& state)
+			: ChosenMove(Move::EndTurn())
 		{
 			memset(this, 0, sizeof(MCTSNode));
 			UntriedMoves = state.PossibleMoves;
 		}
 
 		MCTSNode(MCTSNode* parent, Move m, const GameState& state)
+			: ChosenMove(Move::EndTurn( ))
 		{
 			memset(this, 0, sizeof(MCTSNode));
 			UntriedMoves = state.PossibleMoves;

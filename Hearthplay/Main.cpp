@@ -136,8 +136,9 @@ EWinner PlayGame(std::mt19937& r, const Card(&deck)[30], AIType player_one, AITy
 			printf("\n");
 		game.PrintState();
 		printf("\n");
-		)
-			Move m;
+		);
+		
+		Move m = Move::EndTurn( );
 		if (game.ActivePlayerIndex == 0)
 		{
 			m = PlayFunctions[(int)player_one](game);

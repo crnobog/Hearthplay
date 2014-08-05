@@ -1,133 +1,13 @@
 #pragma once
 
 #include "Cards.h"
+#include "FixedVector.h"
 
 #include <cstdint>
 #include <random>
 #include <utility>
 
 extern std::random_device GlobalRandomDevice;
-
-template< typename T, unsigned _Capacity, typename _SizeType >
-class FixedVector
-{
-public:
-	typedef _SizeType SizeType;
-	static const SizeType Capacity = _Capacity;
-
-private:
-	T Data[_Capacity];
-	SizeType Size;
-
-public:
-	FixedVector()
-		: Size(0)
-	{
-	}
-
-	inline void Add(const T& t)
-	{
-		if (Size != Capacity)
-		{
-			Data[Size] =t;
-			++Size;
-		}
-	}
-
-	inline SizeType Num() const
-	{
-		return Size;
-	}
-
-	inline const T& operator[](SizeType index) const
-	{
-		return Data[index];
-	}
-
-	inline T& operator[](SizeType index)
-	{
-		return Data[index];
-	}
-
-	inline void Clear()
-	{
-		Size = 0;
-	}
-
-	inline T PopBack()
-	{
-		--Size;
-		return Data[Size];
-	}
-
-	inline void RemoveAt(SizeType Index)
-	{
-		--Size;
-		if (Index != Size)
-		{
-			memmove(&Data[Index], &Data[Index + 1], (Size - Index) * sizeof(T));
-		}
-	}
-
-	inline void RemoveSwap(SizeType Index)
-	{
-		std::swap(Data[Index], Data[Size-1]);
-		--Size;
-	}
-
-	inline void RemoveOne(const T& t)
-	{
-		for (SizeType i = 0; i < Size; ++i)
-		{
-			if (Data[i] == t)
-			{
-				RemoveAt(i);
-				return;
-			}
-		}
-	}
-
-	inline void Set(const T* source, SizeType num)
-	{
-		memcpy(&Data[0], source, num * sizeof(T));
-		Size = num;
-	}
-
-	inline void Shuffle( std::mt19937& r ) // TODO: Use ,random>
-	{
-		for (SizeType i = 0; i < Size; ++i)
-		{
-			std::uniform_int_distribution<uint32_t> dist(i, Size - 1); // Ideally use a template to generate shorts when SizeType is char
-			SizeType j = (SizeType)dist(r);
-			std::swap(Data[i], Data[j]);
-		}
-	}
-
-	inline bool Contains(const T& t) const
-	{
-		for (SizeType i = 0; i < Size; ++i)
-		{
-			if (Data[i] == t)
-			{
-				return true;
-			}
-		}
-		return false;
-	}
-
-	inline bool Find(const T& t, SizeType& idx) const
-	{
-		for (SizeType i = 0; i < Size; ++i)
-		{
-			if (Data[i] == t)
-			{
-				idx = i;
-				return true;
-			}
-		}
-		return false;
-	}
-};
 
 enum class EWinner : int8_t
 {
@@ -136,7 +16,6 @@ enum class EWinner : int8_t
 	PlayerTwo = 1,
 	Draw = 2
 };
-
 
 enum class MoveType
 {
@@ -152,11 +31,43 @@ struct Move
 	uint8_t SourceIndex;
 	uint8_t TargetIndex;
 
+	Move( )
+		: Type( MoveType::EndTurn )
+		, SourceIndex( 0 )
+		, TargetIndex( 0 )
+	{
+	}
+
 	inline bool operator==(const Move& m) const
 	{
 		return Type == m.Type && SourceIndex == m.SourceIndex && TargetIndex == m.TargetIndex;
 	}
 
+	static Move AttackHero(uint8_t with_minion)
+	{
+		return Move{ MoveType::AttackHero, with_minion, 0 };
+	}
+
+	static Move AttackMinion(uint8_t attacker, uint8_t defender)
+	{
+		return Move{ MoveType::AttackMinion, attacker, defender };
+	}
+
+	static Move EndTurn( )
+	{
+		return Move{ MoveType::EndTurn, 0, 0 };
+	}
+
+	static Move PlayCard(uint8_t source_index)
+	{
+		return Move{ MoveType::PlayCard, source_index, 0 };
+	}
+
+protected:
+	Move( MoveType type, uint8_t source, uint8_t target )
+		: Type(type), SourceIndex( source ), TargetIndex(target)
+	{
+	}
 };
 
 inline bool operator<(const Move& l, const Move& r)
@@ -173,21 +84,133 @@ inline bool operator<(const Move& l, const Move& r)
 	return l.Type < r.Type;
 }
 
+enum class MinionFlags : uint8_t
+{
+	None = 0x0,
+	AttackedThisTurn = 0x1,
+	WindfuryAttackedThisTurn = 0x2,
+	SummonedThisTurn = 0x4,
+	Charge = 0x8,
+	DivineShield = 0x10,
+	Windfury = 0x20,
+};
+
+inline MinionFlags operator|(MinionFlags l, MinionFlags r)
+{
+	return (MinionFlags)((uint8_t)l | (uint8_t)r);
+}
+
+inline MinionFlags operator&(MinionFlags l, MinionFlags r)
+{
+	return (MinionFlags)((uint8_t)l & (uint8_t)r);
+}
+
+inline MinionFlags operator~(MinionFlags f)
+{
+	return (MinionFlags)(~(uint8_t)f);
+}
+
+inline MinionFlags& operator|=(MinionFlags& l, MinionFlags r)
+{
+	l = l | r;
+	return l;
+}
+
+inline MinionFlags& operator&=(MinionFlags& l, MinionFlags r)
+{
+	l = l & r;
+	return l;
+}
+
 struct Minion
 {
 	uint8_t Attack;
 	int8_t Health;
 	const CardData* SourceCard;
-	bool AttackedThisTurn;
-	bool SummonedThisTurn;
+	MinionFlags Flags;
+
+	Minion( )
+		: Attack(0)
+		, Health(0)
+		, SourceCard(nullptr)
+		, Flags(MinionFlags::None)
+	{
+		
+	}
+
+	Minion(const CardData* source_card)
+		: Attack(source_card->Attack)
+		, Health(source_card->Health)
+		, SourceCard(source_card)
+		, Flags(MinionFlags::SummonedThisTurn)
+	{
+	}
+
+	Minion(uint8_t attack, int8_t health, const CardData* source_card)
+		: Attack(attack)
+		, Health(health)
+		, SourceCard(source_card)
+		, Flags( MinionFlags::SummonedThisTurn )
+	{
+	}
 
 	inline void BeginTurn()
 	{
-		AttackedThisTurn = false;
-		SummonedThisTurn = false;
+		Flags &= ~( MinionFlags::AttackedThisTurn 
+				|	MinionFlags::WindfuryAttackedThisTurn
+				|	MinionFlags::SummonedThisTurn
+			);
+	}
+
+	inline void Attacked( )
+	{
+		if (AttackedThisTurn( ))
+		{
+			Flags |= MinionFlags::WindfuryAttackedThisTurn;
+		}
+
+		Flags |= MinionFlags::AttackedThisTurn;
 	}
 
 	const char* GetName() const;
+
+	inline bool CanAttack( )
+	{
+		return (!SummonedThisTurn() || HasCharge())
+			&& ((!WindfuryAttackedThisTurn() && HasWindfury())
+			|| !AttackedThisTurn()
+			);
+	}
+
+	inline bool AttackedThisTurn( ) const
+	{
+		return (Flags & MinionFlags::AttackedThisTurn) != MinionFlags::None;
+	}
+
+	inline bool WindfuryAttackedThisTurn( ) const
+	{
+		return (Flags & MinionFlags::WindfuryAttackedThisTurn) != MinionFlags::None;
+	}
+
+	inline bool SummonedThisTurn( ) const
+	{
+		return (Flags & MinionFlags::SummonedThisTurn) != MinionFlags::None;
+	}
+
+	inline bool HasCharge( ) const
+	{
+		return (Flags & MinionFlags::Charge) != MinionFlags::None;
+	}
+
+	inline bool HasDivineShield( ) const
+	{
+		return (Flags & MinionFlags::DivineShield) != MinionFlags::None;
+	}
+
+	inline bool HasWindfury( ) const
+	{
+		return (Flags & MinionFlags::Windfury) != MinionFlags::None;
+	}
 };
 
 struct Player

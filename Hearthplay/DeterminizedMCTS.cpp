@@ -25,12 +25,14 @@ namespace DeterminizedMCTS
 		uint32_t Wins;
 
 		MCTSNode(const GameState& state)
+			: ChosenMove(Move::EndTurn( ))
 		{
 			memset(this, 0, sizeof(MCTSNode));
 			UntriedMoves = state.PossibleMoves;
 		}
 
 		MCTSNode(MCTSNode* parent, Move m, const GameState& state)
+			: ChosenMove(Move::EndTurn( ))
 		{
 			memset(this, 0, sizeof(MCTSNode));
 			UntriedMoves = state.PossibleMoves;
@@ -199,7 +201,7 @@ namespace DeterminizedMCTS
 			}
 		}
 
-		Move best_move{ MoveType::EndTurn };
+		Move best_move = Move::EndTurn();
 		uint32_t best_visits = 0;
 		for (auto p : move_visits)
 		{

@@ -51,17 +51,17 @@ void GameState::UpdatePossibleMoves()
 	// Attack each target with each minion
 	for (uint8_t i = 0; i < ActivePlayer.Minions.Num(); ++i)
 	{
-		if (ActivePlayer.Minions[i].AttackedThisTurn || ActivePlayer.Minions[i].SummonedThisTurn)
+		if (!ActivePlayer.Minions[i].CanAttack())
 			continue;
 
-		for (uint8_t j = 0; j < Opponent.Minions.Num(); ++j)
+		for (uint8_t j = 0; j < Opponent.Minions.Num( ); ++j)
 		{
 			// Attack minion
-			PossibleMoves.Add({ MoveType::AttackMinion, i, j });
+			PossibleMoves.Add(Move::AttackMinion(i, j));
 		}
 
 		// Attack opponent
-		PossibleMoves.Add({ MoveType::AttackHero, i });
+		PossibleMoves.Add( Move::AttackHero(i) );
 	}
 
 	// Play each card
@@ -69,12 +69,12 @@ void GameState::UpdatePossibleMoves()
 	{
 		if (GetCardData(ActivePlayer.Hand[i])->ManaCost <= ActivePlayer.Mana)
 		{
-			PossibleMoves.Add({ MoveType::PlayCard, i });
+			PossibleMoves.Add(Move::PlayCard(i));
 		}
 	}
 
 	// End turn
-	PossibleMoves.Add({ MoveType::EndTurn });
+	PossibleMoves.Add(Move::EndTurn());
 }
 
 void GameState::EndTurn()
@@ -107,7 +107,7 @@ void GameState::PlayCard(uint8_t SourceIndex, uint8_t /*TargetIndex*/)
 
 	if (ToPlay->Type == CardType::Minion)
 	{
-		ToAct.Minions.Add({ ToPlay->Attack, ToPlay->Health, ToPlay, false, true });
+		ToAct.Minions.Add({ ToPlay });
 	}
 	else
 	{
@@ -126,7 +126,7 @@ void GameState::AttackHero(uint8_t SourceIndex)
 	Player& Opponent = Players[abs(ActivePlayerIndex - 1)];
 
 	Minion& Attacker = Active.Minions[SourceIndex];
-	Attacker.AttackedThisTurn = true;
+	Attacker.Attacked( );
 
 	Opponent.Health -= Attacker.Attack;
 
@@ -147,7 +147,7 @@ void GameState::AttackMinion(uint8_t SourceIndex, uint8_t TargetIndex)
 	Attacker.Health -= Victim.Attack;
 	Victim.Health -= Attacker.Attack;
 
-	Attacker.AttackedThisTurn = true;
+	Attacker.Attacked( );
 
 	// Handle minion death
 	// TODO: Refactor when handling simultaneous minion death

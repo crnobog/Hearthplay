@@ -19,6 +19,7 @@ namespace SO_IS_MCTS
 
 		MCTSNode()
 			: Parent(nullptr)
+			, ChosenMove(Move::EndTurn( ))
 			, Child(nullptr)
 			, Sibling(nullptr)
 			, Visits(0)
@@ -29,9 +30,9 @@ namespace SO_IS_MCTS
 
 		MCTSNode(MCTSNode* parent, Move m)
 			: Parent(parent)
+			, ChosenMove(m)
 			, Child(nullptr)
 			, Sibling(nullptr)
-			, ChosenMove(m)
 			, Visits(0)
 			, Wins(0)
 			, Availability(0)

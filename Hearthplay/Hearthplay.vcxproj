@@ -77,6 +77,7 @@
   <ItemGroup>
     <ClInclude Include="Cards.h" />
     <ClInclude Include="Clock.h" />
+    <ClInclude Include="FixedVector.h" />
     <ClInclude Include="MCTS.h" />
     <ClInclude Include="GameState.h" />
     <ClInclude Include="Tests.h" />
