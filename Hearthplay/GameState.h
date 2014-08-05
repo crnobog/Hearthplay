@@ -94,6 +94,7 @@ enum class MinionFlags : uint8_t
 	DivineShield = 0x10,
 	Windfury = 0x20,
 	CannotAttack = 0x40,
+	Taunt = 0x80,
 };
 
 inline MinionFlags operator|(MinionFlags l, MinionFlags r)
@@ -156,6 +157,10 @@ struct Minion
 		if ((source_card->MinionFlags & MinionCardFlags::CannotAttack) != MinionCardFlags::None)
 		{
 			Flags |= MinionFlags::CannotAttack;
+		}
+		if ((source_card->MinionFlags & MinionCardFlags::Taunt) != MinionCardFlags::None)
+		{
+			Flags |= MinionFlags::Taunt;
 		}
 	}
 
@@ -233,6 +238,11 @@ struct Minion
 	inline bool HasWindfury( ) const
 	{
 		return (Flags & MinionFlags::Windfury) != MinionFlags::None;
+	}
+
+	inline bool HasTaunt( ) const
+	{
+		return (Flags & MinionFlags::Taunt) != MinionFlags::None;
 	}
 };
 

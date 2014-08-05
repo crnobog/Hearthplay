@@ -152,6 +152,84 @@ TestCase Tests[] = {
 
 				return true;
 			}
+		},
+		{
+			"Hero cannot be attacked behind taunt minion", []( )
+			{
+				GameState g;
+				AddMinion(g, 0, Card::BloodfenRaptor);
+				AddMinion(g, 0, Card::BloodfenRaptor);
+				AddMinion(g, 1, Card::SenjinShieldMasta);
+				g.UpdatePossibleMoves( );
+
+				CHECK(g.Players[1].Minions[0].HasTaunt( ));
+
+				CHECK(CheckAndProcessMove(g, Move::EndTurn( )));
+				CHECK(CheckAndProcessMove(g, Move::EndTurn( )));
+
+				CHECK(MovePossible(g, Move::AttackMinion(0, 0)));
+				CHECK(!MovePossible(g, Move::AttackHero(0)));
+
+				return true;
+			}
+		},
+		{
+			"Other minions cannot be attacked behind taunt minion", []( )
+			{
+				GameState g;
+				AddMinion(g, 0, Card::BloodfenRaptor);
+				AddMinion(g, 0, Card::BloodfenRaptor);
+				AddMinion(g, 1, Card::SenjinShieldMasta);
+				AddMinion(g, 1, Card::MurlocRaider);
+				g.UpdatePossibleMoves( );
+
+				CHECK(g.Players[1].Minions[0].HasTaunt( ));
+				CHECK(!g.Players[1].Minions[1].HasTaunt( ));
+
+				CHECK(CheckAndProcessMove(g, Move::EndTurn( )));
+				CHECK(CheckAndProcessMove(g, Move::EndTurn( )));
+
+				CHECK(MovePossible(g, Move::AttackMinion(0, 0)));
+				CHECK(!MovePossible(g, Move::AttackMinion(0, 1)));
+
+				return true;
+			}
+		},
+		{
+			"Hero can be attacked when taunt minion is killed", []( )
+			{
+				GameState g;
+				AddMinion(g, 0, Card::BloodfenRaptor);
+				AddMinion(g, 0, Card::BloodfenRaptor);
+				AddMinion(g, 1, Card::GoldshireFootman);
+				g.UpdatePossibleMoves( );
+
+				CHECK(g.Players[1].Minions[0].HasTaunt( ));
+
+				CHECK(CheckAndProcessMove(g, Move::EndTurn( )));
+				CHECK(CheckAndProcessMove(g, Move::EndTurn( )));
+
+				CHECK(CheckAndProcessMove(g, Move::AttackMinion(0, 0)));
+				CHECK(CheckAndProcessMove(g, Move::AttackHero(1)));
+
+				return true;
+			}
+		},
+		{
+			"Minion cannot attack twice in one turn", []( )
+			{
+				GameState g;
+				AddMinion(g, 0, Card::BloodfenRaptor);
+				g.UpdatePossibleMoves( );
+
+				CHECK(CheckAndProcessMove(g, Move::EndTurn( )));
+				CHECK(CheckAndProcessMove(g, Move::EndTurn( )));
+
+				CHECK(CheckAndProcessMove(g, Move::AttackHero(0)));
+				CHECK(!MovePossible(g, Move::AttackHero(0)));
+
+				return true;
+			}
 		}
 };
 

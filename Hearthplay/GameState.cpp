@@ -48,6 +48,16 @@ void GameState::UpdatePossibleMoves()
 	Player& ActivePlayer = Players[ActivePlayerIndex];
 	Player& Opponent = Players[abs(ActivePlayerIndex - 1)];
 
+	bool opponent_has_taunt = false;
+	for (uint8_t i = 0; i < Opponent.Minions.Num( ); ++i)
+	{
+		if (Opponent.Minions[i].HasTaunt( ))
+		{
+			opponent_has_taunt = true;
+			break;
+		}
+	}
+
 	// Attack each target with each minion
 	for (uint8_t i = 0; i < ActivePlayer.Minions.Num(); ++i)
 	{
@@ -56,12 +66,18 @@ void GameState::UpdatePossibleMoves()
 
 		for (uint8_t j = 0; j < Opponent.Minions.Num( ); ++j)
 		{
+			if( opponent_has_taunt && !Opponent.Minions[j].HasTaunt() )
+				continue;
+
 			// Attack minion
 			PossibleMoves.Add(Move::AttackMinion(i, j));
 		}
 
-		// Attack opponent
-		PossibleMoves.Add( Move::AttackHero(i) );
+		if (!opponent_has_taunt)
+		{
+			// Attack opponent
+			PossibleMoves.Add(Move::AttackHero(i));
+		}
 	}
 
 	// Play each card
