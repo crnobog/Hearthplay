@@ -5,7 +5,6 @@
 
 enum class Card
 {
-	Unknown,
 	Coin,
 
 	// 1-mana neutral cards
@@ -151,7 +150,7 @@ enum class Card
 	HarrisonJones,
 	Loatheb,
 	Nightblade,
-	SilverhandKnight,
+	SilverHandKnight,
 	SludgeBelcher,
 	SpectralKnight,
 	SpitefulSmith,
@@ -220,8 +219,27 @@ enum class CardType : uint8_t
 
 enum class SpellEffect
 {
+	None,
 	AddMana, // Coin and Innervate
 };
+
+
+enum class MinionCardFlags
+{
+	None			= 0x0,
+	Taunt			= 0x1,
+	DivineShield	= 0x2,
+	Charge			= 0x4,
+	Windfury		= 0x8,
+	CannotAttack	= 0x10,
+	Stealth			= 0x20,
+	CannotBeTargeted = 0x40,
+};
+
+inline MinionCardFlags operator|(MinionCardFlags l, MinionCardFlags r)
+{
+	return (MinionCardFlags)((int)l | (int)r);
+}
 
 struct CardData
 {
@@ -230,10 +248,19 @@ struct CardData
 	const char* Name;
 
 	uint8_t Attack;
-	uint8_t Health;
+	int8_t Health;
+	MinionCardFlags MinionFlags;
 
 	SpellEffect Effect;
 	uint8_t EffectParam;
+
+	// Vanilla minion constructor
+	CardData(uint8_t mana_cost, const char* name, uint8_t attack, uint8_t health);
+	// Minion with abilities constructor
+	CardData(uint8_t mana_cost, const char* name, uint8_t attack, uint8_t health, MinionCardFlags flags);
+
+	// Spell constructor
+	CardData(CardType type, uint8_t mana_cost, const char* name, SpellEffect effect, uint8_t effect_param);
 };
 
 extern const CardData AllCards[];
