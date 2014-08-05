@@ -144,14 +144,10 @@ struct Minion
 		, SourceCard(source_card)
 		, Flags(MinionFlags::SummonedThisTurn)
 	{
-	}
-
-	Minion(uint8_t attack, int8_t health, const CardData* source_card)
-		: Attack(attack)
-		, Health(health)
-		, SourceCard(source_card)
-		, Flags( MinionFlags::SummonedThisTurn )
-	{
+		if ((source_card->MinionFlags & MinionCardFlags::Charge) != MinionCardFlags::None)
+		{
+			Flags |= MinionFlags::Charge;
+		}
 	}
 
 	inline void BeginTurn()
@@ -234,6 +230,7 @@ struct Player
 
 struct GameState
 {
+	static const int StartingHealth = 30;
 	static const uint8_t MaxPossibleMoves = 1 + 8 * 8 + 10 * 16;
 
 	Player Players[2];

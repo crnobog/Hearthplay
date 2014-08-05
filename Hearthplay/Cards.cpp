@@ -234,6 +234,7 @@ CardData::CardData(uint8_t mana_cost, const char* name, uint8_t attack, uint8_t 
 	, Name(name)
 	, Attack(attack)
 	, Health(health)
+	, MinionFlags(MinionCardFlags::None)
 	, Effect(SpellEffect::None)
 {
 

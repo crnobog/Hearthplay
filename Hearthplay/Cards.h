@@ -7,8 +7,10 @@ enum class Card
 {
 	Coin,
 
-	// 1-mana neutral cards
+	// 0-mana neutral cards
 	Wisp,
+
+	// 1-mana neutral cards
 	AbusiveSergeant,
 	AngryChicken,
 	ArgentSquire,
@@ -20,6 +22,7 @@ enum class Card
 	LeperGnome,
 	Lightwarden,
 	MurlocRaider,
+	MurlocTidecaller,
 	Secretkeeper,
 	Shieldbearer,
 	SouthseaDeckhand,
@@ -240,6 +243,12 @@ inline MinionCardFlags operator|(MinionCardFlags l, MinionCardFlags r)
 {
 	return (MinionCardFlags)((int)l | (int)r);
 }
+
+inline MinionCardFlags operator&(MinionCardFlags l, MinionCardFlags r)
+{
+	return (MinionCardFlags)((int)l & (int)r);
+}
+
 
 struct CardData
 {

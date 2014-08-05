@@ -7,8 +7,8 @@
 GameState::GameState()
 {
 	memset(this, 0, sizeof(GameState));
-	Players[0].Health = 30;
-	Players[1].Health = 30;
+	Players[0].Health = StartingHealth;
+	Players[1].Health = StartingHealth;
 
 	Winner = EWinner::Undetermined;
 }
