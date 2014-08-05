@@ -58,4 +58,3 @@ Monte Carlo Tree Search for Hearthstone.
 * Sunwalker
 * Core Hound
 * War Golem
-31 cards
