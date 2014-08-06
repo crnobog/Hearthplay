@@ -70,6 +70,9 @@ struct PlayResults
 
 	void Print()
 	{
+		printf("| Matchup | Player One Wins | Player Two Wins | Draws |\n");
+		printf("| ------------- | ------------- | ------------- | ------------- |\n");
+
 		for (AIType player_one = AIType::Random; player_one != AIType::MAX; player_one = (AIType)(1 + (int)player_one))
 		{
 			for (AIType player_two = AIType::Random; player_two != AIType::MAX; player_two = (AIType)(1 + (int)player_two))
@@ -77,7 +80,7 @@ struct PlayResults
 				PairingResults& res = Results[(uint32_t)player_two * (uint32_t)AIType::MAX + (uint32_t)player_one];
 				if (res.Draws + res.PlayerOneWins + res.PlayerTwoWins != 0)
 				{
-					printf("%s vs %s %d/%d/%d\n",
+					printf("| %s vs %s | %d | %d | %d |\n",
 						AINames[(int)player_one],
 						AINames[(int)player_two],
 						res.PlayerOneWins, res.PlayerTwoWins, res.Draws
@@ -157,7 +160,12 @@ void AITournament(const Card (&deck)[30])
 {
 	std::mt19937 r(GlobalRandomDevice());
 	PlayResults results;
-	for (int i = 0; i < 1; ++i)
+
+	auto tourn_start = HighResClock::now( );
+	const int rounds = 5000;
+	printf("Playing %d rounds\n\n", rounds);
+
+	for (int i = 0; i < rounds; ++i)
 	{
 		for (AIType player_one = AIType::Random; player_one != AIType::MAX; player_one = (AIType)(1 + (int)player_one))
 		{
@@ -176,6 +184,10 @@ void AITournament(const Card (&deck)[30])
 			}
 		}
 	}
+
+	auto tourn_end = HighResClock::now( );
+	auto duration_sec = std::chrono::duration_cast<std::chrono::seconds>(tourn_end - tourn_start).count();
+	printf("\nPlayed %d rounds in %.2f minutes\n\n", rounds, duration_sec / 60.0f);
 
 	results.Print();
 }
@@ -223,21 +235,7 @@ int main(int argc, char** argv )
 		}
 	}
 
-	Card deck[] =
-	{
-		Card::MurlocRaider, Card::MurlocRaider, Card::MurlocRaider,
-		Card::RiverCrocolisk, Card::RiverCrocolisk, Card::RiverCrocolisk,
-		Card::BloodfenRaptor, Card::BloodfenRaptor, Card::BloodfenRaptor,
-		Card::BloodfenRaptor, Card::BloodfenRaptor, Card::BloodfenRaptor,
-		Card::MagmaRager, Card::MagmaRager, Card::MagmaRager,
-		Card::ChillwindYeti, Card::ChillwindYeti, Card::ChillwindYeti,
-		Card::OasisSnapjaw, Card::OasisSnapjaw, Card::OasisSnapjaw,
-		Card::BoulderfistOgre, Card::BoulderfistOgre, Card::BoulderfistOgre,
-		Card::CoreHound, Card::CoreHound, Card::CoreHound,
-		Card::WarGolem, Card::WarGolem, Card::WarGolem,
-	};
-
-	std::mt19937 r(GlobalRandomDevice());
+	std::mt19937 r(GlobalRandomDevice( ));
 
 	if (Setting_PrintDeckPossibleCards.value)
 	{
@@ -259,6 +257,15 @@ int main(int argc, char** argv )
 
 	if (Setting_RunTournament.value)
 	{
+		Card deck[30];
+		std::uniform_int_distribution<uint32_t> deck_dist(0, DeckPossibleCards.size( ) - 1);
+		for (Card& c : deck)
+		{
+			c = DeckPossibleCards[deck_dist(r)];
+			const CardData* data = GetCardData(c);
+			printf("%s\n", data->Name);
+		}
+
 		AITournament(deck);
 	}
 
