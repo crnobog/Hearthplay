@@ -156,38 +156,57 @@ EWinner PlayGame(std::mt19937& r, const Card(&deck)[30], AIType player_one, AITy
 	return game.Winner;
 }
 
-void AITournament(const Card (&deck)[30])
+void AITournament()
 {
 	std::mt19937 r(GlobalRandomDevice());
 	PlayResults results;
 
-	auto tourn_start = HighResClock::now( );
-	const int rounds = 5000;
+	auto tourn_start = std::chrono::system_clock::now( );
+	const int rounds = 1;
 	printf("Playing %d rounds\n\n", rounds);
 
+	Card deck[30];
 	for (int i = 0; i < rounds; ++i)
 	{
+		if ((i % 10) == 0)
+		{
+			printf("New tournament deck:\n");
+			std::uniform_int_distribution<uint32_t> deck_dist(0, DeckPossibleCards.size( ) - 1);
+			for (Card& c : deck)
+			{
+				c = DeckPossibleCards[deck_dist(r)];
+				const CardData* data = GetCardData(c);
+				printf("%s\n", data->Name);
+			}
+
+			if (i != 0)
+			{
+				printf("Results so far:\n");
+				results.Print( );
+			}
+		}
+
 		for (AIType player_one = AIType::Random; player_one != AIType::MAX; player_one = (AIType)(1 + (int)player_one))
 		{
 			for (AIType player_two = AIType::Random; player_two != AIType::MAX; player_two = (AIType)(1 + (int)player_two))
 			{
-				auto t1 = HighResClock::now();
+				//auto t1 = HighResClock::now();
 				EWinner winner = PlayGame(r, deck, player_one, player_two);
-				auto t2 = HighResClock::now();
-				auto duration = std::chrono::duration_cast<std::chrono::milliseconds>( t2 - t1 );
-				printf("%s vs %s - Game finished in %.2f seconds - winner %d\n",
-					AINames[(int)player_one],
-					AINames[(int)player_two],
-					duration.count() / 1000.0f,
-					(int)winner );
+				//auto t2 = HighResClock::now();
+				//auto duration = std::chrono::duration_cast<std::chrono::milliseconds>( t2 - t1 );
+				//printf("%s vs %s - Game finished in %.2f seconds - winner %d\n",
+				//	AINames[(int)player_one],
+				//	AINames[(int)player_two],
+				//	duration.count() / 1000.0f,
+				//	(int)winner );
 				results.AddResult(player_one, player_two, winner);
 			}
 		}
 	}
 
-	auto tourn_end = HighResClock::now( );
-	auto duration_sec = std::chrono::duration_cast<std::chrono::seconds>(tourn_end - tourn_start).count();
-	printf("\nPlayed %d rounds in %.2f minutes\n\n", rounds, duration_sec / 60.0f);
+	auto tourn_end = std::chrono::system_clock::now( );
+	auto duration_min = std::chrono::duration_cast<std::chrono::seconds>(tourn_end - tourn_start).count( ) / 60.0f;
+	printf("\nPlayed %d rounds in %.2f minutes\n\n", rounds, duration_min);
 
 	results.Print();
 }
@@ -257,16 +276,7 @@ int main(int argc, char** argv )
 
 	if (Setting_RunTournament.value)
 	{
-		Card deck[30];
-		std::uniform_int_distribution<uint32_t> deck_dist(0, DeckPossibleCards.size( ) - 1);
-		for (Card& c : deck)
-		{
-			c = DeckPossibleCards[deck_dist(r)];
-			const CardData* data = GetCardData(c);
-			printf("%s\n", data->Name);
-		}
-
-		AITournament(deck);
+		AITournament();
 	}
 
 	if (Setting_Wait.value)
