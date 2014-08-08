@@ -86,9 +86,11 @@ namespace DeterminizedMCTS
 			return best_child;
 		}
 
-		inline Move RemoveRandomUntriedMove()
+		inline Move RemoveRandomUntriedMove(std::mt19937& r)
 		{
-			uint16_t index = rand() % UntriedMoves.Num();
+			std::uniform_int_distribution<uint16_t> move_dist(0, UntriedMoves.Num( ) - 1);
+
+			uint16_t index = move_dist(r);
 			Move m = UntriedMoves[index];
 			UntriedMoves.RemoveAt(index); // TODO: RemoveSwap
 
@@ -175,7 +177,7 @@ namespace DeterminizedMCTS
 
 				if (node->HasUntriedMoves())
 				{
-					Move m = node->RemoveRandomUntriedMove();
+					Move m = node->RemoveRandomUntriedMove(r);
 					MCTS_DEBUG(printf("Expansion: "));
 					MCTS_DEBUG(sim_state.PrintMove(m));
 					sim_state.ProcessMove(m);
