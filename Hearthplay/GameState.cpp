@@ -23,7 +23,7 @@ void GameState::ProcessMove(const Move& m)
 	switch (m.Type)
 	{
 	case MoveType::EndTurn: EndTurn(); break;
-	case MoveType::PlayCard: PlayCard(m.SourceIndex, m.TargetIndex); break;
+	case MoveType::PlayCard: PlayCard(m.CardToPlay); break;
 	case MoveType::AttackHero: AttackHero(m.SourceIndex); break;
 	case MoveType::AttackMinion: AttackMinion(m.SourceIndex, m.TargetIndex); break;
 	}
@@ -85,7 +85,7 @@ void GameState::UpdatePossibleMoves()
 	{
 		if (GetCardData(ActivePlayer.Hand[i])->ManaCost <= ActivePlayer.Mana)
 		{
-			PossibleMoves.Add(Move::PlayCard(i));
+			PossibleMoves.Add(Move::PlayCard(ActivePlayer.Hand[i]));
 		}
 	}
 
@@ -113,11 +113,15 @@ void GameState::EndTurn()
 	}
 }
 
-void GameState::PlayCard(uint8_t SourceIndex, uint8_t /*TargetIndex*/)
+void GameState::PlayCard(Card c)
 {
 	Player& ToAct = Players[ActivePlayerIndex];
-	const CardData* ToPlay = GetCardData(ToAct.Hand[SourceIndex]);
-	ToAct.Hand.RemoveSwap(SourceIndex);
+	const CardData* ToPlay = GetCardData(c);
+	decltype(ToAct.Hand.Num( )) idx;
+	if (!ToAct.Hand.Find(c, idx))
+		return;
+
+	ToAct.Hand.RemoveSwap(idx);
 
 	ToAct.Mana -= ToPlay->ManaCost;
 

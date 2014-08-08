@@ -30,42 +30,47 @@ struct Move
 	MoveType Type;
 	uint8_t SourceIndex;
 	uint8_t TargetIndex;
+	Card CardToPlay;
 
 	Move( )
 		: Type( MoveType::EndTurn )
 		, SourceIndex( 0 )
 		, TargetIndex( 0 )
+		, CardToPlay( Card::MAX )
 	{
 	}
 
 	inline bool operator==(const Move& m) const
 	{
-		return Type == m.Type && SourceIndex == m.SourceIndex && TargetIndex == m.TargetIndex;
+		return Type == m.Type 
+			&& SourceIndex == m.SourceIndex 
+			&& TargetIndex == m.TargetIndex
+			&& CardToPlay == m.CardToPlay;
 	}
 
 	static Move AttackHero(uint8_t with_minion)
 	{
-		return Move{ MoveType::AttackHero, with_minion, 0 };
+		return Move{ MoveType::AttackHero, with_minion, 0, Card::MAX };
 	}
 
 	static Move AttackMinion(uint8_t attacker, uint8_t defender)
 	{
-		return Move{ MoveType::AttackMinion, attacker, defender };
+		return Move{ MoveType::AttackMinion, attacker, defender, Card::MAX };
 	}
 
 	static Move EndTurn( )
 	{
-		return Move{ MoveType::EndTurn, 0, 0 };
+		return Move{ MoveType::EndTurn, 0, 0, Card::MAX };
 	}
 
-	static Move PlayCard(uint8_t source_index)
+	static Move PlayCard(Card c)
 	{
-		return Move{ MoveType::PlayCard, source_index, 0 };
+		return Move{ MoveType::PlayCard, 0, 0, c };
 	}
 
 protected:
-	Move( MoveType type, uint8_t source, uint8_t target )
-		: Type(type), SourceIndex( source ), TargetIndex(target)
+	Move( MoveType type, uint8_t source, uint8_t target, Card c)
+		: Type(type), SourceIndex( source ), TargetIndex(target), CardToPlay(c)
 	{
 	}
 };
@@ -287,7 +292,7 @@ struct GameState
 
 protected:
 	void EndTurn();
-	void PlayCard(uint8_t SourceIndex, uint8_t TargetIndex);
+	void PlayCard(Card c);
 	void AttackHero(uint8_t SourceIndex);
 	void AttackMinion(uint8_t SourceIndex, uint8_t TargetIndex);
 };
