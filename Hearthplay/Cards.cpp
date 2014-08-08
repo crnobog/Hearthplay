@@ -28,7 +28,7 @@ const CardData AllCards[] = {
 	{ 1, "Undertaker",				1, 2 },
 	{ 1, "Voodoo Doctor",			2, 1 },
 	{ 1, "Worgen Infiltrator",		2, 1, MinionCardFlags::Stealth },
-	{ 1, "Young Dragonhawk",		1, 1, MinionCardFlags::Windfury },
+	{ 1, "Young Dragonhawk",		1, 1, MinionCardFlags::Windfury, CardFlags::None },
 	{ 1, "Young Priestess",			2, 1 },
 	{ 1, "Zombie Chow",				2, 3 },
 
@@ -107,7 +107,7 @@ const CardData AllCards[] = {
 	{ 3, "Southsea Captain",		3, 3 },
 	{ 3, "Stoneskin Gargoyle",		1, 4 },
 	{ 3, "Tauren Warrior",			2, 3, MinionCardFlags::Taunt },
-	{ 3, "Thrallmar Farseer",		2, 3, MinionCardFlags::Windfury },
+	{ 3, "Thrallmar Farseer",		2, 3, MinionCardFlags::Windfury, CardFlags::None },
 	{ 3, "Tinkmaster Overspark",	3, 3 },
 	{ 3, "Wolfrider",				3, 1, MinionCardFlags::Charge, CardFlags::None },
 
@@ -178,7 +178,7 @@ const CardData AllCards[] = {
 	{ 6, "Sylvanas Windrunner",		5, 5 },
 	{ 6, "The Beast",				9, 7 },
 	{ 6, "The Black Knight",		4, 5 },
-	{ 6, "Windfury Harpy",			4, 5, MinionCardFlags::Windfury },
+	{ 6, "Windfury Harpy",			4, 5, MinionCardFlags::Windfury, CardFlags::None },
 
 	// 7-mana neutral cards
 	{ 7, "Baron Geddon",			7, 5 },
