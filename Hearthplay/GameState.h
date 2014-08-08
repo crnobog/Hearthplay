@@ -167,6 +167,10 @@ struct Minion
 		{
 			Flags |= MinionFlags::Taunt;
 		}
+		if ((source_card->MinionFlags & MinionCardFlags::Windfury) != MinionCardFlags::None)
+		{
+			Flags |= MinionFlags::Windfury;
+		}
 	}
 
 	inline void BeginTurn()

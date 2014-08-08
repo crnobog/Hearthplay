@@ -231,6 +231,23 @@ TestCase Tests[] =
 
 			return true;
 		}
+	},
+	{
+		"Windfury minion can attack twice in one turn", []( )
+		{
+			GameState g;
+			AddMinion(g, 0, Card::ThrallmarFarseer);
+			g.UpdatePossibleMoves( );
+
+			CHECK(CheckAndProcessMove(g, Move::EndTurn( )));
+			CHECK(CheckAndProcessMove(g, Move::EndTurn( )));
+
+			CHECK(CheckAndProcessMove(g, Move::AttackHero(0)));
+			CHECK(CheckAndProcessMove(g, Move::AttackHero(0)));
+			CHECK(!MovePossible(g, Move::AttackHero(0)));
+
+			return true;
+		}
 	}
 };
 
