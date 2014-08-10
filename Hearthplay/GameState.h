@@ -27,25 +27,25 @@ enum class MoveType
 
 struct Move
 {
-	MoveType Type;
-	uint8_t SourceIndex;
-	uint8_t TargetIndex;
-	Card CardToPlay;
+	MoveType m_type;
+	uint8_t m_source_index;
+	uint8_t m_target_index;
+	Card m_card;
 
 	Move( )
-		: Type( MoveType::EndTurn )
-		, SourceIndex( 0 )
-		, TargetIndex( 0 )
-		, CardToPlay( Card::MAX )
+		: m_type( MoveType::EndTurn )
+		, m_source_index( 0 )
+		, m_target_index( 0 )
+		, m_card( Card::MAX )
 	{
 	}
 
 	inline bool operator==(const Move& m) const
 	{
-		return Type == m.Type 
-			&& SourceIndex == m.SourceIndex 
-			&& TargetIndex == m.TargetIndex
-			&& CardToPlay == m.CardToPlay;
+		return m_type == m.m_type 
+			&& m_source_index == m.m_source_index 
+			&& m_target_index == m.m_target_index
+			&& m_card == m.m_card;
 	}
 
 	static Move AttackHero(uint8_t with_minion)
@@ -70,23 +70,23 @@ struct Move
 
 protected:
 	Move( MoveType type, uint8_t source, uint8_t target, Card c)
-		: Type(type), SourceIndex( source ), TargetIndex(target), CardToPlay(c)
+		: m_type(type), m_source_index( source ), m_target_index(target), m_card(c)
 	{
 	}
 };
 
 inline bool operator<(const Move& l, const Move& r)
 {
-	if (l.Type == r.Type)
+	if (l.m_type == r.m_type)
 	{
-		if (l.SourceIndex == r.SourceIndex)
+		if (l.m_source_index == r.m_source_index)
 		{
-			return l.TargetIndex < r.TargetIndex;
+			return l.m_target_index < r.m_target_index;
 		}
-		return l.SourceIndex < r.SourceIndex;
+		return l.m_source_index < r.m_source_index;
 	}
 
-	return l.Type < r.Type;
+	return l.m_type < r.m_type;
 }
 
 enum class MinionFlags : uint8_t

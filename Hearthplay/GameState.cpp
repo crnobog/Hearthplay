@@ -20,12 +20,12 @@ GameState::GameState(const GameState& other)
 
 void GameState::ProcessMove(const Move& m)
 {
-	switch (m.Type)
+	switch (m.m_type)
 	{
 	case MoveType::EndTurn: EndTurn(); break;
-	case MoveType::PlayCard: PlayCard(m.CardToPlay); break;
-	case MoveType::AttackHero: AttackHero(m.SourceIndex); break;
-	case MoveType::AttackMinion: AttackMinion(m.SourceIndex, m.TargetIndex); break;
+	case MoveType::PlayCard: PlayCard(m.m_card); break;
+	case MoveType::AttackHero: AttackHero(m.m_source_index); break;
+	case MoveType::AttackMinion: AttackMinion(m.m_source_index, m.m_target_index); break;
 	}
 
 	UpdatePossibleMoves();
@@ -216,26 +216,26 @@ void GameState::PrintMove(const Move& m) const
 	const Player& Opponent = Players[abs(ActivePlayerIndex - 1)];
 
 	const CardData* CardToPlay = nullptr;
-	switch (m.Type)
+	switch (m.m_type)
 	{
 	case MoveType::AttackHero:
 		printf("Player %d: Attack hero with %s\n",
 			ActivePlayerIndex,
-			Active.Minions[m.SourceIndex].GetName()
+			Active.Minions[m.m_source_index].GetName()
 			);
 		break;
 	case MoveType::AttackMinion:
 		printf("Player %d: Attack %s with %s\n", 
 			ActivePlayerIndex, 
-			Opponent.Minions[m.TargetIndex].GetName(), 
-			Active.Minions[m.SourceIndex].GetName() 
+			Opponent.Minions[m.m_target_index].GetName(), 
+			Active.Minions[m.m_source_index].GetName() 
 			);
 		break;
 	case MoveType::EndTurn:
 		printf("Player %d: End turn\n", ActivePlayerIndex);
 		break;
 	case MoveType::PlayCard:
-		CardToPlay = GetCardData(Players[ActivePlayerIndex].Hand[m.SourceIndex]);
+		CardToPlay = GetCardData(Players[ActivePlayerIndex].Hand[m.m_source_index]);
 		printf("Player %d: Play %s\n", ActivePlayerIndex, CardToPlay->m_name);
 		break;
 	}
