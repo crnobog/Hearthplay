@@ -11,72 +11,72 @@ public:
 	static const SizeType Capacity = _Capacity;
 
 private:
-	T Data[_Capacity];
-	SizeType Size;
+	T			m_data[_Capacity];
+	SizeType	m_size;
 	
 public:
 	FixedVector( )
-		: Size(0)
+		: m_size(0)
 	{
 	}
 
 	inline SizeType Add(const T& t)
 	{
-		if (Size != Capacity)
+		if (m_size != Capacity)
 		{
-			Data[Size] = t;
-			++Size;
-			return Size - 1;
+			m_data[m_size] = t;
+			++m_size;
+			return m_size - 1;
 		}
-		return Size;
+		return m_size;
 	}
 
 	inline SizeType Num( ) const
 	{
-		return Size;
+		return m_size;
 	}
 
 	inline const T& operator[](SizeType index) const
 	{
-		return Data[index];
+		return m_data[index];
 	}
 
 	inline T& operator[](SizeType index)
 	{
-		return Data[index];
+		return m_data[index];
 	}
 
 	inline void Clear( )
 	{
-		Size = 0;
+		m_size = 0;
 	}
 
 	inline T PopBack( )
 	{
-		--Size;
-		return Data[Size];
+		--m_size;
+		return m_data[m_size];
 	}
 
 	inline void RemoveAt(SizeType Index)
 	{
-		--Size;
-		if (Index != Size)
+		--m_size;
+		if (Index != m_size)
 		{
-			memmove(&Data[Index], &Data[Index + 1], (Size - Index) * sizeof(T));
+			memmove(&m_data[Index], &m_data[Index + 1], (m_size - Index) * sizeof(T));
 		}
 	}
 
 	inline void RemoveSwap(SizeType Index)
 	{
-		std::swap(Data[Index], Data[Size - 1]);
-		--Size;
+		std::swap(m_data[Index], m_data[m_size - 1]);
+		--m_size;
 	}
 
 	inline void RemoveOne(const T& t)
 	{
-		for (SizeType i = 0; i < Size; ++i)
+		for (SizeType i = 0; i < m_size; ++i)
 		{
-			if (Data[i] == t)
+			if (m_data[i] == t)
 			{
 				RemoveAt(i);
 				return;
@@ -86,25 +86,25 @@ public:
 
 	inline void Set(const T* source, SizeType num)
 	{
-		memcpy(&Data[0], source, num * sizeof(T));
-		Size = num;
+		memcpy(&m_data[0], source, num * sizeof(T));
+		m_size = num;
 	}
 
 	inline void Shuffle(std::mt19937& r) // TODO: Use ,random>
 	{
-		for (SizeType i = 0; i < Size; ++i)
+		for (SizeType i = 0; i < m_size; ++i)
 		{
-			std::uniform_int_distribution<uint32_t> dist(i, Size - 1); // Ideally use a template to generate shorts when SizeType is char
+			std::uniform_int_distribution<uint32_t> dist(i, m_size - 1); // Ideally use a template to generate shorts when SizeType is char
 			SizeType j = (SizeType)dist(r);
-			std::swap(Data[i], Data[j]);
+			std::swap(m_data[i], m_data[j]);
 		}
 	}
 
 	inline bool Contains(const T& t) const
 	{
-		for (SizeType i = 0; i < Size; ++i)
+		for (SizeType i = 0; i < m_size; ++i)
 		{
-			if (Data[i] == t)
+			if (m_data[i] == t)
 			{
 				return true;
 			}
@@ -114,9 +114,9 @@ public:
 
 	inline bool Find(const T& t, SizeType& idx) const
 	{
-		for (SizeType i = 0; i < Size; ++i)
+		for (SizeType i = 0; i < m_size; ++i)
 		{
-			if (Data[i] == t)
+			if (m_data[i] == t)
 			{
 				idx = i;
 				return true;

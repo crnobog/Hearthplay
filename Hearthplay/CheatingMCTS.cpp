@@ -14,42 +14,42 @@ namespace CheatingMCTS
 {
 	struct MCTSNode
 	{
-		MCTSNode* Parent;
-		std::unique_ptr<MCTSNode> Child;
-		std::unique_ptr<MCTSNode> Sibling;
+		MCTSNode*					m_parent;
+		std::unique_ptr<MCTSNode>	m_child;
+		std::unique_ptr<MCTSNode>	m_sibling;
 
-		Move ChosenMove; // The move that got us here from Parent
-		decltype(GameState::m_possible_moves) UntriedMoves;
+		Move m_move; // The move that got us here from Parent
+		decltype(GameState::m_possible_moves) m_num_untried_moves;
 
-		uint32_t Visits;
-		uint32_t Wins;
+		uint32_t m_visits;
+		uint32_t m_wins;
 
 		MCTSNode(const GameState& state)
-			: ChosenMove(Move::EndTurn())
+			: m_move(Move::EndTurn())
 		{
 			memset(this, 0, sizeof(MCTSNode));
-			UntriedMoves = state.m_possible_moves;
+			m_num_untried_moves = state.m_possible_moves;
 		}
 
 		MCTSNode(MCTSNode* parent, Move m, const GameState& state)
-			: ChosenMove(Move::EndTurn( ))
+			: m_move(Move::EndTurn( ))
 		{
 			memset(this, 0, sizeof(MCTSNode));
-			UntriedMoves = state.m_possible_moves;
-			ChosenMove = m;
-			Parent = parent;
+			m_num_untried_moves = state.m_possible_moves;
+			m_move = m;
+			m_parent = parent;
 		}
 
 		MCTSNode(const MCTSNode& other) = delete;
 
 		inline bool HasUntriedMoves()
 		{
-			return UntriedMoves.Num() != 0;
+			return m_num_untried_moves.Num() != 0;
 		}
 
 		inline bool HasChildren()
 		{
-			return Child != nullptr;
+			return m_child != nullptr;
 		}
 
 		inline MCTSNode* UCTSelectChild()
@@ -57,10 +57,10 @@ namespace CheatingMCTS
 			MCTSNode* best_child = nullptr;
 			float best_score = -1.0f;
 
-			for (MCTSNode* node = Child.get(); node; node = node->Sibling.get())
+			for (MCTSNode* node = m_child.get(); node; node = node->m_sibling.get())
 			{
-				float score = (node->Wins / (float)node->Visits)
-					+ (float)sqrtf(log((float)Visits) / node->Visits); // TODO tiebreak?
+				float score = (node->m_wins / (float)node->m_visits)
+					+ (float)sqrtf(log((float)m_visits) / node->m_visits); // TODO tiebreak?
 				if (score > best_score)
 				{
 					best_child = node;
@@ -73,11 +73,11 @@ namespace CheatingMCTS
 
 		inline Move RemoveRandomUntriedMove(std::mt19937& r)
 		{
-			std::uniform_int_distribution<uint16_t> move_dist(0, UntriedMoves.Num( ) - 1);
+			std::uniform_int_distribution<uint16_t> move_dist(0, m_num_untried_moves.Num( ) - 1);
 
 			uint16_t index = move_dist(r);
-			Move m = UntriedMoves[index];
-			UntriedMoves.RemoveAt(index); // TODO: RemoveSwap
+			Move m = m_num_untried_moves[index];
+			m_num_untried_moves.RemoveAt(index); // TODO: RemoveSwap
 
 			return m;
 		}
@@ -86,17 +86,17 @@ namespace CheatingMCTS
 		{
 			std::unique_ptr<MCTSNode> new_node = std::make_unique<MCTSNode>(this, m, state);
 
-			for (MCTSNode* node = Child.get(); node; node = node->Sibling.get())
+			for (MCTSNode* node = m_child.get(); node; node = node->m_sibling.get())
 			{
-				if (!node->Sibling.get())
+				if (!node->m_sibling.get())
 				{
-					node->Sibling = std::move(new_node);
-					return node->Sibling.get();
+					node->m_sibling = std::move(new_node);
+					return node->m_sibling.get();
 				}
 			}
 
-			Child = std::move(new_node);
-			return Child.get();
+			m_child = std::move(new_node);
+			return m_child.get();
 		}
 	};
 
@@ -116,8 +116,8 @@ namespace CheatingMCTS
 			{
 				node = node->UCTSelectChild();
 				MCTS_DEBUG(printf("Selection: "));
-				MCTS_DEBUG(sim_state.PrintMove(node->ChosenMove));
-				sim_state.ProcessMove(node->ChosenMove);
+				MCTS_DEBUG(sim_state.PrintMove(node->m_move));
+				sim_state.ProcessMove(node->m_move);
 			}
 
 			if (node->HasUntriedMoves())
@@ -135,23 +135,23 @@ namespace CheatingMCTS
 
 			while (node)
 			{
-				node->Visits++;
-				if (won) node->Wins++;
+				node->m_visits++;
+				if (won) node->m_wins++;
 			
-				node = node->Parent;
+				node = node->m_parent;
 			}
 		}
 
 		uint32_t max_visits = 0;
 		MCTSNode* best_child = nullptr;
-		for( MCTSNode* node = root.Child.get(); node; node = node->Sibling.get() )
+		for( MCTSNode* node = root.m_child.get(); node; node = node->m_sibling.get() )
 		{
-			if (node->Visits > max_visits)
+			if (node->m_visits > max_visits)
 			{
 				best_child = node;
-				max_visits = node->Visits;
+				max_visits = node->m_visits;
 			}
 		}
-		return best_child->ChosenMove;
+		return best_child->m_move;
 	}
 }

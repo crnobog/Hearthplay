@@ -7,45 +7,45 @@ namespace SO_IS_MCTS
 { 
 	struct MCTSNode
 	{
-		MCTSNode* Parent;
-		Move ChosenMove; // The move that got us here from parent
+		MCTSNode* m_parent;
+		Move m_move; // The move that got us here from parent
 
-		MCTSNode* Child;
-		MCTSNode* Sibling;
+		MCTSNode* m_child;
+		MCTSNode* m_siblings;
 
-		uint32_t Visits;
-		uint32_t Wins;
-		uint32_t Availability; // How often this node was available when its parent was visited
+		uint32_t m_visits;
+		uint32_t m_wins;
+		uint32_t m_availability; // How often this node was available when its parent was visited
 
 		MCTSNode()
-			: Parent(nullptr)
-			, ChosenMove(Move::EndTurn( ))
-			, Child(nullptr)
-			, Sibling(nullptr)
-			, Visits(0)
-			, Wins(0)
-			, Availability(0)
+			: m_parent(nullptr)
+			, m_move(Move::EndTurn( ))
+			, m_child(nullptr)
+			, m_siblings(nullptr)
+			, m_visits(0)
+			, m_wins(0)
+			, m_availability(0)
 		{
 		}
 
 		MCTSNode(MCTSNode* parent, Move m)
-			: Parent(parent)
-			, ChosenMove(m)
-			, Child(nullptr)
-			, Sibling(nullptr)
-			, Visits(0)
-			, Wins(0)
-			, Availability(0)
+			: m_parent(parent)
+			, m_move(m)
+			, m_child(nullptr)
+			, m_siblings(nullptr)
+			, m_visits(0)
+			, m_wins(0)
+			, m_availability(0)
 		{
 		}
 
 		inline auto GetUntriedMoves(const GameState& game) -> decltype(GameState::m_possible_moves)
 		{
 			auto moves = game.m_possible_moves;
-			for (MCTSNode* node = Child; node; node = node->Sibling)
+			for (MCTSNode* node = m_child; node; node = node->m_siblings)
 			{
 				decltype(moves.Num()) idx;
-				if (moves.Find(node->ChosenMove, idx))
+				if (moves.Find(node->m_move, idx))
 				{
 					moves.RemoveSwap(idx);
 				}
@@ -60,7 +60,7 @@ namespace SO_IS_MCTS
 
 		inline bool HasChildren()
 		{
-			return Child != nullptr;
+			return m_child != nullptr;
 		}
 
 		inline MCTSNode* UCTSelectChild( const GameState& state )
@@ -68,15 +68,15 @@ namespace SO_IS_MCTS
 			MCTSNode* best_child = nullptr;
 			float best_score = -1.0f;
 
-			for (MCTSNode* node = Child; node; node = node->Sibling)
+			for (MCTSNode* node = m_child; node; node = node->m_siblings)
 			{
-				if (!state.m_possible_moves.Contains(node->ChosenMove))
+				if (!state.m_possible_moves.Contains(node->m_move))
 				{
 					continue;
 				}
 
-				float score = (node->Wins / (float)node->Visits)
-					+ (float)sqrtf(log((float)node->Availability) / node->Visits); // TODO tiebreak?
+				float score = (node->m_wins / (float)node->m_visits)
+					+ (float)sqrtf(log((float)node->m_availability) / node->m_visits); // TODO tiebreak?
 				if (score > best_score)
 				{
 					best_child = node;
@@ -97,17 +97,17 @@ namespace SO_IS_MCTS
 		inline MCTSNode* AddChild(Move m, MCTSNode* store)
 		{
 			MCTSNode* new_node = new(store) MCTSNode(this, m); // TODO placement
-			if (Child == nullptr)
+			if (m_child == nullptr)
 			{
-				Child = new_node;
+				m_child = new_node;
 			}
 			else
 			{
-				for (MCTSNode* node = Child; node; node = node->Sibling)
+				for (MCTSNode* node = m_child; node; node = node->m_siblings)
 				{
-					if (node->Sibling == nullptr)
+					if (node->m_siblings == nullptr)
 					{
-						node->Sibling = new_node;
+						node->m_siblings = new_node;
 						break;
 					}
 				}
@@ -170,15 +170,15 @@ namespace SO_IS_MCTS
 				MCTSNode* next_node = node->UCTSelectChild(sim_state);
 
 				// Update availability
-				for (MCTSNode* avail_node = node->Child; avail_node; avail_node = avail_node->Sibling)
+				for (MCTSNode* avail_node = node->m_child; avail_node; avail_node = avail_node->m_siblings)
 				{
-					if (sim_state.m_possible_moves.Contains(avail_node->ChosenMove))
+					if (sim_state.m_possible_moves.Contains(avail_node->m_move))
 					{
-						avail_node->Availability++;
+						avail_node->m_availability++;
 					}
 				}
 
-				sim_state.ProcessMove(next_node->ChosenMove);
+				sim_state.ProcessMove(next_node->m_move);
 				node = next_node;
 			}
 		
@@ -186,18 +186,18 @@ namespace SO_IS_MCTS
 			if (node->HasUntriedMoves(sim_state))
 			{
 				Move m = node->ChooseRandomUntriedMove(sim_state, r);
-				for (MCTSNode* avail_node = node->Child; avail_node; avail_node = avail_node->Sibling)
+				for (MCTSNode* avail_node = node->m_child; avail_node; avail_node = avail_node->m_siblings)
 				{
-					if (sim_state.m_possible_moves.Contains(avail_node->ChosenMove))
+					if (sim_state.m_possible_moves.Contains(avail_node->m_move))
 					{
-						avail_node->Availability++;
+						avail_node->m_availability++;
 					}
 				}
 
 				sim_state.ProcessMove(m);
 				node = node->AddChild(m, store_head);
 				store_head += 1;
-				node->Availability++;
+				node->m_availability++;
 			}
 
 			// Simulation
@@ -207,26 +207,26 @@ namespace SO_IS_MCTS
 			bool won = sim_state.m_winner == (EWinner)game.m_active_player_index;
 			while (node)
 			{
-				node->Visits++;
-				if (won) node->Wins++;
+				node->m_visits++;
+				if (won) node->m_wins++;
 
-				node = node->Parent;
+				node = node->m_parent;
 			}
 		}
 
 		MCTSNode* best_node = nullptr;
 		uint32_t best_visits = 0;
 
-		for (MCTSNode* node = root.Child; node; node = node->Sibling)
+		for (MCTSNode* node = root.m_child; node; node = node->m_siblings)
 		{
-			if (node->Visits > best_visits)
+			if (node->m_visits > best_visits)
 			{
-				best_visits = node->Visits;
+				best_visits = node->m_visits;
 				best_node = node;
 			}
 		}
 
-		Move m = best_node->ChosenMove;
+		Move m = best_node->m_move;
 		free(store);
 		return m;
 	}

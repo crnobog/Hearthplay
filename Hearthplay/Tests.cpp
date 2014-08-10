@@ -48,8 +48,8 @@ typedef bool(*TestFunc)();
 
 struct TestCase
 {
-	const char* Name;
-	TestFunc Func;
+	const char* m_name;
+	TestFunc	m_func;
 };
 
 TestCase Tests[] =
@@ -346,9 +346,9 @@ void RunTests( )
 	bool any_failed = false;
 	for (auto test : Tests)
 	{
-		if (!test.Func( ))
+		if (!test.m_func( ))
 		{
-			printf("Test %s failed\n", test.Name);
+			printf("Test %s failed\n", test.m_name);
 			any_failed = true;
 		}
 	}

@@ -37,33 +37,33 @@ const char* AINames[] = {
 
 struct PairingResults
 {
-	uint32_t PlayerOneWins;
-	uint32_t PlayerTwoWins;
-	uint32_t Draws;
+	uint32_t m_player_one_wins;
+	uint32_t m_player_two_wins;
+	uint32_t m_draws;
 };
 
 struct PlayResults
 {
-	PairingResults Results[(uint32_t)AIType::MAX * (uint32_t)AIType::MAX];
+	PairingResults m_results[(uint32_t)AIType::MAX * (uint32_t)AIType::MAX];
 
 	PlayResults()
 	{
-		memset(&Results, 0, sizeof(Results));
+		memset(&m_results, 0, sizeof(m_results));
 	}
 
 	void AddResult(AIType player_one, AIType player_two, EWinner Winner)
 	{
-		PairingResults& res = Results[(uint32_t)player_two * (uint32_t)AIType::MAX + (uint32_t)player_one];
+		PairingResults& res = m_results[(uint32_t)player_two * (uint32_t)AIType::MAX + (uint32_t)player_one];
 		switch (Winner)
 		{
 		case EWinner::PlayerOne:
-			res.PlayerOneWins++;
+			res.m_player_one_wins++;
 			break;
 		case EWinner::PlayerTwo:
-			res.PlayerTwoWins++;
+			res.m_player_two_wins++;
 			break;
 		case EWinner::Draw:
-			res.Draws++;
+			res.m_draws++;
 			break;
 		}
 	}
@@ -77,13 +77,13 @@ struct PlayResults
 		{
 			for (AIType player_two = AIType::Random; player_two != AIType::MAX; player_two = (AIType)(1 + (int)player_two))
 			{
-				PairingResults& res = Results[(uint32_t)player_two * (uint32_t)AIType::MAX + (uint32_t)player_one];
-				if (res.Draws + res.PlayerOneWins + res.PlayerTwoWins != 0)
+				PairingResults& res = m_results[(uint32_t)player_two * (uint32_t)AIType::MAX + (uint32_t)player_one];
+				if (res.m_draws + res.m_player_one_wins + res.m_player_two_wins != 0)
 				{
 					printf("| %s vs %s | %d | %d | %d |\n",
 						AINames[(int)player_one],
 						AINames[(int)player_two],
-						res.PlayerOneWins, res.PlayerTwoWins, res.Draws
+						res.m_player_one_wins, res.m_player_two_wins, res.m_draws
 						);
 				}
 			}
@@ -223,8 +223,8 @@ void BenchmarkRandomPlay(const Card(&deck)[30])
 
 struct Setting
 {
-	std::string name;
-	bool value;
+	std::string m_name;
+	bool		m_value;
 };
 
 Setting Setting_RunTournament = { "-tournament", false };
@@ -247,16 +247,16 @@ int main(int argc, char** argv )
 	{
 		for (int j = 0; j < sizeof(Settings) / sizeof(Setting*); ++j)
 		{
-			if (argv[i] == Settings[j]->name)
+			if (argv[i] == Settings[j]->m_name)
 			{
-				Settings[j]->value = true;
+				Settings[j]->m_value = true;
 			}
 		}
 	}
 
 	std::mt19937 r(GlobalRandomDevice( ));
 
-	if (Setting_PrintDeckPossibleCards.value)
+	if (Setting_PrintDeckPossibleCards.m_value)
 	{
 		printf("Deck possible cards:\n");
 		uint32_t num = 0;
@@ -269,17 +269,17 @@ int main(int argc, char** argv )
 		printf("%u cards\n", num);
 	}
 
-	if (Setting_RunTests.value)
+	if (Setting_RunTests.m_value)
 	{
 		RunTests();
 	}
 
-	if (Setting_RunTournament.value)
+	if (Setting_RunTournament.m_value)
 	{
 		AITournament();
 	}
 
-	if (Setting_Wait.value)
+	if (Setting_Wait.m_value)
 	{
 		getc(stdin);
 	}
