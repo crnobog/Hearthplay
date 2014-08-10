@@ -227,24 +227,29 @@ enum class SpellEffect
 	DamageOpponent,	// Leper Gnome deathrattle, Mind Blast, Nightblade
 };
 
-enum class CardFlags
+#define IMPLEMENT_FLAGS( EnumType, UnderlyingType ) \
+	inline EnumType operator|( EnumType l, EnumType r ) \
+		{ return (EnumType)((UnderlyingType)l | (UnderlyingType)r ); } \
+	inline EnumType operator&( EnumType l, EnumType r ) \
+		{ return (EnumType)((UnderlyingType)l & (UnderlyingType)r); } \
+	inline EnumType& operator|=(EnumType& l, EnumType r) \
+		{ l = l | r; return l; } \
+	inline EnumType& operator&=(EnumType& l, EnumType r) \
+		{ l = l & r; return l; } \
+	inline bool HasFlag( EnumType l, EnumType r ) \
+		{ return (l&r) != EnumType::None; } \
+	inline EnumType operator~(EnumType r) \
+		{ return (EnumType)(~(UnderlyingType)r); } 
+
+enum class CardFlags : uint8_t
 {
 	None = 0x0,
-	NotFullyImplemented = 0x1,
+	CanBeInDecks = 0x1,
 };
 
-inline CardFlags operator|(CardFlags l, CardFlags r)
-{
-	return (CardFlags)((int)l | (int)r);
-}
+IMPLEMENT_FLAGS(CardFlags, uint8_t);
 
-inline CardFlags operator&(CardFlags l, CardFlags r)
-{
-	return (CardFlags)((int)l & (int)r);
-}
-
-
-enum class MinionCardFlags
+enum class MinionAbilityFlags : uint8_t
 {
 	None			= 0x0,
 	Taunt			= 0x1,
@@ -256,15 +261,7 @@ enum class MinionCardFlags
 	CannotBeTargeted = 0x40,
 };
 
-inline MinionCardFlags operator|(MinionCardFlags l, MinionCardFlags r)
-{
-	return (MinionCardFlags)((int)l | (int)r);
-}
-
-inline MinionCardFlags operator&(MinionCardFlags l, MinionCardFlags r)
-{
-	return (MinionCardFlags)((int)l & (int)r);
-}
+IMPLEMENT_FLAGS(MinionAbilityFlags, uint8_t);
 
 struct Deathrattle
 {
@@ -280,7 +277,7 @@ struct CardData
 
 	uint8_t m_attack;
 	int8_t m_health;
-	MinionCardFlags m_minion_flags;
+	MinionAbilityFlags m_minion_abilities;
 
 	SpellEffect m_effect;
 	uint8_t m_effect_param;
@@ -290,14 +287,14 @@ struct CardData
 	CardFlags m_flags;
 
 	// Vanilla minion constructor
-	CardData(uint8_t mana_cost, const char* name, uint8_t attack, uint8_t health, CardFlags card_flags = CardFlags::NotFullyImplemented );
+	CardData(uint8_t mana_cost, const char* name, uint8_t attack, uint8_t health, CardFlags card_flags = CardFlags::None );
 	// Minion with abilities constructor
-	CardData(uint8_t mana_cost, const char* name, uint8_t attack, uint8_t health, MinionCardFlags minion_flags, CardFlags card_flags = CardFlags::NotFullyImplemented);
+	CardData(uint8_t mana_cost, const char* name, uint8_t attack, uint8_t health, MinionAbilityFlags minion_flags, CardFlags card_flags = CardFlags::None);
 	// Vanilla minion constructor
-	CardData(uint8_t mana_cost, const char* name, uint8_t attack, uint8_t health, Deathrattle deathrattle, CardFlags card_flags = CardFlags::NotFullyImplemented);
+	CardData(uint8_t mana_cost, const char* name, uint8_t attack, uint8_t health, Deathrattle deathrattle, CardFlags card_flags = CardFlags::None);
 
 	// Spell constructor
-	CardData(CardType type, uint8_t mana_cost, const char* name, SpellEffect effect, uint8_t effect_param, CardFlags card_flag = CardFlags::NotFullyImplemented );
+	CardData(CardType type, uint8_t mana_cost, const char* name, SpellEffect effect, uint8_t effect_param, CardFlags card_flag = CardFlags::None );
 };
 
 const CardData* GetCardData(Card c);
