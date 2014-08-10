@@ -108,23 +108,23 @@ PlayFunction PlayFunctions[] =
 GameState SetupGame(const Card (&deck)[30], std::mt19937& r)
 {
 	GameState game;
-	game.Players[0].Deck.Set(deck, sizeof(deck) / sizeof(Card));
-	game.Players[0].Deck.Shuffle(r);
-	game.Players[1].Deck.Set(deck, sizeof(deck) / sizeof(Card));
-	game.Players[1].Deck.Shuffle(r);
+	game.Players[0].m_deck.Set(deck, sizeof(deck) / sizeof(Card));
+	game.Players[0].m_deck.Shuffle(r);
+	game.Players[1].m_deck.Set(deck, sizeof(deck) / sizeof(Card));
+	game.Players[1].m_deck.Shuffle(r);
 
 	game.Players[0].DrawOne();
 	game.Players[0].DrawOne();
 	game.Players[0].DrawOne();
 	game.Players[0].DrawOne();
-	game.Players[0].Mana = 1;
-	game.Players[0].MaxMana = 1;
+	game.Players[0].m_mana = 1;
+	game.Players[0].m_max_mana = 1;
 
 	game.Players[1].DrawOne();
 	game.Players[1].DrawOne();
 	game.Players[1].DrawOne();
 	game.Players[1].DrawOne();
-	game.Players[1].Hand.Add(Card::Coin);
+	game.Players[1].m_hand.Add(Card::Coin);
 
 	game.UpdatePossibleMoves();
 	return game;

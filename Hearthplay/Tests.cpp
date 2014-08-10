@@ -18,8 +18,8 @@ Minion& AddMinion(GameState& g, uint8_t player, Card c)
 {
 	const CardData* data = GetCardData(c);
 	Minion m{ data };
-	auto idx = g.Players[player].Minions.Add(m);
-	return g.Players[player].Minions[idx];
+	auto idx = g.Players[player].m_minions.Add(m);
+	return g.Players[player].m_minions[idx];
 }
 
 Minion& AddMinionReadyToAttack(GameState& g, uint8_t player, Card c)
@@ -59,7 +59,7 @@ TestCase Tests[] =
 		{
 			GameState g;
 			g.ActivePlayerIndex = 0;
-			g.Players[1].Health = 2;
+			g.Players[1].m_health = 2;
 
 			AddMinionReadyToAttack(g, 0, Card::MurlocRaider);
 
@@ -76,7 +76,7 @@ TestCase Tests[] =
 		{
 			GameState g;
 			g.ActivePlayerIndex = 1;
-			g.Players[0].Health = 2;
+			g.Players[0].m_health = 2;
 
 			AddMinionReadyToAttack(g, 1, Card::MurlocRaider);
 
@@ -98,7 +98,7 @@ TestCase Tests[] =
 			g.UpdatePossibleMoves( );
 
 			CHECK(CheckAndProcessMove(g, Move::AttackHero(0)));
-			CHECK(g.Players[1].Health == GameState::StartingHealth - GetCardData(Card::BluegillWarrior)->m_attack);
+			CHECK(g.Players[1].m_health == GameState::StartingHealth - GetCardData(Card::BluegillWarrior)->m_attack);
 			return true;
 		}
 	},
@@ -122,7 +122,7 @@ TestCase Tests[] =
 		{
 			GameState g;
 			AddMinion(g, 0, Card::ArgentSquire);
-			CHECK(g.Players[0].Minions[0].HasDivineShield( ) == true);
+			CHECK(g.Players[0].m_minions[0].HasDivineShield( ) == true);
 
 			AddMinion(g, 1, Card::BloodfenRaptor);
 			g.UpdatePossibleMoves( );
@@ -131,8 +131,8 @@ TestCase Tests[] =
 			CheckAndProcessMove(g, Move::EndTurn( ));
 
 			CHECK(CheckAndProcessMove(g, Move::AttackMinion(0, 0)));
-			CHECK(g.Players[0].Minions.Num( ) == 1);
-			CHECK(g.Players[0].Minions[0].HasDivineShield( ) == false);
+			CHECK(g.Players[0].m_minions.Num( ) == 1);
+			CHECK(g.Players[0].m_minions[0].HasDivineShield( ) == false);
 
 			return true;
 		}
@@ -163,7 +163,7 @@ TestCase Tests[] =
 			AddMinion(g, 1, Card::SenjinShieldMasta);
 			g.UpdatePossibleMoves( );
 
-			CHECK(g.Players[1].Minions[0].HasTaunt( ));
+			CHECK(g.Players[1].m_minions[0].HasTaunt( ));
 
 			CHECK(CheckAndProcessMove(g, Move::EndTurn( )));
 			CHECK(CheckAndProcessMove(g, Move::EndTurn( )));
@@ -184,8 +184,8 @@ TestCase Tests[] =
 			AddMinion(g, 1, Card::MurlocRaider);
 			g.UpdatePossibleMoves( );
 
-			CHECK(g.Players[1].Minions[0].HasTaunt( ));
-			CHECK(!g.Players[1].Minions[1].HasTaunt( ));
+			CHECK(g.Players[1].m_minions[0].HasTaunt( ));
+			CHECK(!g.Players[1].m_minions[1].HasTaunt( ));
 
 			CHECK(CheckAndProcessMove(g, Move::EndTurn( )));
 			CHECK(CheckAndProcessMove(g, Move::EndTurn( )));
@@ -205,7 +205,7 @@ TestCase Tests[] =
 			AddMinion(g, 1, Card::GoldshireFootman);
 			g.UpdatePossibleMoves( );
 
-			CHECK(g.Players[1].Minions[0].HasTaunt( ));
+			CHECK(g.Players[1].m_minions[0].HasTaunt( ));
 
 			CHECK(CheckAndProcessMove(g, Move::EndTurn( )));
 			CHECK(CheckAndProcessMove(g, Move::EndTurn( )));
@@ -262,8 +262,8 @@ TestCase Tests[] =
 
 			CHECK(g.ActivePlayerIndex == 0);
 			CHECK(CheckAndProcessMove(g, Move::AttackMinion(0, 0)));
-			CHECK(g.Players[0].Minions.Num( ) == 0);
-			CHECK(g.Players[1].Health == GameState::StartingHealth - 2);
+			CHECK(g.Players[0].m_minions.Num( ) == 0);
+			CHECK(g.Players[1].m_health == GameState::StartingHealth - 2);
 
 			return true;
 		}
@@ -280,8 +280,8 @@ TestCase Tests[] =
 
 			CHECK(g.ActivePlayerIndex == 1);
 			CHECK(CheckAndProcessMove(g, Move::AttackMinion(0, 0)));
-			CHECK(g.Players[0].Minions.Num( ) == 0);
-			CHECK(g.Players[1].Health == GameState::StartingHealth - 2);
+			CHECK(g.Players[0].m_minions.Num( ) == 0);
+			CHECK(g.Players[1].m_health == GameState::StartingHealth - 2);
 
 			return true;
 		}
@@ -292,7 +292,7 @@ TestCase Tests[] =
 			GameState g;
 			AddMinion(g, 0, Card::LeperGnome);
 			AddMinion(g, 1, Card::SenjinShieldMasta);
-			g.Players[1].Health = 2;
+			g.Players[1].m_health = 2;
 			g.UpdatePossibleMoves( );
 
 			CHECK(CheckAndProcessMove(g, Move::EndTurn( )));
@@ -300,7 +300,7 @@ TestCase Tests[] =
 
 			CHECK(g.ActivePlayerIndex == 0);
 			CHECK(CheckAndProcessMove(g, Move::AttackMinion(0, 0)));
-			CHECK(g.Players[0].Minions.Num( ) == 0);
+			CHECK(g.Players[0].m_minions.Num( ) == 0);
 			CHECK(g.Winner == EWinner::PlayerOne);
 
 			return true;
@@ -312,14 +312,14 @@ TestCase Tests[] =
 			GameState g;
 			AddMinion(g, 0, Card::LeperGnome);
 			AddMinion(g, 1, Card::SenjinShieldMasta);
-			g.Players[1].Health = 2;
+			g.Players[1].m_health = 2;
 			g.UpdatePossibleMoves( );
 
 			CHECK(CheckAndProcessMove(g, Move::EndTurn( )));
 
 			CHECK(g.ActivePlayerIndex == 1);
 			CHECK(CheckAndProcessMove(g, Move::AttackMinion(0, 0)));
-			CHECK(g.Players[0].Minions.Num( ) == 0);
+			CHECK(g.Players[0].m_minions.Num( ) == 0);
 			CHECK(g.Winner == EWinner::PlayerOne);
 
 			return true;
@@ -329,12 +329,12 @@ TestCase Tests[] =
 		"Coin adds one mana", []( )
 		{
 			GameState g;
-			g.Players[0].Hand.Add(Card::Coin);
+			g.Players[0].m_hand.Add(Card::Coin);
 			g.UpdatePossibleMoves( );
 
-			auto mana = g.Players[0].Mana;
+			auto mana = g.Players[0].m_mana;
 			CHECK(CheckAndProcessMove(g, Move::PlayCard(Card::Coin)));
-			CHECK(g.Players[0].Mana == mana + 1);
+			CHECK(g.Players[0].m_mana == mana + 1);
 
 			return true;
 		}

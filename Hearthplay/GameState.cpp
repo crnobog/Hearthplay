@@ -7,8 +7,8 @@
 GameState::GameState()
 {
 	memset(this, 0, sizeof(GameState));
-	Players[0].Health = StartingHealth;
-	Players[1].Health = StartingHealth;
+	Players[0].m_health = StartingHealth;
+	Players[1].m_health = StartingHealth;
 
 	Winner = EWinner::Undetermined;
 }
@@ -49,9 +49,9 @@ void GameState::UpdatePossibleMoves()
 	Player& Opponent = Players[abs(ActivePlayerIndex - 1)];
 
 	bool opponent_has_taunt = false;
-	for (uint8_t i = 0; i < Opponent.Minions.Num( ); ++i)
+	for (uint8_t i = 0; i < Opponent.m_minions.Num( ); ++i)
 	{
-		if (Opponent.Minions[i].HasTaunt( ))
+		if (Opponent.m_minions[i].HasTaunt( ))
 		{
 			opponent_has_taunt = true;
 			break;
@@ -59,14 +59,14 @@ void GameState::UpdatePossibleMoves()
 	}
 
 	// Attack each target with each minion
-	for (uint8_t i = 0; i < ActivePlayer.Minions.Num(); ++i)
+	for (uint8_t i = 0; i < ActivePlayer.m_minions.Num(); ++i)
 	{
-		if (!ActivePlayer.Minions[i].CanAttack())
+		if (!ActivePlayer.m_minions[i].CanAttack())
 			continue;
 
-		for (uint8_t j = 0; j < Opponent.Minions.Num( ); ++j)
+		for (uint8_t j = 0; j < Opponent.m_minions.Num( ); ++j)
 		{
-			if( opponent_has_taunt && !Opponent.Minions[j].HasTaunt() )
+			if( opponent_has_taunt && !Opponent.m_minions[j].HasTaunt() )
 				continue;
 
 			// Attack minion
@@ -81,11 +81,11 @@ void GameState::UpdatePossibleMoves()
 	}
 
 	// Play each card
-	for (uint8_t i = 0; i < ActivePlayer.Hand.Num(); ++i)
+	for (uint8_t i = 0; i < ActivePlayer.m_hand.Num(); ++i)
 	{
-		if (GetCardData(ActivePlayer.Hand[i])->m_mana_cost <= ActivePlayer.Mana)
+		if (GetCardData(ActivePlayer.m_hand[i])->m_mana_cost <= ActivePlayer.m_mana)
 		{
-			PossibleMoves.Add(Move::PlayCard(ActivePlayer.Hand[i]));
+			PossibleMoves.Add(Move::PlayCard(ActivePlayer.m_hand[i]));
 		}
 	}
 
@@ -98,16 +98,16 @@ void GameState::EndTurn()
 	ActivePlayerIndex = (uint8_t)abs(ActivePlayerIndex - 1);
 	Player& ActivePlayer = Players[ActivePlayerIndex];
 	ActivePlayer.DrawOne();
-	ActivePlayer.MaxMana = (uint8_t)std::min(10, ActivePlayer.MaxMana + 1);
-	ActivePlayer.Mana = ActivePlayer.MaxMana;
-	for (uint8_t i = 0; i < ActivePlayer.Minions.Num(); ++i)
+	ActivePlayer.m_max_mana = (uint8_t)std::min(10, ActivePlayer.m_max_mana + 1);
+	ActivePlayer.m_mana = ActivePlayer.m_max_mana;
+	for (uint8_t i = 0; i < ActivePlayer.m_minions.Num(); ++i)
 	{
-		Minion& m = ActivePlayer.Minions[i];
+		Minion& m = ActivePlayer.m_minions[i];
 		m.BeginTurn();
 	}
 
 	// HACK before fatigue goes in
-	if (Players[0].Deck.Num() == 0 && Players[1].Deck.Num() == 0)
+	if (Players[0].m_deck.Num() == 0 && Players[1].m_deck.Num() == 0)
 	{
 		Winner = EWinner::Draw;
 	}
@@ -117,17 +117,17 @@ void GameState::PlayCard(Card c)
 {
 	Player& ToAct = Players[ActivePlayerIndex];
 	const CardData* ToPlay = GetCardData(c);
-	decltype(ToAct.Hand.Num( )) idx;
-	if (!ToAct.Hand.Find(c, idx))
+	decltype(ToAct.m_hand.Num( )) idx;
+	if (!ToAct.m_hand.Find(c, idx))
 		return;
 
-	ToAct.Hand.RemoveSwap(idx);
+	ToAct.m_hand.RemoveSwap(idx);
 
-	ToAct.Mana -= ToPlay->m_mana_cost;
+	ToAct.m_mana -= ToPlay->m_mana_cost;
 
 	if (ToPlay->m_type == CardType::Minion)
 	{
-		ToAct.Minions.Add({ ToPlay });
+		ToAct.m_minions.Add({ ToPlay });
 	}
 	else
 	{
@@ -140,12 +140,12 @@ void GameState::AttackHero(uint8_t SourceIndex)
 	Player& Active = Players[ActivePlayerIndex];
 	Player& Opponent = Players[abs(ActivePlayerIndex - 1)];
 
-	Minion& Attacker = Active.Minions[SourceIndex];
+	Minion& Attacker = Active.m_minions[SourceIndex];
 	Attacker.Attacked( );
 
-	Opponent.Health -= Attacker.m_attack;
+	Opponent.m_health -= Attacker.m_attack;
 
-	if (Opponent.Health <= 0)
+	if (Opponent.m_health <= 0)
 	{
 		Winner = static_cast<EWinner>(ActivePlayerIndex);
 	}
@@ -154,14 +154,14 @@ void GameState::AttackHero(uint8_t SourceIndex)
 void GameState::CheckDeadMinion(uint8_t player_index, uint8_t minion_index)
 {
 	Player& owner = Players[player_index];
-	Minion dead_minion = owner.Minions[minion_index];
+	Minion dead_minion = owner.m_minions[minion_index];
 	if (dead_minion.m_health <= 0)
 	{
 		if (dead_minion.m_source_card->m_minion_deathrattle.m_effect != SpellEffect::None)
 		{
 			HandleDeathrattle(dead_minion.m_source_card->m_minion_deathrattle, player_index);
 		}
-		owner.Minions.RemoveAt(minion_index);
+		owner.m_minions.RemoveAt(minion_index);
 	}
 }
 
@@ -170,8 +170,8 @@ void GameState::AttackMinion(uint8_t SourceIndex, uint8_t TargetIndex)
 	Player& Active = Players[ActivePlayerIndex];
 	Player& Opponent = Players[OppositePlayer(ActivePlayerIndex)];
 
-	Minion& Attacker = Active.Minions[SourceIndex];
-	Minion& Victim = Opponent.Minions[TargetIndex];
+	Minion& Attacker = Active.m_minions[SourceIndex];
+	Minion& Victim = Opponent.m_minions[TargetIndex];
 
 	Attacker.TakeDamage(Victim.m_attack);
 	Victim.TakeDamage(Attacker.m_attack);
@@ -196,13 +196,13 @@ void GameState::HandleSpellNoTarget(SpellEffect effect, uint8_t spell_param, uin
 	case SpellEffect::AddMana:
 	{
 		Player& p = Players[owner_index];
-		p.Mana += spell_param;
+		p.m_mana += spell_param;
 	}
 	case SpellEffect::DamageOpponent:
 	{
 		Player& opponent = Players[abs(owner_index - 1)];
-		opponent.Health -= spell_param;
-		if (opponent.Health <= 0)
+		opponent.m_health -= spell_param;
+		if (opponent.m_health <= 0)
 		{
 			Winner = static_cast<EWinner>(owner_index);
 		}
@@ -221,21 +221,21 @@ void GameState::PrintMove(const Move& m) const
 	case MoveType::AttackHero:
 		printf("Player %d: Attack hero with %s\n",
 			ActivePlayerIndex,
-			Active.Minions[m.m_source_index].GetName()
+			Active.m_minions[m.m_source_index].GetName()
 			);
 		break;
 	case MoveType::AttackMinion:
 		printf("Player %d: Attack %s with %s\n", 
 			ActivePlayerIndex, 
-			Opponent.Minions[m.m_target_index].GetName(), 
-			Active.Minions[m.m_source_index].GetName() 
+			Opponent.m_minions[m.m_target_index].GetName(), 
+			Active.m_minions[m.m_source_index].GetName() 
 			);
 		break;
 	case MoveType::EndTurn:
 		printf("Player %d: End turn\n", ActivePlayerIndex);
 		break;
 	case MoveType::PlayCard:
-		CardToPlay = GetCardData(Players[ActivePlayerIndex].Hand[m.m_source_index]);
+		CardToPlay = GetCardData(Players[ActivePlayerIndex].m_hand[m.m_source_index]);
 		printf("Player %d: Play %s\n", ActivePlayerIndex, CardToPlay->m_name);
 		break;
 	}
@@ -245,18 +245,18 @@ void GameState::PrintState() const
 {
 	for (unsigned i = 0; i < 2; ++i)
 	{
-		printf("Player %d - %d - %d/%d\n", i, Players[i].Health, Players[i].Mana, Players[i].MaxMana );
+		printf("Player %d - %d - %d/%d\n", i, Players[i].m_health, Players[i].m_mana, Players[i].m_max_mana );
 		printf("Hand: ");
-		for (uint8_t card = 0; card < Players[i].Hand.Num(); ++card)
+		for (uint8_t card = 0; card < Players[i].m_hand.Num(); ++card)
 		{
 			const char* format = card == 0 ? "%s" : ", %s";
-			printf(format, GetCardData(Players[i].Hand[card])->m_name);
+			printf(format, GetCardData(Players[i].m_hand[card])->m_name);
 		}
 		printf("\n");
 		printf("Minions: \n");
-		for (uint8_t m = 0; m < Players[i].Minions.Num(); ++m)
+		for (uint8_t m = 0; m < Players[i].m_minions.Num(); ++m)
 		{
-			const Minion& minion = Players[i].Minions[m];
+			const Minion& minion = Players[i].m_minions[m];
 			printf("%s %d/%d\n", minion.GetName(), minion.m_attack, minion.m_health);
 		}
 	}

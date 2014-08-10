@@ -127,21 +127,21 @@ namespace DeterminizedMCTS
 		std::uniform_int_distribution<uint32_t> deck_distribution(0, DeckPossibleCards.size() - 1);
 
 		// Randomize cards in opponent's hand
-		for (uint8_t i = 0; i < opponent.Hand.Num(); ++i)
+		for (uint8_t i = 0; i < opponent.m_hand.Num(); ++i)
 		{
 			auto idx = hand_distribution(r);
 			Card c = idx == DeckPossibleCards.size() ? Card::Coin : DeckPossibleCards[idx];
-			opponent.Hand[i] = c;
+			opponent.m_hand[i] = c;
 		}
 
 		// Shuffle my deck
-		active.Deck.Shuffle(r);
+		active.m_deck.Shuffle(r);
 
 		// Randomize opponent's deck
-		for (uint8_t i = 0; i < opponent.Deck.Num(); ++i)
+		for (uint8_t i = 0; i < opponent.m_deck.Num(); ++i)
 		{
 			Card c = DeckPossibleCards[deck_distribution(r)];
-			opponent.Deck[i] = c;
+			opponent.m_deck[i] = c;
 		}
 
 		// This should not have actually changed the possible moves, but just to be safe against future changes

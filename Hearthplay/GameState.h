@@ -257,19 +257,19 @@ struct Minion
 
 struct Player
 {
-	int8_t Health;
-	uint8_t MaxMana;
-	uint8_t Mana;
+	int8_t m_health;
+	uint8_t m_max_mana;
+	uint8_t m_mana;
 
-	FixedVector<Minion, 7, uint8_t> Minions;
-	FixedVector<Card, 10, uint8_t> Hand;
-	FixedVector<Card, 30, uint8_t> Deck;
+	FixedVector<Minion, 7, uint8_t> m_minions;
+	FixedVector<Card, 10, uint8_t> m_hand;
+	FixedVector<Card, 30, uint8_t> m_deck;
 
 	inline void DrawOne()
 	{
-		if (Deck.Num())
+		if (m_deck.Num())
 		{
-			Hand.Add(Deck.PopBack());
+			m_hand.Add(m_deck.PopBack());
 		}
 	}
 };
