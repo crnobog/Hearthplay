@@ -3,6 +3,9 @@
 #include "MCTS.h"
 #include "Clock.h"
 
+#include <thread>
+#include <future>
+
 #if 0
 #define DEBUG_GAME(...) __VA_ARGS__
 #else
@@ -78,6 +81,16 @@ void PlayResults::AddResult(AIType player_one, AIType player_two, EWinner Winner
 	}
 }
 
+void PlayResults::AddResults(const PlayResults& other)
+{
+	for (uint32_t i = 0; i < sizeof(m_results) / sizeof(PairingResults); ++i)
+	{
+		m_results[i].m_player_one_wins += other.m_results[i].m_player_one_wins;
+		m_results[i].m_player_two_wins += other.m_results[i].m_player_two_wins;
+		m_results[i].m_draws += other.m_results[i].m_draws;
+	}
+}
+
 void PlayResults::Print( ) const
 {
 	printf("| Matchup | Player One Wins | Player Two Wins | Draws |\n");
@@ -149,5 +162,32 @@ void AITournament( uint32_t num_rounds, PlayResults& results )
 				results.AddResult(player_one, player_two, winner);
 			}
 		}
+	}
+}
+
+void AITournamentMT( uint32_t total_rounds, PlayResults& out_results )
+{
+	auto job = []( uint32_t rounds ) {
+		PlayResults res;
+		AITournament(rounds, res);
+		return res;
+	};
+
+	unsigned num_jobs = std::thread::hardware_concurrency( );
+	std::vector< std::future<PlayResults> > job_results;
+	for (unsigned i = 0; i < num_jobs; ++i)
+	{
+		uint32_t rounds = total_rounds / num_jobs;
+		if (rounds > (total_rounds - i * rounds))
+		{
+			rounds = total_rounds - i * rounds;
+		}
+
+		job_results.emplace_back(std::async(job, rounds));
+	}
+
+	for (auto& f : job_results)
+	{
+		out_results.AddResults(f.get( ));
 	}
 }

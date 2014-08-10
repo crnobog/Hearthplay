@@ -29,10 +29,13 @@ struct PlayResults
 
 	PlayResults( );
 	void AddResult(AIType player_one, AIType player_two, EWinner Winner);
+	void AddResults(const PlayResults& other);
 	void Print( ) const;
 };
 
 void AITournament( uint32_t rounds, PlayResults& results );
+void AITournamentMT( uint32_t rounds, PlayResults& results );
+
 
 typedef Move(*PlayFunction)(const GameState&);
 
