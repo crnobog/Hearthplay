@@ -248,6 +248,96 @@ TestCase Tests[] =
 
 			return true;
 		}
+	},
+	{
+		"Leper Gnome deals 2 damage when it dies while attacking", []( )
+		{
+			GameState g;
+			AddMinion(g, 0, Card::LeperGnome);
+			AddMinion(g, 1, Card::SenjinShieldMasta);
+			g.UpdatePossibleMoves();
+
+			CHECK(CheckAndProcessMove(g, Move::EndTurn( )));
+			CHECK(CheckAndProcessMove(g, Move::EndTurn( )));
+
+			CHECK(g.ActivePlayerIndex == 0);
+			CHECK(CheckAndProcessMove(g, Move::AttackMinion(0, 0)));
+			CHECK(g.Players[0].Minions.Num( ) == 0);
+			CHECK(g.Players[1].Health == GameState::StartingHealth - 2);
+
+			return true;
+		}
+	},
+	{
+		"Leper Gnome deals 2 damage when it dies after being attacked", []( )
+		{
+			GameState g;
+			AddMinion(g, 0, Card::LeperGnome);
+			AddMinion(g, 1, Card::SenjinShieldMasta);
+			g.UpdatePossibleMoves( );
+
+			CHECK(CheckAndProcessMove(g, Move::EndTurn( )));
+
+			CHECK(g.ActivePlayerIndex == 1);
+			CHECK(CheckAndProcessMove(g, Move::AttackMinion(0, 0)));
+			CHECK(g.Players[0].Minions.Num( ) == 0);
+			CHECK(g.Players[1].Health == GameState::StartingHealth - 2);
+
+			return true;
+		}
+	},
+	{
+		"Leper Gnome can win a game when it dies while attacking", []( )
+		{
+			GameState g;
+			AddMinion(g, 0, Card::LeperGnome);
+			AddMinion(g, 1, Card::SenjinShieldMasta);
+			g.Players[1].Health = 2;
+			g.UpdatePossibleMoves( );
+
+			CHECK(CheckAndProcessMove(g, Move::EndTurn( )));
+			CHECK(CheckAndProcessMove(g, Move::EndTurn( )));
+
+			CHECK(g.ActivePlayerIndex == 0);
+			CHECK(CheckAndProcessMove(g, Move::AttackMinion(0, 0)));
+			CHECK(g.Players[0].Minions.Num( ) == 0);
+			CHECK(g.Winner == EWinner::PlayerOne);
+
+			return true;
+		}
+	},
+	{
+		"Leper Gnome can win a game when it dies after being attacked", []( )
+		{
+			GameState g;
+			AddMinion(g, 0, Card::LeperGnome);
+			AddMinion(g, 1, Card::SenjinShieldMasta);
+			g.Players[1].Health = 2;
+			g.UpdatePossibleMoves( );
+
+			CHECK(CheckAndProcessMove(g, Move::EndTurn( )));
+
+			CHECK(g.ActivePlayerIndex == 1);
+			CHECK(CheckAndProcessMove(g, Move::AttackMinion(0, 0)));
+			CHECK(g.Players[0].Minions.Num( ) == 0);
+			CHECK(g.Winner == EWinner::PlayerOne);
+
+			return true;
+		}
+	},
+	{
+		"Coin adds one mana", []( )
+		{
+			GameState g;
+			g.Players[0].Hand.Add(Card::Coin);
+			g.UpdatePossibleMoves( );
+
+			auto mana = g.Players[0].Mana;
+			CHECK(CheckAndProcessMove(g, Move::PlayCard(Card::Coin)));
+			CHECK(g.Players[0].Mana == mana + 1);
+
+			return true;
+		}
 	}
 };
 

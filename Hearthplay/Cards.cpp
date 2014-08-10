@@ -17,7 +17,7 @@ const CardData AllCards[] = {
 	{ 1, "Goldshire Footman",		1, 2, MinionCardFlags::Taunt, CardFlags::None },
 	{ 1, "Grimscale Oracle",		1, 1 },
 	{ 1, "Hungry Crab",				1, 2 },
-	{ 1, "Leper Gnome",				2, 1 },
+	{ 1, "Leper Gnome",				2, 1, Deathrattle{ SpellEffect::DamageOpponent, 2 }, CardFlags::None },
 	{ 1, "Lightwarden",				1, 2 },
 	{ 1, "Murloc Raider",			2, 1, CardFlags::None },
 	{ 1, "Murloc Tidecaller",		1, 2 },
@@ -224,6 +224,7 @@ CardData::CardData(uint8_t mana_cost, const char* name, uint8_t attack, uint8_t 
 	, Health(health)
 	, MinionFlags(MinionCardFlags::None)
 	, Effect(SpellEffect::None)
+	, MinionDeathrattle(Deathrattle{ SpellEffect::None, 0 })
 	, Flags(card_flags)
 {
 
@@ -237,18 +238,38 @@ CardData::CardData(uint8_t mana_cost, const char* name, uint8_t attack, uint8_t 
 	, Health(health)
 	, MinionFlags(flags)
 	, Effect(SpellEffect::None)
+	, MinionDeathrattle(Deathrattle{ SpellEffect::None, 0 })
 	, Flags(card_flags)
 {
 
 }
+
+CardData::CardData(uint8_t mana_cost, const char* name, uint8_t attack, uint8_t health, Deathrattle deathrattle, CardFlags card_flags)
+	: Type(CardType::Minion)
+	, ManaCost(mana_cost)
+	, Name(name)
+	, Attack(attack)
+	, Health(health)
+	, MinionFlags(MinionCardFlags::None)
+	, Effect(SpellEffect::None)
+	, MinionDeathrattle(deathrattle)
+	, Flags(card_flags)
+{
+
+}
+
 
 // Spell constructor
 CardData::CardData(CardType type, uint8_t mana_cost, const char* name, SpellEffect effect, uint8_t effect_param, CardFlags card_flags )
 	: Type(type)
 	, ManaCost(mana_cost)
 	, Name(name)
+	, Attack(0)
+	, Health(0)
+	, MinionFlags(MinionCardFlags::None)
 	, Effect(effect)
 	, EffectParam(effect_param)
+	, MinionDeathrattle(Deathrattle{ SpellEffect::None, 0 })
 	, Flags(card_flags)
 {
 }

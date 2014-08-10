@@ -131,12 +131,7 @@ void GameState::PlayCard(Card c)
 	}
 	else
 	{
-		switch (ToPlay->Effect)
-		{
-		case SpellEffect::AddMana:
-			ToAct.Mana += ToPlay->EffectParam;
-			break;
-		}
+		HandleSpellNoTarget(ToPlay->Effect, ToPlay->EffectParam, ActivePlayerIndex);
 	}
 }
 
@@ -156,10 +151,24 @@ void GameState::AttackHero(uint8_t SourceIndex)
 	}
 }
 
+void GameState::CheckDeadMinion(uint8_t player_index, uint8_t minion_index)
+{
+	Player& owner = Players[player_index];
+	Minion dead_minion = owner.Minions[minion_index];
+	if (dead_minion.Health <= 0)
+	{
+		if (dead_minion.SourceCard->MinionDeathrattle.Effect != SpellEffect::None)
+		{
+			HandleDeathrattle(dead_minion.SourceCard->MinionDeathrattle, player_index);
+		}
+		owner.Minions.RemoveAt(minion_index);
+	}
+}
+
 void GameState::AttackMinion(uint8_t SourceIndex, uint8_t TargetIndex)
 {
 	Player& Active = Players[ActivePlayerIndex];
-	Player& Opponent = Players[abs(ActivePlayerIndex- 1)];
+	Player& Opponent = Players[OppositePlayer(ActivePlayerIndex)];
 
 	Minion& Attacker = Active.Minions[SourceIndex];
 	Minion& Victim = Opponent.Minions[TargetIndex];
@@ -171,14 +180,33 @@ void GameState::AttackMinion(uint8_t SourceIndex, uint8_t TargetIndex)
 
 	// Handle minion death
 	// TODO: Refactor when handling simultaneous minion death
-	if (Active.Minions[SourceIndex].Health <= 0)
-	{
-		Active.Minions.RemoveAt(SourceIndex);
-	}
+	CheckDeadMinion(ActivePlayerIndex, SourceIndex);
+	CheckDeadMinion(OppositePlayer(ActivePlayerIndex), TargetIndex);
+}
 
-	if (Opponent.Minions[TargetIndex].Health <= 0)
+void GameState::HandleDeathrattle(Deathrattle deathrattle, uint8_t owner_index)
+{
+	HandleSpellNoTarget(deathrattle.Effect, deathrattle.Param, owner_index);
+}
+
+void GameState::HandleSpellNoTarget(SpellEffect effect, uint8_t spell_param, uint8_t owner_index)
+{
+	switch (effect)
 	{
-		Opponent.Minions.RemoveAt(TargetIndex);
+	case SpellEffect::AddMana:
+	{
+		Player& p = Players[owner_index];
+		p.Mana += spell_param;
+	}
+	case SpellEffect::DamageOpponent:
+	{
+		Player& opponent = Players[abs(owner_index - 1)];
+		opponent.Health -= spell_param;
+		if (opponent.Health <= 0)
+		{
+			Winner = static_cast<EWinner>(owner_index);
+		}
+	}
 	}
 }
 

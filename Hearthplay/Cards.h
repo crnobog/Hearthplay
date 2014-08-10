@@ -223,7 +223,8 @@ enum class CardType : uint8_t
 enum class SpellEffect
 {
 	None,
-	AddMana, // Coin and Innervate
+	AddMana,		// Coin and Innervate
+	DamageOpponent,	// Leper Gnome deathrattle, Mind Blast, Nightblade
 };
 
 enum class CardFlags
@@ -265,6 +266,11 @@ inline MinionCardFlags operator&(MinionCardFlags l, MinionCardFlags r)
 	return (MinionCardFlags)((int)l & (int)r);
 }
 
+struct Deathrattle
+{
+	SpellEffect Effect;
+	uint8_t		Param;
+};
 
 struct CardData
 {
@@ -279,12 +285,16 @@ struct CardData
 	SpellEffect Effect;
 	uint8_t EffectParam;
 
+	Deathrattle MinionDeathrattle;
+
 	CardFlags Flags;
 
 	// Vanilla minion constructor
 	CardData(uint8_t mana_cost, const char* name, uint8_t attack, uint8_t health, CardFlags card_flags = CardFlags::NotFullyImplemented );
 	// Minion with abilities constructor
-	CardData(uint8_t mana_cost, const char* name, uint8_t attack, uint8_t health, MinionCardFlags minion_flags, CardFlags card_flags = CardFlags::NotFullyImplemented );
+	CardData(uint8_t mana_cost, const char* name, uint8_t attack, uint8_t health, MinionCardFlags minion_flags, CardFlags card_flags = CardFlags::NotFullyImplemented);
+	// Vanilla minion constructor
+	CardData(uint8_t mana_cost, const char* name, uint8_t attack, uint8_t health, Deathrattle deathrattle, CardFlags card_flags = CardFlags::NotFullyImplemented);
 
 	// Spell constructor
 	CardData(CardType type, uint8_t mana_cost, const char* name, SpellEffect effect, uint8_t effect_param, CardFlags card_flag = CardFlags::NotFullyImplemented );

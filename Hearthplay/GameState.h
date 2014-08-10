@@ -294,9 +294,18 @@ struct GameState
 	void PrintMove(const Move& m) const;
 	void PrintState() const;
 
+	inline int8_t OppositePlayer(int8_t p_index)
+	{
+		return p_index == 0 ? 1 : 0;
+	}
+
 protected:
 	void EndTurn();
 	void PlayCard(Card c);
 	void AttackHero(uint8_t SourceIndex);
 	void AttackMinion(uint8_t SourceIndex, uint8_t TargetIndex);
+
+	void CheckDeadMinion(uint8_t player_index, uint8_t minion_index);
+	void HandleDeathrattle(Deathrattle deathrattle, uint8_t owner_index);
+	void HandleSpellNoTarget(SpellEffect effect, uint8_t spell_param, uint8_t owner_index);
 };
