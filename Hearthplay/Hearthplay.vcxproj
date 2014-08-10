@@ -73,6 +73,7 @@
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="SO_IS_MCTS.cpp" />
     <ClCompile Include="Tests.cpp" />
+    <ClCompile Include="Tournament.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Cards.h" />
@@ -81,6 +82,7 @@
     <ClInclude Include="MCTS.h" />
     <ClInclude Include="GameState.h" />
     <ClInclude Include="Tests.h" />
+    <ClInclude Include="Tournament.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
