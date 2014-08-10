@@ -93,8 +93,8 @@ struct PlayResults
 
 Move PlayRandomMove(const GameState& state)
 {
-	uint16_t idx = rand() % state.PossibleMoves.Num();
-	return state.PossibleMoves[idx];
+	uint16_t idx = rand() % state.m_possible_moves.Num();
+	return state.m_possible_moves[idx];
 }
 
 PlayFunction PlayFunctions[] = 
@@ -108,23 +108,23 @@ PlayFunction PlayFunctions[] =
 GameState SetupGame(const Card (&deck)[30], std::mt19937& r)
 {
 	GameState game;
-	game.Players[0].m_deck.Set(deck, sizeof(deck) / sizeof(Card));
-	game.Players[0].m_deck.Shuffle(r);
-	game.Players[1].m_deck.Set(deck, sizeof(deck) / sizeof(Card));
-	game.Players[1].m_deck.Shuffle(r);
+	game.m_players[0].m_deck.Set(deck, sizeof(deck) / sizeof(Card));
+	game.m_players[0].m_deck.Shuffle(r);
+	game.m_players[1].m_deck.Set(deck, sizeof(deck) / sizeof(Card));
+	game.m_players[1].m_deck.Shuffle(r);
 
-	game.Players[0].DrawOne();
-	game.Players[0].DrawOne();
-	game.Players[0].DrawOne();
-	game.Players[0].DrawOne();
-	game.Players[0].m_mana = 1;
-	game.Players[0].m_max_mana = 1;
+	game.m_players[0].DrawOne();
+	game.m_players[0].DrawOne();
+	game.m_players[0].DrawOne();
+	game.m_players[0].DrawOne();
+	game.m_players[0].m_mana = 1;
+	game.m_players[0].m_max_mana = 1;
 
-	game.Players[1].DrawOne();
-	game.Players[1].DrawOne();
-	game.Players[1].DrawOne();
-	game.Players[1].DrawOne();
-	game.Players[1].m_hand.Add(Card::Coin);
+	game.m_players[1].DrawOne();
+	game.m_players[1].DrawOne();
+	game.m_players[1].DrawOne();
+	game.m_players[1].DrawOne();
+	game.m_players[1].m_hand.Add(Card::Coin);
 
 	game.UpdatePossibleMoves();
 	return game;
@@ -133,7 +133,7 @@ GameState SetupGame(const Card (&deck)[30], std::mt19937& r)
 EWinner PlayGame(std::mt19937& r, const Card(&deck)[30], AIType player_one, AIType player_two)
 {
 	GameState game = SetupGame(deck, r);
-	while (game.Winner == EWinner::Undetermined)
+	while (game.m_winner == EWinner::Undetermined)
 	{
 		DEBUG_GAME(
 			printf("\n");
@@ -142,7 +142,7 @@ EWinner PlayGame(std::mt19937& r, const Card(&deck)[30], AIType player_one, AITy
 		);
 		
 		Move m = Move::EndTurn( );
-		if (game.ActivePlayerIndex == 0)
+		if (game.m_active_player_index == 0)
 		{
 			m = PlayFunctions[(int)player_one](game);
 		}
@@ -153,7 +153,7 @@ EWinner PlayGame(std::mt19937& r, const Card(&deck)[30], AIType player_one, AITy
 		DEBUG_GAME(game.PrintMove(m));
 		game.ProcessMove(m);
 	}
-	return game.Winner;
+	return game.m_winner;
 }
 
 void AITournament()

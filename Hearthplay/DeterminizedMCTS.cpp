@@ -19,7 +19,7 @@ namespace DeterminizedMCTS
 		std::unique_ptr<MCTSNode> Sibling;
 
 		Move ChosenMove; // The move that got us here from Parent
-		decltype(GameState::PossibleMoves) UntriedMoves;
+		decltype(GameState::m_possible_moves) UntriedMoves;
 
 		uint32_t Visits;
 		uint32_t Wins;
@@ -28,14 +28,14 @@ namespace DeterminizedMCTS
 			: ChosenMove(Move::EndTurn( ))
 		{
 			memset(this, 0, sizeof(MCTSNode));
-			UntriedMoves = state.PossibleMoves;
+			UntriedMoves = state.m_possible_moves;
 		}
 
 		MCTSNode(MCTSNode* parent, Move m, const GameState& state)
 			: ChosenMove(Move::EndTurn( ))
 		{
 			memset(this, 0, sizeof(MCTSNode));
-			UntriedMoves = state.PossibleMoves;
+			UntriedMoves = state.m_possible_moves;
 			ChosenMove = m;
 			Parent = parent;
 		}
@@ -119,9 +119,9 @@ namespace DeterminizedMCTS
 	{
 		GameState new_state(game);
 
-		int8_t opponent_idx = (int8_t)abs(new_state.ActivePlayerIndex - 1);
-		Player& active = new_state.Players[new_state.ActivePlayerIndex];
-		Player& opponent = new_state.Players[opponent_idx];
+		int8_t opponent_idx = (int8_t)abs(new_state.m_active_player_index - 1);
+		Player& active = new_state.m_players[new_state.m_active_player_index];
+		Player& opponent = new_state.m_players[opponent_idx];
 
 		std::uniform_int_distribution<uint32_t> hand_distribution(0, DeckPossibleCards.size() );
 		std::uniform_int_distribution<uint32_t> deck_distribution(0, DeckPossibleCards.size() - 1);
@@ -185,8 +185,8 @@ namespace DeterminizedMCTS
 				}
 
 				sim_state.PlayOutRandomly(r);
-				bool won = sim_state.Winner == (EWinner)game.ActivePlayerIndex;
-				MCTS_DEBUG(printf("Simulation result: %d\n", sim_state.Winner));
+				bool won = sim_state.m_winner == (EWinner)game.m_active_player_index;
+				MCTS_DEBUG(printf("Simulation result: %d\n", sim_state.m_winner));
 
 				while (node)
 				{

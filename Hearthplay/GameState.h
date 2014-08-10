@@ -279,10 +279,10 @@ struct GameState
 	static const int StartingHealth = 30;
 	static const uint8_t MaxPossibleMoves = 1 + 8 * 8 + 10 * 16;
 
-	Player Players[2];
-	EWinner Winner;
-	int8_t ActivePlayerIndex;
-	FixedVector<Move, MaxPossibleMoves, uint16_t> PossibleMoves;
+	Player m_players[2];
+	EWinner m_winner;
+	int8_t m_active_player_index;
+	FixedVector<Move, MaxPossibleMoves, uint16_t> m_possible_moves;
 
 	GameState();
 	GameState(const GameState& other);

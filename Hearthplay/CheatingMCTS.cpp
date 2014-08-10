@@ -19,7 +19,7 @@ namespace CheatingMCTS
 		std::unique_ptr<MCTSNode> Sibling;
 
 		Move ChosenMove; // The move that got us here from Parent
-		decltype(GameState::PossibleMoves) UntriedMoves;
+		decltype(GameState::m_possible_moves) UntriedMoves;
 
 		uint32_t Visits;
 		uint32_t Wins;
@@ -28,14 +28,14 @@ namespace CheatingMCTS
 			: ChosenMove(Move::EndTurn())
 		{
 			memset(this, 0, sizeof(MCTSNode));
-			UntriedMoves = state.PossibleMoves;
+			UntriedMoves = state.m_possible_moves;
 		}
 
 		MCTSNode(MCTSNode* parent, Move m, const GameState& state)
 			: ChosenMove(Move::EndTurn( ))
 		{
 			memset(this, 0, sizeof(MCTSNode));
-			UntriedMoves = state.PossibleMoves;
+			UntriedMoves = state.m_possible_moves;
 			ChosenMove = m;
 			Parent = parent;
 		}
@@ -130,8 +130,8 @@ namespace CheatingMCTS
 			}
 
 			sim_state.PlayOutRandomly(r);
-			bool won = sim_state.Winner == (EWinner)game.ActivePlayerIndex;
-			MCTS_DEBUG(printf( "Simulation result: %d\n", sim_state.Winner));
+			bool won = sim_state.m_winner == (EWinner)game.m_active_player_index;
+			MCTS_DEBUG(printf( "Simulation result: %d\n", sim_state.m_winner));
 
 			while (node)
 			{

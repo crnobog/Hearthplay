@@ -39,9 +39,9 @@ namespace SO_IS_MCTS
 		{
 		}
 
-		inline auto GetUntriedMoves(const GameState& game) -> decltype(GameState::PossibleMoves)
+		inline auto GetUntriedMoves(const GameState& game) -> decltype(GameState::m_possible_moves)
 		{
-			auto moves = game.PossibleMoves;
+			auto moves = game.m_possible_moves;
 			for (MCTSNode* node = Child; node; node = node->Sibling)
 			{
 				decltype(moves.Num()) idx;
@@ -70,7 +70,7 @@ namespace SO_IS_MCTS
 
 			for (MCTSNode* node = Child; node; node = node->Sibling)
 			{
-				if (!state.PossibleMoves.Contains(node->ChosenMove))
+				if (!state.m_possible_moves.Contains(node->ChosenMove))
 				{
 					continue;
 				}
@@ -90,7 +90,7 @@ namespace SO_IS_MCTS
 		inline Move ChooseRandomUntriedMove(const GameState& game, std::mt19937& r)
 		{
 			auto moves = GetUntriedMoves(game);
-			std::uniform_int_distribution< decltype(GameState::PossibleMoves)::SizeType > dist(0, moves.Num() - 1);
+			std::uniform_int_distribution< decltype(GameState::m_possible_moves)::SizeType > dist(0, moves.Num() - 1);
 			return moves[dist(r)];
 		}
 
@@ -120,9 +120,9 @@ namespace SO_IS_MCTS
 	{
 		GameState new_state(game);
 
-		int8_t opponent_idx = (int8_t)abs(new_state.ActivePlayerIndex - 1);
-		Player& active = new_state.Players[new_state.ActivePlayerIndex];
-		Player& opponent = new_state.Players[opponent_idx];
+		int8_t opponent_idx = (int8_t)abs(new_state.m_active_player_index - 1);
+		Player& active = new_state.m_players[new_state.m_active_player_index];
+		Player& opponent = new_state.m_players[opponent_idx];
 
 		std::uniform_int_distribution<uint32_t> hand_distribution(0, DeckPossibleCards.size());
 		std::uniform_int_distribution<uint32_t> deck_distribution(0, DeckPossibleCards.size() - 1);
@@ -172,7 +172,7 @@ namespace SO_IS_MCTS
 				// Update availability
 				for (MCTSNode* avail_node = node->Child; avail_node; avail_node = avail_node->Sibling)
 				{
-					if (sim_state.PossibleMoves.Contains(avail_node->ChosenMove))
+					if (sim_state.m_possible_moves.Contains(avail_node->ChosenMove))
 					{
 						avail_node->Availability++;
 					}
@@ -188,7 +188,7 @@ namespace SO_IS_MCTS
 				Move m = node->ChooseRandomUntriedMove(sim_state, r);
 				for (MCTSNode* avail_node = node->Child; avail_node; avail_node = avail_node->Sibling)
 				{
-					if (sim_state.PossibleMoves.Contains(avail_node->ChosenMove))
+					if (sim_state.m_possible_moves.Contains(avail_node->ChosenMove))
 					{
 						avail_node->Availability++;
 					}
@@ -204,7 +204,7 @@ namespace SO_IS_MCTS
 			sim_state.PlayOutRandomly(r);
 		
 			// Backpropagation
-			bool won = sim_state.Winner == (EWinner)game.ActivePlayerIndex;
+			bool won = sim_state.m_winner == (EWinner)game.m_active_player_index;
 			while (node)
 			{
 				node->Visits++;
