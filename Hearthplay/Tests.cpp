@@ -25,7 +25,7 @@ Minion& AddMinion(GameState& g, uint8_t player, Card c)
 Minion& AddMinionReadyToAttack(GameState& g, uint8_t player, Card c)
 {
 	Minion& m = AddMinion(g, player, c);
-	m.Flags &= ~(MinionFlags::AttackedThisTurn | MinionFlags::SummonedThisTurn);
+	m.m_flags &= ~(MinionFlags::AttackedThisTurn | MinionFlags::SummonedThisTurn);
 	return m;
 }
 

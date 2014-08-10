@@ -143,7 +143,7 @@ void GameState::AttackHero(uint8_t SourceIndex)
 	Minion& Attacker = Active.Minions[SourceIndex];
 	Attacker.Attacked( );
 
-	Opponent.Health -= Attacker.Attack;
+	Opponent.Health -= Attacker.m_attack;
 
 	if (Opponent.Health <= 0)
 	{
@@ -155,11 +155,11 @@ void GameState::CheckDeadMinion(uint8_t player_index, uint8_t minion_index)
 {
 	Player& owner = Players[player_index];
 	Minion dead_minion = owner.Minions[minion_index];
-	if (dead_minion.Health <= 0)
+	if (dead_minion.m_health <= 0)
 	{
-		if (dead_minion.SourceCard->m_minion_deathrattle.m_effect != SpellEffect::None)
+		if (dead_minion.m_source_card->m_minion_deathrattle.m_effect != SpellEffect::None)
 		{
-			HandleDeathrattle(dead_minion.SourceCard->m_minion_deathrattle, player_index);
+			HandleDeathrattle(dead_minion.m_source_card->m_minion_deathrattle, player_index);
 		}
 		owner.Minions.RemoveAt(minion_index);
 	}
@@ -173,8 +173,8 @@ void GameState::AttackMinion(uint8_t SourceIndex, uint8_t TargetIndex)
 	Minion& Attacker = Active.Minions[SourceIndex];
 	Minion& Victim = Opponent.Minions[TargetIndex];
 
-	Attacker.TakeDamage(Victim.Attack);
-	Victim.TakeDamage(Attacker.Attack);
+	Attacker.TakeDamage(Victim.m_attack);
+	Victim.TakeDamage(Attacker.m_attack);
 
 	Attacker.Attacked( );
 
@@ -257,12 +257,12 @@ void GameState::PrintState() const
 		for (uint8_t m = 0; m < Players[i].Minions.Num(); ++m)
 		{
 			const Minion& minion = Players[i].Minions[m];
-			printf("%s %d/%d\n", minion.GetName(), minion.Attack, minion.Health);
+			printf("%s %d/%d\n", minion.GetName(), minion.m_attack, minion.m_health);
 		}
 	}
 }
 
 const char* Minion::GetName() const
 {
-	return SourceCard->m_name;
+	return m_source_card->m_name;
 }

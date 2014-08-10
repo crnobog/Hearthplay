@@ -131,51 +131,51 @@ inline MinionFlags& operator&=(MinionFlags& l, MinionFlags r)
 
 struct Minion
 {
-	uint8_t Attack;
-	int8_t Health;
-	const CardData* SourceCard;
-	MinionFlags Flags;
+	uint8_t m_attack;
+	int8_t m_health;
+	const CardData* m_source_card;
+	MinionFlags m_flags;
 
 	Minion( )
-		: Attack(0)
-		, Health(0)
-		, SourceCard(nullptr)
-		, Flags(MinionFlags::None)
+		: m_attack(0)
+		, m_health(0)
+		, m_source_card(nullptr)
+		, m_flags(MinionFlags::None)
 	{
 		
 	}
 
 	Minion(const CardData* source_card)
-		: Attack(source_card->m_attack)
-		, Health(source_card->m_health)
-		, SourceCard(source_card)
-		, Flags(MinionFlags::SummonedThisTurn)
+		: m_attack(source_card->m_attack)
+		, m_health(source_card->m_health)
+		, m_source_card(source_card)
+		, m_flags(MinionFlags::SummonedThisTurn)
 	{
 		if ((source_card->m_minion_flags & MinionCardFlags::Charge) != MinionCardFlags::None)
 		{
-			Flags |= MinionFlags::Charge;
+			m_flags |= MinionFlags::Charge;
 		}
 		if ((source_card->m_minion_flags & MinionCardFlags::DivineShield) != MinionCardFlags::None)
 		{
-			Flags |= MinionFlags::DivineShield;
+			m_flags |= MinionFlags::DivineShield;
 		}
 		if ((source_card->m_minion_flags & MinionCardFlags::CannotAttack) != MinionCardFlags::None)
 		{
-			Flags |= MinionFlags::CannotAttack;
+			m_flags |= MinionFlags::CannotAttack;
 		}
 		if ((source_card->m_minion_flags & MinionCardFlags::Taunt) != MinionCardFlags::None)
 		{
-			Flags |= MinionFlags::Taunt;
+			m_flags |= MinionFlags::Taunt;
 		}
 		if ((source_card->m_minion_flags & MinionCardFlags::Windfury) != MinionCardFlags::None)
 		{
-			Flags |= MinionFlags::Windfury;
+			m_flags |= MinionFlags::Windfury;
 		}
 	}
 
 	inline void BeginTurn()
 	{
-		Flags &= ~( MinionFlags::AttackedThisTurn 
+		m_flags &= ~( MinionFlags::AttackedThisTurn 
 				|	MinionFlags::WindfuryAttackedThisTurn
 				|	MinionFlags::SummonedThisTurn
 			);
@@ -185,10 +185,10 @@ struct Minion
 	{
 		if (AttackedThisTurn( ))
 		{
-			Flags |= MinionFlags::WindfuryAttackedThisTurn;
+			m_flags |= MinionFlags::WindfuryAttackedThisTurn;
 		}
 
-		Flags |= MinionFlags::AttackedThisTurn;
+		m_flags |= MinionFlags::AttackedThisTurn;
 	}
 
 	inline void TakeDamage(uint8_t damage)
@@ -199,7 +199,7 @@ struct Minion
 		}
 		else
 		{
-			Health -= damage;
+			m_health -= damage;
 		}
 	}
 
@@ -207,7 +207,7 @@ struct Minion
 
 	inline bool CanAttack( )
 	{
-		return (Flags & MinionFlags::CannotAttack) == MinionFlags::None
+		return (m_flags & MinionFlags::CannotAttack) == MinionFlags::None
 			&& (!SummonedThisTurn() || HasCharge())
 			&& ((!WindfuryAttackedThisTurn() && HasWindfury())
 			|| !AttackedThisTurn()
@@ -216,42 +216,42 @@ struct Minion
 
 	inline bool AttackedThisTurn( ) const
 	{
-		return (Flags & MinionFlags::AttackedThisTurn) != MinionFlags::None;
+		return (m_flags & MinionFlags::AttackedThisTurn) != MinionFlags::None;
 	}
 
 	inline bool WindfuryAttackedThisTurn( ) const
 	{
-		return (Flags & MinionFlags::WindfuryAttackedThisTurn) != MinionFlags::None;
+		return (m_flags & MinionFlags::WindfuryAttackedThisTurn) != MinionFlags::None;
 	}
 
 	inline bool SummonedThisTurn( ) const
 	{
-		return (Flags & MinionFlags::SummonedThisTurn) != MinionFlags::None;
+		return (m_flags & MinionFlags::SummonedThisTurn) != MinionFlags::None;
 	}
 
 	inline bool HasCharge( ) const
 	{
-		return (Flags & MinionFlags::Charge) != MinionFlags::None;
+		return (m_flags & MinionFlags::Charge) != MinionFlags::None;
 	}
 
 	inline bool HasDivineShield( ) const
 	{
-		return (Flags & MinionFlags::DivineShield) != MinionFlags::None;
+		return (m_flags & MinionFlags::DivineShield) != MinionFlags::None;
 	}
 
 	inline void RemoveDivineShield( )
 	{
-		Flags &= ~MinionFlags::DivineShield;
+		m_flags &= ~MinionFlags::DivineShield;
 	}
 
 	inline bool HasWindfury( ) const
 	{
-		return (Flags & MinionFlags::Windfury) != MinionFlags::None;
+		return (m_flags & MinionFlags::Windfury) != MinionFlags::None;
 	}
 
 	inline bool HasTaunt( ) const
 	{
-		return (Flags & MinionFlags::Taunt) != MinionFlags::None;
+		return (m_flags & MinionFlags::Taunt) != MinionFlags::None;
 	}
 };
 
