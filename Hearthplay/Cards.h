@@ -268,26 +268,26 @@ inline MinionCardFlags operator&(MinionCardFlags l, MinionCardFlags r)
 
 struct Deathrattle
 {
-	SpellEffect Effect;
-	uint8_t		Param;
+	SpellEffect m_effect;
+	uint8_t		m_param;
 };
 
 struct CardData
 {
-	CardType Type;
-	uint8_t ManaCost;
-	const char* Name;
+	CardType m_type;
+	uint8_t m_mana_cost;
+	const char* m_name;
 
-	uint8_t Attack;
-	int8_t Health;
-	MinionCardFlags MinionFlags;
+	uint8_t m_attack;
+	int8_t m_health;
+	MinionCardFlags m_minion_flags;
 
-	SpellEffect Effect;
-	uint8_t EffectParam;
+	SpellEffect m_effect;
+	uint8_t m_effect_param;
 
-	Deathrattle MinionDeathrattle;
+	Deathrattle m_minion_deathrattle;
 
-	CardFlags Flags;
+	CardFlags m_flags;
 
 	// Vanilla minion constructor
 	CardData(uint8_t mana_cost, const char* name, uint8_t attack, uint8_t health, CardFlags card_flags = CardFlags::NotFullyImplemented );

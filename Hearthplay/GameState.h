@@ -146,28 +146,28 @@ struct Minion
 	}
 
 	Minion(const CardData* source_card)
-		: Attack(source_card->Attack)
-		, Health(source_card->Health)
+		: Attack(source_card->m_attack)
+		, Health(source_card->m_health)
 		, SourceCard(source_card)
 		, Flags(MinionFlags::SummonedThisTurn)
 	{
-		if ((source_card->MinionFlags & MinionCardFlags::Charge) != MinionCardFlags::None)
+		if ((source_card->m_minion_flags & MinionCardFlags::Charge) != MinionCardFlags::None)
 		{
 			Flags |= MinionFlags::Charge;
 		}
-		if ((source_card->MinionFlags & MinionCardFlags::DivineShield) != MinionCardFlags::None)
+		if ((source_card->m_minion_flags & MinionCardFlags::DivineShield) != MinionCardFlags::None)
 		{
 			Flags |= MinionFlags::DivineShield;
 		}
-		if ((source_card->MinionFlags & MinionCardFlags::CannotAttack) != MinionCardFlags::None)
+		if ((source_card->m_minion_flags & MinionCardFlags::CannotAttack) != MinionCardFlags::None)
 		{
 			Flags |= MinionFlags::CannotAttack;
 		}
-		if ((source_card->MinionFlags & MinionCardFlags::Taunt) != MinionCardFlags::None)
+		if ((source_card->m_minion_flags & MinionCardFlags::Taunt) != MinionCardFlags::None)
 		{
 			Flags |= MinionFlags::Taunt;
 		}
-		if ((source_card->MinionFlags & MinionCardFlags::Windfury) != MinionCardFlags::None)
+		if ((source_card->m_minion_flags & MinionCardFlags::Windfury) != MinionCardFlags::None)
 		{
 			Flags |= MinionFlags::Windfury;
 		}

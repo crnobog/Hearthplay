@@ -176,7 +176,7 @@ void AITournament()
 			{
 				c = DeckPossibleCards[deck_dist(r)];
 				const CardData* data = GetCardData(c);
-				printf("%s\n", data->Name);
+				printf("%s\n", data->m_name);
 			}
 
 			if (i != 0)
@@ -263,7 +263,7 @@ int main(int argc, char** argv )
 		for (Card c : DeckPossibleCards)
 		{
 			const CardData* data = GetCardData(c);
-			printf("%s\n", data->Name);
+			printf("%s\n", data->m_name);
 			++num;
 		}
 		printf("%u cards\n", num);

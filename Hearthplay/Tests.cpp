@@ -98,7 +98,7 @@ TestCase Tests[] =
 			g.UpdatePossibleMoves( );
 
 			CHECK(CheckAndProcessMove(g, Move::AttackHero(0)));
-			CHECK(g.Players[1].Health == GameState::StartingHealth - GetCardData(Card::BluegillWarrior)->Attack);
+			CHECK(g.Players[1].Health == GameState::StartingHealth - GetCardData(Card::BluegillWarrior)->m_attack);
 			return true;
 		}
 	},

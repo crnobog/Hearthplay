@@ -217,43 +217,43 @@ const CardData* GetCardData(Card c)
 }
 
 CardData::CardData(uint8_t mana_cost, const char* name, uint8_t attack, uint8_t health, CardFlags card_flags)
-	: Type(CardType::Minion)
-	, ManaCost(mana_cost)
-	, Name(name)
-	, Attack(attack)
-	, Health(health)
-	, MinionFlags(MinionCardFlags::None)
-	, Effect(SpellEffect::None)
-	, MinionDeathrattle(Deathrattle{ SpellEffect::None, 0 })
-	, Flags(card_flags)
+	: m_type(CardType::Minion)
+	, m_mana_cost(mana_cost)
+	, m_name(name)
+	, m_attack(attack)
+	, m_health(health)
+	, m_minion_flags(MinionCardFlags::None)
+	, m_effect(SpellEffect::None)
+	, m_minion_deathrattle(Deathrattle{ SpellEffect::None, 0 })
+	, m_flags(card_flags)
 {
 
 }
 
 CardData::CardData(uint8_t mana_cost, const char* name, uint8_t attack, uint8_t health, MinionCardFlags flags, CardFlags card_flags)
-	: Type(CardType::Minion)
-	, ManaCost(mana_cost)
-	, Name(name)
-	, Attack(attack)
-	, Health(health)
-	, MinionFlags(flags)
-	, Effect(SpellEffect::None)
-	, MinionDeathrattle(Deathrattle{ SpellEffect::None, 0 })
-	, Flags(card_flags)
+	: m_type(CardType::Minion)
+	, m_mana_cost(mana_cost)
+	, m_name(name)
+	, m_attack(attack)
+	, m_health(health)
+	, m_minion_flags(flags)
+	, m_effect(SpellEffect::None)
+	, m_minion_deathrattle(Deathrattle{ SpellEffect::None, 0 })
+	, m_flags(card_flags)
 {
 
 }
 
 CardData::CardData(uint8_t mana_cost, const char* name, uint8_t attack, uint8_t health, Deathrattle deathrattle, CardFlags card_flags)
-	: Type(CardType::Minion)
-	, ManaCost(mana_cost)
-	, Name(name)
-	, Attack(attack)
-	, Health(health)
-	, MinionFlags(MinionCardFlags::None)
-	, Effect(SpellEffect::None)
-	, MinionDeathrattle(deathrattle)
-	, Flags(card_flags)
+	: m_type(CardType::Minion)
+	, m_mana_cost(mana_cost)
+	, m_name(name)
+	, m_attack(attack)
+	, m_health(health)
+	, m_minion_flags(MinionCardFlags::None)
+	, m_effect(SpellEffect::None)
+	, m_minion_deathrattle(deathrattle)
+	, m_flags(card_flags)
 {
 
 }
@@ -261,16 +261,16 @@ CardData::CardData(uint8_t mana_cost, const char* name, uint8_t attack, uint8_t 
 
 // Spell constructor
 CardData::CardData(CardType type, uint8_t mana_cost, const char* name, SpellEffect effect, uint8_t effect_param, CardFlags card_flags )
-	: Type(type)
-	, ManaCost(mana_cost)
-	, Name(name)
-	, Attack(0)
-	, Health(0)
-	, MinionFlags(MinionCardFlags::None)
-	, Effect(effect)
-	, EffectParam(effect_param)
-	, MinionDeathrattle(Deathrattle{ SpellEffect::None, 0 })
-	, Flags(card_flags)
+	: m_type(type)
+	, m_mana_cost(mana_cost)
+	, m_name(name)
+	, m_attack(0)
+	, m_health(0)
+	, m_minion_flags(MinionCardFlags::None)
+	, m_effect(effect)
+	, m_effect_param(effect_param)
+	, m_minion_deathrattle(Deathrattle{ SpellEffect::None, 0 })
+	, m_flags(card_flags)
 {
 }
 
@@ -286,7 +286,7 @@ void FilterDeckPossibleCards( )
 		 )
 	{
 		const CardData* data = GetCardData(c);
-		if ((data->Flags & CardFlags::NotFullyImplemented) == CardFlags::None)
+		if ((data->m_flags & CardFlags::NotFullyImplemented) == CardFlags::None)
 		{
 			DeckPossibleCards.push_back(c);
 		}

@@ -83,7 +83,7 @@ void GameState::UpdatePossibleMoves()
 	// Play each card
 	for (uint8_t i = 0; i < ActivePlayer.Hand.Num(); ++i)
 	{
-		if (GetCardData(ActivePlayer.Hand[i])->ManaCost <= ActivePlayer.Mana)
+		if (GetCardData(ActivePlayer.Hand[i])->m_mana_cost <= ActivePlayer.Mana)
 		{
 			PossibleMoves.Add(Move::PlayCard(ActivePlayer.Hand[i]));
 		}
@@ -123,15 +123,15 @@ void GameState::PlayCard(Card c)
 
 	ToAct.Hand.RemoveSwap(idx);
 
-	ToAct.Mana -= ToPlay->ManaCost;
+	ToAct.Mana -= ToPlay->m_mana_cost;
 
-	if (ToPlay->Type == CardType::Minion)
+	if (ToPlay->m_type == CardType::Minion)
 	{
 		ToAct.Minions.Add({ ToPlay });
 	}
 	else
 	{
-		HandleSpellNoTarget(ToPlay->Effect, ToPlay->EffectParam, ActivePlayerIndex);
+		HandleSpellNoTarget(ToPlay->m_effect, ToPlay->m_effect_param, ActivePlayerIndex);
 	}
 }
 
@@ -157,9 +157,9 @@ void GameState::CheckDeadMinion(uint8_t player_index, uint8_t minion_index)
 	Minion dead_minion = owner.Minions[minion_index];
 	if (dead_minion.Health <= 0)
 	{
-		if (dead_minion.SourceCard->MinionDeathrattle.Effect != SpellEffect::None)
+		if (dead_minion.SourceCard->m_minion_deathrattle.m_effect != SpellEffect::None)
 		{
-			HandleDeathrattle(dead_minion.SourceCard->MinionDeathrattle, player_index);
+			HandleDeathrattle(dead_minion.SourceCard->m_minion_deathrattle, player_index);
 		}
 		owner.Minions.RemoveAt(minion_index);
 	}
@@ -186,7 +186,7 @@ void GameState::AttackMinion(uint8_t SourceIndex, uint8_t TargetIndex)
 
 void GameState::HandleDeathrattle(Deathrattle deathrattle, uint8_t owner_index)
 {
-	HandleSpellNoTarget(deathrattle.Effect, deathrattle.Param, owner_index);
+	HandleSpellNoTarget(deathrattle.m_effect, deathrattle.m_param, owner_index);
 }
 
 void GameState::HandleSpellNoTarget(SpellEffect effect, uint8_t spell_param, uint8_t owner_index)
@@ -236,7 +236,7 @@ void GameState::PrintMove(const Move& m) const
 		break;
 	case MoveType::PlayCard:
 		CardToPlay = GetCardData(Players[ActivePlayerIndex].Hand[m.SourceIndex]);
-		printf("Player %d: Play %s\n", ActivePlayerIndex, CardToPlay->Name);
+		printf("Player %d: Play %s\n", ActivePlayerIndex, CardToPlay->m_name);
 		break;
 	}
 }
@@ -250,7 +250,7 @@ void GameState::PrintState() const
 		for (uint8_t card = 0; card < Players[i].Hand.Num(); ++card)
 		{
 			const char* format = card == 0 ? "%s" : ", %s";
-			printf(format, GetCardData(Players[i].Hand[card])->Name);
+			printf(format, GetCardData(Players[i].Hand[card])->m_name);
 		}
 		printf("\n");
 		printf("Minions: \n");
@@ -264,5 +264,5 @@ void GameState::PrintState() const
 
 const char* Minion::GetName() const
 {
-	return SourceCard->Name;
+	return SourceCard->m_name;
 }
