@@ -572,6 +572,22 @@ TestCase Tests[] =
 
 			return true;
 		}
+	},
+	{
+		"Nightblade battlecry damages opponent and can win", []( )
+		{
+			GameState g;
+			AddCard(g, 0, Card::Nightblade);
+			SetManaAndMax(g, 0, 5);
+			SetHealth(g, 1, 3);
+			g.UpdatePossibleMoves( );
+
+			CHECK(g.m_active_player_index == 0);
+			CHECK(CheckAndProcessMove(g, Move::PlayCard(Card::Nightblade)));
+			CHECK(g.m_winner == Winner::PlayerOne);
+
+			return true;
+		}
 	}
 };
 

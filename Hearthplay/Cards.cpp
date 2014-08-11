@@ -89,7 +89,7 @@ const CardData AllCards[] = {
 	{ 3, "Harvest Golem",			2, 3 },
 	{ 3, "Imp Master",				1, 5 },
 	{ 3, "Injured Blademaster",		4, 7 },
-	{ 3, "Ironforge Rifleman",		2, 2 },
+	{ 3, "Ironforge Rifleman",		2, 2, Battlecry{ SpellEffect::DamageCharacter, 1 }, CardFlags::CanBeInDecks },
 	{ 3, "Ironfur Grizzly",			3, 3, MinionAbilityFlags::Taunt, CardFlags::CanBeInDecks },
 	{ 3, "Jungle Panther",			4, 2, MinionAbilityFlags::Stealth },
 	{ 3, "King Mukla",				5, 5 },
@@ -150,14 +150,14 @@ const CardData AllCards[] = {
 	{ 5, "Gurubashi Berserker",		2, 7 },
 	{ 5, "Harrison Jones",			5, 4 },
 	{ 5, "Loatheb",					5, 5 },
-	{ 5, "Nightblade",				4, 4 },
+	{ 5, "Nightblade",				4, 4, Battlecry{ SpellEffect::DamageOpponent, 3, SpellFlags::NoTarget }, CardFlags::CanBeInDecks },
 	{ 5, "Silver Hand Knight",		4, 4 },
 	{ 5, "Sludge Belcher",			3, 5, MinionAbilityFlags::Taunt },
 	{ 5, "Spectral Knight",			4, 6, MinionAbilityFlags::CannotBeTargeted },
 	{ 5, "Spiteful Smith",			4, 6 },
 	{ 5, "Stalaag",					7, 4 },
 	{ 5, "Stampeding Kodo",			3, 5 },
-	{ 5, "Stormpike Commando",		5, 2 },
+	{ 5, "Stormpike Commando",		5, 2, Battlecry{ SpellEffect::DamageCharacter, 2 }, CardFlags::CanBeInDecks },
 	{ 5, "Stranglethorn Tiger",		5, 5, MinionAbilityFlags::Stealth },
 	{ 5, "Venture Co. Mercenary",	7, 6 },
 
@@ -294,6 +294,21 @@ CardData::CardData(CardType type, uint8_t mana_cost, const char* name, SpellEffe
 	, m_flags(card_flags)
 {
 }
+
+bool CardData::HasUntargetedBattlecry( ) const
+{
+	if (m_type == CardType::Spell)
+		return false;
+
+	if (m_minion_battlecry.m_effect == SpellEffect::None)
+		return false;
+
+	if (HasFlag(m_minion_battlecry.m_spell_flags, SpellFlags::NoTarget))
+		return true;
+
+	return false;
+}
+
 
 bool CardData::HasTargetedBattlecry( ) const
 {

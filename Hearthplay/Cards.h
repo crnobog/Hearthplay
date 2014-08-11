@@ -349,7 +349,7 @@ struct CardData
 	// Spell constructor
 	CardData(CardType type, uint8_t mana_cost, const char* name, SpellEffect effect, uint8_t effect_param, SpellFlags spell_flags = SpellFlags::None, CardFlags card_flag = CardFlags::None );
 
-
+	bool HasUntargetedBattlecry( ) const;
 	bool HasTargetedBattlecry( ) const;
 
 };

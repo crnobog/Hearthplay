@@ -282,6 +282,10 @@ void GameState::PlayMinion(Card c, uint8_t target_packed)
 	{
 		HandleSpell(data->m_minion_battlecry.m_effect, data->m_minion_battlecry.m_param, target_packed);
 	}
+	else if (data->HasUntargetedBattlecry( ))
+	{
+		HandleSpellNoTarget(data->m_minion_battlecry.m_effect, data->m_minion_battlecry.m_param, m_active_player_index);
+	}
 
 	m_players[m_active_player_index].m_minions.Add({ data });
 }
