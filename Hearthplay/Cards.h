@@ -220,11 +220,12 @@ enum class CardType : uint8_t
 	Spell,
 };
 
-enum class SpellEffect
+enum class SpellEffect : uint8_t
 {
 	None,
 	AddMana,		// Coin and Innervate
-	DamageOpponent,	// Leper Gnome deathrattle, Mind Blast, Nightblade
+	DamageOpponent,	// Leper Gnome deathrattle, Mind Blast, Nightblade, Steady Shot
+	DamageCharacter, // Elven Archer, Stormpike Commando, Holy Smite, Arcane Shot
 };
 
 #define IMPLEMENT_FLAGS( EnumType, UnderlyingType ) \
@@ -240,6 +241,14 @@ enum class SpellEffect
 		{ return (l&r) != EnumType::None; } \
 	inline EnumType operator~(EnumType r) \
 		{ return (EnumType)(~(UnderlyingType)r); } 
+
+enum class SpellFlags : uint8_t
+{
+	None,
+	NoTarget = 0x1,
+};
+
+IMPLEMENT_FLAGS(SpellFlags, uint8_t)
 
 enum class CardFlags : uint8_t
 {
@@ -267,34 +276,82 @@ struct Deathrattle
 {
 	SpellEffect m_effect;
 	uint8_t		m_param;
+
+	Deathrattle( )
+		: m_effect(SpellEffect::None)
+		, m_param(0)
+	{
+	}
+
+	Deathrattle(SpellEffect effect, uint8_t param)
+		: m_effect(effect)
+		, m_param(param)
+	{
+	}
+};
+
+struct Battlecry
+{
+	SpellEffect m_effect;
+	uint8_t		m_param;
+	SpellFlags	m_spell_flags;
+
+	Battlecry( )
+		: m_effect(SpellEffect::None)
+		, m_param(0)
+		, m_spell_flags(SpellFlags::None)
+	{
+	}
+
+	Battlecry( SpellEffect effect, uint8_t param )
+		: m_effect(effect)
+		, m_param(param)
+		, m_spell_flags(SpellFlags::None)
+	{
+	}
+	
+	Battlecry(SpellEffect effect, uint8_t param, SpellFlags spell_flags)
+		: m_effect(effect)
+		, m_param(param)
+		, m_spell_flags(spell_flags)
+	{
+	}
 };
 
 struct CardData
 {
-	CardType m_type;
-	uint8_t m_mana_cost;
-	const char* m_name;
+	CardType			m_type;
+	uint8_t				m_mana_cost;
+	const char*			m_name;
 
-	uint8_t m_attack;
-	int8_t m_health;
-	MinionAbilityFlags m_minion_abilities;
+	uint8_t				m_attack;
+	int8_t				m_health;
+	MinionAbilityFlags	m_minion_abilities;
 
-	SpellEffect m_effect;
-	uint8_t m_effect_param;
+	SpellEffect			m_effect;
+	uint8_t				m_effect_param;
+	SpellFlags			m_spell_flags;
 
-	Deathrattle m_minion_deathrattle;
+	Deathrattle			m_minion_deathrattle;
+	Battlecry			m_minion_battlecry;
 
-	CardFlags m_flags;
+	CardFlags			m_flags;
 
 	// Vanilla minion constructor
 	CardData(uint8_t mana_cost, const char* name, uint8_t attack, uint8_t health, CardFlags card_flags = CardFlags::None );
 	// Minion with abilities constructor
 	CardData(uint8_t mana_cost, const char* name, uint8_t attack, uint8_t health, MinionAbilityFlags minion_flags, CardFlags card_flags = CardFlags::None);
-	// Vanilla minion constructor
+	// Minion with deathrattle constructor
 	CardData(uint8_t mana_cost, const char* name, uint8_t attack, uint8_t health, Deathrattle deathrattle, CardFlags card_flags = CardFlags::None);
+	// Minion with battlecry constructor
+	CardData(uint8_t mana_cost, const char* name, uint8_t attack, uint8_t health, Battlecry battlecry, CardFlags card_flags = CardFlags::None);
 
 	// Spell constructor
-	CardData(CardType type, uint8_t mana_cost, const char* name, SpellEffect effect, uint8_t effect_param, CardFlags card_flag = CardFlags::None );
+	CardData(CardType type, uint8_t mana_cost, const char* name, SpellEffect effect, uint8_t effect_param, SpellFlags spell_flags = SpellFlags::None, CardFlags card_flag = CardFlags::None );
+
+
+	bool HasTargetedBattlecry( ) const;
+
 };
 
 const CardData* GetCardData(Card c);

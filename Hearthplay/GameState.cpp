@@ -23,9 +23,9 @@ void GameState::ProcessMove(const Move& m)
 	switch (m.m_type)
 	{
 	case MoveType::EndTurn: EndTurn(); break;
-	case MoveType::PlayCard: PlayCard(m.m_card); break;
+	case MoveType::PlayCard: PlayCard(m.m_card, m.m_target_packed); break;
 	case MoveType::AttackHero: AttackHero(m.m_source_index); break;
-	case MoveType::AttackMinion: AttackMinion(m.m_source_index, m.m_target_index); break;
+	case MoveType::AttackMinion: AttackMinion(m.m_source_index, m.m_target_packed); break;
 	}
 
 	UpdatePossibleMoves();
@@ -83,9 +83,46 @@ void GameState::UpdatePossibleMoves()
 	// Play each card
 	for (uint8_t i = 0; i < ActivePlayer.m_hand.Num(); ++i)
 	{
-		if (GetCardData(ActivePlayer.m_hand[i])->m_mana_cost <= ActivePlayer.m_mana)
+		Card c = ActivePlayer.m_hand[i];
+		const CardData* const data = GetCardData(c);
+		if (data->m_mana_cost > ActivePlayer.m_mana)
+			continue;
+
+		switch (data->m_type)
 		{
-			m_possible_moves.Add(Move::PlayCard(ActivePlayer.m_hand[i]));
+		case CardType::Minion:
+		{
+			if (data->HasTargetedBattlecry( ))
+			{
+				// TODO: enumerate possible targets
+				for (uint8_t player_index = 0; player_index < 2; ++player_index)
+				{
+					for (uint8_t minion_index = 0; minion_index < m_players[player_index].m_minions.Num( ); ++minion_index)
+					{
+						m_possible_moves.Add(Move::PlayCard(c, Move::TargetMinion(player_index, minion_index)));
+					}
+
+					m_possible_moves.Add(Move::PlayCard(c, Move::TargetPlayer(player_index)));
+				}
+			}
+			else
+			{
+				m_possible_moves.Add(Move::PlayCard(c));
+			}
+		}
+			break;
+		case CardType::Spell:
+		{
+			if (HasFlag(data->m_spell_flags, SpellFlags::NoTarget))
+			{
+				m_possible_moves.Add(Move::PlayCard(c));
+			}
+			else
+			{
+				// TODO: enumerate possible targets
+			}
+		}
+			break;
 		}
 	}
 
@@ -113,7 +150,7 @@ void GameState::EndTurn()
 	}
 }
 
-void GameState::PlayCard(Card c)
+void GameState::PlayCard(Card c, uint8_t target_index)
 {
 	Player& ToAct = m_players[m_active_player_index];
 	const CardData* ToPlay = GetCardData(c);
@@ -127,7 +164,7 @@ void GameState::PlayCard(Card c)
 
 	if (ToPlay->m_type == CardType::Minion)
 	{
-		ToAct.m_minions.Add({ ToPlay });
+		PlayMinion(c, target_index);
 	}
 	else
 	{
@@ -182,6 +219,8 @@ void GameState::AttackMinion(uint8_t SourceIndex, uint8_t TargetIndex)
 	// TODO: Refactor when handling simultaneous minion death
 	CheckDeadMinion(m_active_player_index, SourceIndex);
 	CheckDeadMinion(OppositePlayer(m_active_player_index), TargetIndex);
+
+	CheckVictory( );
 }
 
 void GameState::HandleDeathrattle(Deathrattle deathrattle, uint8_t owner_index)
@@ -210,6 +249,59 @@ void GameState::HandleSpellNoTarget(SpellEffect effect, uint8_t spell_param, uin
 	}
 }
 
+void GameState::HandleSpell(SpellEffect effect, uint8_t spell_param, uint8_t target_packed)
+{
+	uint8_t target_player, target_minion;
+	Move::UnpackTarget(target_packed, target_player, target_minion);
+	switch (effect)
+	{
+	case SpellEffect::DamageCharacter:
+	{ 
+		if (target_minion == 0xF)
+		{
+			// Target hero
+			m_players[target_player].m_health -= spell_param;
+		}
+		else
+		{
+			m_players[target_player].m_minions[target_minion].m_health -= spell_param;
+			CheckDeadMinion(target_player, target_minion);
+		}
+
+		CheckVictory( );
+	}
+		break;
+	}
+}
+
+void GameState::PlayMinion(Card c, uint8_t target_packed)
+{
+	const CardData* data = GetCardData(c);
+
+	if (data->HasTargetedBattlecry( ))
+	{
+		HandleSpell(data->m_minion_battlecry.m_effect, data->m_minion_battlecry.m_param, target_packed);
+	}
+
+	m_players[m_active_player_index].m_minions.Add({ data });
+}
+
+void GameState::CheckVictory( )
+{
+	if (m_players[0].m_health <= 0 && m_players[1].m_health <= 0)
+	{
+		m_winner = EWinner::Draw;
+	}
+	else if (m_players[0].m_health <= 0)
+	{
+		m_winner = EWinner::PlayerTwo;
+	}
+	else if (m_players[1].m_health <= 0)
+	{
+		m_winner = EWinner::PlayerOne;
+	}
+}
+
 void GameState::PrintMove(const Move& m) const
 {
 	const Player& Active = m_players[m_active_player_index];
@@ -227,7 +319,7 @@ void GameState::PrintMove(const Move& m) const
 	case MoveType::AttackMinion:
 		printf("Player %d: Attack %s with %s\n", 
 			m_active_player_index, 
-			Opponent.m_minions[m.m_target_index].GetName(), 
+			Opponent.m_minions[m.m_target_packed].GetName(), 
 			Active.m_minions[m.m_source_index].GetName() 
 			);
 		break;

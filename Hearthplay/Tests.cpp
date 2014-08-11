@@ -29,6 +29,22 @@ Minion& AddMinionReadyToAttack(GameState& g, uint8_t player, Card c)
 	return m;
 }
 
+void SetManaAndMax(GameState& g, uint8_t player, uint8_t mana)
+{
+	g.m_players[player].m_mana = mana;
+	g.m_players[player].m_max_mana = mana;
+}
+
+void SetHealth(GameState& g, uint8_t player, int8_t health)
+{
+	g.m_players[player].m_health = health;
+}
+
+void AddCard(GameState& g, uint8_t player, Card c)
+{
+	g.m_players[player].m_hand.Add(c);
+}
+
 bool CheckAndProcessMove(GameState& g, Move m)
 {
 	if (!g.m_possible_moves.Contains(m))
@@ -326,6 +342,25 @@ TestCase Tests[] =
 		}
 	},
 	{
+		"Two Leper Gnomes dying can cause a draw", []( )
+		{
+			GameState g;
+			AddMinion(g, 0, Card::LeperGnome);
+			AddMinion(g, 1, Card::LeperGnome);
+			SetHealth(g, 0, 2);
+			SetHealth(g, 1, 2);
+			g.UpdatePossibleMoves( );
+
+			CHECK(CheckAndProcessMove(g, Move::EndTurn( )));
+
+			CHECK(g.m_active_player_index == 1);
+			CHECK(CheckAndProcessMove(g, Move::AttackMinion(0, 0)));
+			CHECK(g.m_winner == EWinner::Draw);
+
+			return true;
+		}
+	},
+	{
 		"Coin adds one mana", []( )
 		{
 			GameState g;
@@ -338,11 +373,211 @@ TestCase Tests[] =
 
 			return true;
 		}
+	},
+	{
+		"Play minion", []( )
+		{
+			GameState g;
+			g.m_players[0].m_hand.Add(Card::BloodfenRaptor);
+			SetManaAndMax(g, 0, 2);
+			g.UpdatePossibleMoves( );
+
+			CHECK(g.m_active_player_index == 0);
+			CHECK(CheckAndProcessMove(g, Move::PlayCard(Card::BloodfenRaptor)));
+			CHECK(g.m_players[0].m_minions.Num( ) == 1);
+			CHECK(g.m_players[0].m_minions[0].m_source_card == GetCardData(Card::BloodfenRaptor));
+			CHECK(g.m_players[0].m_minions[0].m_attack == 3);
+			CHECK(g.m_players[0].m_minions[0].m_health == 2);
+			CHECK(g.m_players[0].m_minions[0].CanAttack( ) == false);
+
+			return true;
+		}
+	},
+	{
+		"Elven Archer can damage opponent", []( )
+		{
+			GameState g;
+			g.m_players[0].m_hand.Add(Card::ElvenArcher);
+			SetManaAndMax(g, 0, 1);
+			g.UpdatePossibleMoves( );
+
+			CHECK(g.m_active_player_index == 0);
+			CHECK(CheckAndProcessMove(g, Move::PlayCard(Card::ElvenArcher, Move::TargetPlayer(1))));
+			CHECK(g.m_players[1].m_health == GameState::StartingHealth - 1);
+
+			return true;
+		}
+	},
+	{
+		"Elven Archer can damage opponent and win", []( )
+		{
+			GameState g;
+			g.m_players[0].m_hand.Add(Card::ElvenArcher);
+			SetManaAndMax(g, 0, 1);
+			SetHealth(g, 1, 1);
+			g.UpdatePossibleMoves( );
+
+			CHECK(g.m_active_player_index == 0);
+			CHECK(CheckAndProcessMove(g, Move::PlayCard(Card::ElvenArcher, Move::TargetPlayer(1))));
+			CHECK(g.m_winner == EWinner::PlayerOne);
+
+			return true;
+		}
+	},
+	{
+		"Elven Archer can damage owner", []( )
+		{
+			GameState g;
+			g.m_players[0].m_hand.Add(Card::ElvenArcher);
+			SetManaAndMax(g, 0, 1);
+			g.UpdatePossibleMoves( );
+
+			CHECK(g.m_active_player_index == 0);
+			CHECK(CheckAndProcessMove(g, Move::PlayCard(Card::ElvenArcher, Move::TargetPlayer(0))));
+			CHECK(g.m_players[0].m_health == GameState::StartingHealth - 1);
+
+			return true;
+		}
+	},
+	{
+		"Elven Archer can damage owner and lose", []( )
+		{
+			GameState g;
+			g.m_players[0].m_hand.Add(Card::ElvenArcher);
+			SetManaAndMax(g, 0, 1);
+			SetHealth(g, 0, 1);
+			g.UpdatePossibleMoves( );
+
+			CHECK(g.m_active_player_index == 0);
+			CHECK(CheckAndProcessMove(g, Move::PlayCard(Card::ElvenArcher, Move::TargetPlayer(0))));
+			CHECK(g.m_winner == EWinner::PlayerTwo);
+
+			return true;
+		}
+	},
+	{
+		"Elven Archer can damage enemy minion", []( )
+		{
+			GameState g;
+			g.m_players[0].m_hand.Add(Card::ElvenArcher);
+			AddMinion(g, 1, Card::BloodfenRaptor);
+			SetManaAndMax(g, 0, 1);
+			g.UpdatePossibleMoves( );
+
+			CHECK(g.m_active_player_index == 0);
+			CHECK(CheckAndProcessMove(g, Move::PlayCard(Card::ElvenArcher, Move::TargetMinion(1, 0))));
+			CHECK(g.m_players[1].m_minions.Num() == 1);
+			CHECK(g.m_players[1].m_minions[0].m_health == 1);
+
+			return true;
+		}
+	},
+	{
+		"Elven Archer can damage enemy minion and kill it", []( )
+		{
+			GameState g;
+			g.m_players[0].m_hand.Add(Card::ElvenArcher);
+			AddMinion(g, 1, Card::BluegillWarrior);
+			SetManaAndMax(g, 0, 1);
+			g.UpdatePossibleMoves( );
+
+			CHECK(g.m_active_player_index == 0);
+			CHECK(CheckAndProcessMove(g, Move::PlayCard(Card::ElvenArcher, Move::TargetMinion(1, 0))));
+			CHECK(g.m_players[1].m_minions.Num( ) == 0);
+
+			return true;
+		}
+	},
+	{
+		"Elven Archer can damage friendly minion", []( )
+		{
+			GameState g;
+			g.m_players[0].m_hand.Add(Card::ElvenArcher);
+			AddMinion(g, 0, Card::BloodfenRaptor);
+			SetManaAndMax(g, 0, 1);
+			g.UpdatePossibleMoves( );
+
+			CHECK(g.m_active_player_index == 0);
+			CHECK(CheckAndProcessMove(g, Move::PlayCard(Card::ElvenArcher, Move::TargetMinion(0, 0))));
+			CHECK(g.m_players[0].m_minions.Num( ) == 2);
+			CHECK(g.m_players[0].m_minions[0].m_source_card == GetCardData(Card::BloodfenRaptor));
+			CHECK(g.m_players[0].m_minions[0].m_health == 1);
+
+			return true;
+		}
+	},
+	{
+		"Elven Archer can damage friendly minion and kill it", []( )
+		{
+			GameState g;
+			g.m_players[0].m_hand.Add(Card::ElvenArcher);
+			AddMinion(g, 0, Card::BluegillWarrior);
+			SetManaAndMax(g, 0, 1);
+			g.UpdatePossibleMoves( );
+
+			CHECK(g.m_active_player_index == 0);
+			CHECK(CheckAndProcessMove(g, Move::PlayCard(Card::ElvenArcher, Move::TargetMinion(0, 0))));
+			CHECK(g.m_players[0].m_minions.Num( ) == 1);
+			CHECK(g.m_players[0].m_minions[0].m_source_card == GetCardData(Card::ElvenArcher));
+
+			return true;
+		}
+	},
+	{
+		"Elven Archer killing Leper Gnome triggers deathrattle", []( )
+		{
+			GameState g;
+			AddMinion(g, 0, Card::LeperGnome);
+			AddCard(g, 0, Card::ElvenArcher);
+			SetManaAndMax(g, 0, 1);
+			g.UpdatePossibleMoves( );
+
+			CHECK( g.m_active_player_index == 0 );
+			CHECK(CheckAndProcessMove(g, Move::PlayCard(Card::ElvenArcher, Move::TargetMinion(0, 0))));
+			CHECK(g.m_players[1].m_health == GameState::StartingHealth - 2);
+			
+			return true;
+		}
+	},
+	{
+		"Elven Archer killing Leper Gnome can win game", []( )
+		{
+			GameState g;
+			AddMinion(g, 0, Card::LeperGnome);
+			AddCard(g, 0, Card::ElvenArcher);
+			SetManaAndMax(g, 0, 1);
+			SetHealth(g, 1, 2);
+			g.UpdatePossibleMoves( );
+
+			CHECK(g.m_active_player_index == 0);
+			CHECK(CheckAndProcessMove(g, Move::PlayCard(Card::ElvenArcher, Move::TargetMinion(0, 0))));
+			CHECK(g.m_winner == EWinner::PlayerOne);
+
+			return true;
+		}
+	},
+	{
+		"Elven Archer killing Leper Gnome can lose game", []( )
+		{
+			GameState g;
+			AddMinion(g, 1, Card::LeperGnome);
+			AddCard(g, 0, Card::ElvenArcher);
+			SetManaAndMax(g, 0, 1);
+			SetHealth(g, 0, 2);
+			g.UpdatePossibleMoves( );
+
+			CHECK(g.m_active_player_index == 0);
+			CHECK(CheckAndProcessMove(g, Move::PlayCard(Card::ElvenArcher, Move::TargetMinion(1, 0))));
+			CHECK(g.m_winner == EWinner::PlayerTwo);
+
+			return true;
+		}
 	}
 };
 
 void RunTests( )
 {
+	uint32_t num_tests = sizeof(Tests) / sizeof(TestCase);
 	bool any_failed = false;
 	for (auto test : Tests)
 	{
@@ -355,6 +590,6 @@ void RunTests( )
 
 	if (!any_failed)
 	{
-		printf("All tests passed!\n");
+		printf("All %u tests passed!\n", num_tests);
 	}
 }

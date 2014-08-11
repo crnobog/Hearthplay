@@ -29,13 +29,13 @@ struct Move
 {
 	MoveType m_type;
 	uint8_t m_source_index;
-	uint8_t m_target_index;
+	uint8_t m_target_packed;
 	Card m_card;
 
 	Move( )
 		: m_type( MoveType::EndTurn )
 		, m_source_index( 0 )
-		, m_target_index( 0 )
+		, m_target_packed( 0 )
 		, m_card( Card::MAX )
 	{
 	}
@@ -44,7 +44,7 @@ struct Move
 	{
 		return m_type == m.m_type 
 			&& m_source_index == m.m_source_index 
-			&& m_target_index == m.m_target_index
+			&& m_target_packed == m.m_target_packed
 			&& m_card == m.m_card;
 	}
 
@@ -60,17 +60,39 @@ struct Move
 
 	static Move EndTurn( )
 	{
-		return Move{ MoveType::EndTurn, 0, 0, Card::MAX };
+		return Move{ MoveType::EndTurn, 0xFF, 0xFF, Card::MAX };
 	}
 
 	static Move PlayCard(Card c)
 	{
-		return Move{ MoveType::PlayCard, 0, 0, c };
+		return Move{ MoveType::PlayCard, 0xFF, 0xFF, c };
+	}
+	
+	static Move PlayCard(Card c, uint8_t target_index)
+	{
+		return Move{ MoveType::PlayCard, 0xFF, target_index, c };
+	}
+
+	// Static methods to make targets for spells
+	static uint8_t TargetPlayer(uint8_t player_index)
+	{
+		return (player_index << 4) | 0xF;
+	}
+
+	static uint8_t TargetMinion(uint8_t player_index, uint8_t minion_index)
+	{
+		return (player_index << 4) | (minion_index & 0xF);
+	}
+
+	static void UnpackTarget(uint8_t packed, uint8_t& out_player, uint8_t& out_minion)
+	{
+		out_player = (packed & 0xF0) >> 4;
+		out_minion = packed & 0xF;
 	}
 
 protected:
 	Move( MoveType type, uint8_t source, uint8_t target, Card c)
-		: m_type(type), m_source_index( source ), m_target_index(target), m_card(c)
+		: m_type(type), m_source_index( source ), m_target_packed(target), m_card(c)
 	{
 	}
 };
@@ -81,7 +103,7 @@ inline bool operator<(const Move& l, const Move& r)
 	{
 		if (l.m_source_index == r.m_source_index)
 		{
-			return l.m_target_index < r.m_target_index;
+			return l.m_target_packed < r.m_target_packed;
 		}
 		return l.m_source_index < r.m_source_index;
 	}
@@ -253,11 +275,15 @@ struct GameState
 
 protected:
 	void EndTurn();
-	void PlayCard(Card c);
+	void PlayCard(Card c, uint8_t target_index);
 	void AttackHero(uint8_t SourceIndex);
 	void AttackMinion(uint8_t SourceIndex, uint8_t TargetIndex);
 
 	void CheckDeadMinion(uint8_t player_index, uint8_t minion_index);
 	void HandleDeathrattle(Deathrattle deathrattle, uint8_t owner_index);
+	void HandleSpell(SpellEffect effect, uint8_t spell_param, uint8_t target_packed);
 	void HandleSpellNoTarget(SpellEffect effect, uint8_t spell_param, uint8_t owner_index);
+	void PlayMinion(Card c, uint8_t target_index);
+
+	void CheckVictory( );
 };
