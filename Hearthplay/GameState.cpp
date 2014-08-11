@@ -10,7 +10,7 @@ GameState::GameState()
 	m_players[0].m_health = StartingHealth;
 	m_players[1].m_health = StartingHealth;
 
-	m_winner = EWinner::Undetermined;
+	m_winner = Winner::Undetermined;
 }
 
 GameState::GameState(const GameState& other)
@@ -33,7 +33,7 @@ void GameState::ProcessMove(const Move& m)
 
 void GameState::PlayOutRandomly( std::mt19937& r )
 {
-	while (m_winner == EWinner::Undetermined)
+	while (m_winner == Winner::Undetermined)
 	{
 		std::uniform_int_distribution<decltype(m_possible_moves.Num())> move_dist(0, m_possible_moves.Num() - 1);
 		auto idx = move_dist(r);
@@ -146,7 +146,7 @@ void GameState::EndTurn()
 	// HACK before fatigue goes in
 	if (m_players[0].m_deck.Num() == 0 && m_players[1].m_deck.Num() == 0)
 	{
-		m_winner = EWinner::Draw;
+		m_winner = Winner::Draw;
 	}
 }
 
@@ -184,7 +184,7 @@ void GameState::AttackHero(uint8_t SourceIndex)
 
 	if (Opponent.m_health <= 0)
 	{
-		m_winner = static_cast<EWinner>(m_active_player_index);
+		m_winner = static_cast<Winner>(m_active_player_index);
 	}
 }
 
@@ -243,7 +243,7 @@ void GameState::HandleSpellNoTarget(SpellEffect effect, uint8_t spell_param, uin
 		opponent.m_health -= spell_param;
 		if (opponent.m_health <= 0)
 		{
-			m_winner = static_cast<EWinner>(owner_index);
+			m_winner = static_cast<Winner>(owner_index);
 		}
 	}
 	}
@@ -290,15 +290,15 @@ void GameState::CheckVictory( )
 {
 	if (m_players[0].m_health <= 0 && m_players[1].m_health <= 0)
 	{
-		m_winner = EWinner::Draw;
+		m_winner = Winner::Draw;
 	}
 	else if (m_players[0].m_health <= 0)
 	{
-		m_winner = EWinner::PlayerTwo;
+		m_winner = Winner::PlayerTwo;
 	}
 	else if (m_players[1].m_health <= 0)
 	{
-		m_winner = EWinner::PlayerOne;
+		m_winner = Winner::PlayerOne;
 	}
 }
 

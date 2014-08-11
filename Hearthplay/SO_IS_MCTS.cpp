@@ -204,7 +204,7 @@ namespace SO_IS_MCTS
 			sim_state.PlayOutRandomly(r);
 		
 			// Backpropagation
-			bool won = sim_state.m_winner == (EWinner)game.m_active_player_index;
+			bool won = sim_state.m_winner == (Winner)game.m_active_player_index;
 			while (node)
 			{
 				node->m_visits++;

@@ -64,18 +64,18 @@ PlayResults::PlayResults( )
 	memset(&m_results, 0, sizeof(m_results));
 }
 
-void PlayResults::AddResult(AIType player_one, AIType player_two, EWinner Winner)
+void PlayResults::AddResult(AIType player_one, AIType player_two, Winner Winner)
 {
 	PairingResults& res = m_results[(uint32_t)player_two * (uint32_t)AIType::MAX + (uint32_t)player_one];
 	switch (Winner)
 	{
-	case EWinner::PlayerOne:
+	case Winner::PlayerOne:
 		res.m_player_one_wins++;
 		break;
-	case EWinner::PlayerTwo:
+	case Winner::PlayerTwo:
 		res.m_player_two_wins++;
 		break;
-	case EWinner::Draw:
+	case Winner::Draw:
 		res.m_draws++;
 		break;
 	}
@@ -113,10 +113,10 @@ void PlayResults::Print( ) const
 	}
 }
 
-static EWinner PlayGame(std::mt19937& r, const Card(&deck)[30], AIType player_one, AIType player_two)
+static Winner PlayGame(std::mt19937& r, const Card(&deck)[30], AIType player_one, AIType player_two)
 {
 	GameState game = SetupGame(deck, r);
-	while (game.m_winner == EWinner::Undetermined)
+	while (game.m_winner == Winner::Undetermined)
 	{
 		DEBUG_GAME(
 			printf("\n");
@@ -158,7 +158,7 @@ void AITournament( uint32_t num_rounds, PlayResults& results )
 		{
 			for (AIType player_two = AIType::Random; player_two != AIType::MAX; player_two = (AIType)(1 + (int)player_two))
 			{
-				EWinner winner = PlayGame(r, deck, player_one, player_two);
+				Winner winner = PlayGame(r, deck, player_one, player_two);
 				results.AddResult(player_one, player_two, winner);
 			}
 		}

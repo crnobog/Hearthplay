@@ -130,7 +130,7 @@ namespace CheatingMCTS
 			}
 
 			sim_state.PlayOutRandomly(r);
-			bool won = sim_state.m_winner == (EWinner)game.m_active_player_index;
+			bool won = sim_state.m_winner == (Winner)game.m_active_player_index;
 			MCTS_DEBUG(printf( "Simulation result: %d\n", sim_state.m_winner));
 
 			while (node)

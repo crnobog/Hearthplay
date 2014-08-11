@@ -9,7 +9,7 @@
 
 extern std::random_device GlobalRandomDevice;
 
-enum class EWinner : int8_t
+enum class Winner : int8_t
 {
 	Undetermined = -1,
 	PlayerOne = 0,
@@ -254,7 +254,7 @@ struct GameState
 	static const uint8_t MaxPossibleMoves = 1 + 8 * 8 + 10 * 16;
 
 	Player m_players[2];
-	EWinner m_winner;
+	Winner m_winner;
 	int8_t m_active_player_index;
 	FixedVector<Move, MaxPossibleMoves, uint16_t> m_possible_moves;
 

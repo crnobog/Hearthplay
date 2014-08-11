@@ -28,7 +28,7 @@ struct PlayResults
 	PairingResults m_results[(uint32_t)AIType::MAX * (uint32_t)AIType::MAX];
 
 	PlayResults( );
-	void AddResult(AIType player_one, AIType player_two, EWinner Winner);
+	void AddResult(AIType player_one, AIType player_two, Winner Winner);
 	void AddResults(const PlayResults& other);
 	void Print( ) const;
 };

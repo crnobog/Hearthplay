@@ -82,7 +82,7 @@ TestCase Tests[] =
 			g.UpdatePossibleMoves( );
 
 			CHECK(CheckAndProcessMove(g, Move::AttackHero(0)));
-			CHECK(g.m_winner == EWinner::PlayerOne);
+			CHECK(g.m_winner == Winner::PlayerOne);
 
 			return true;
 		}
@@ -99,7 +99,7 @@ TestCase Tests[] =
 			g.UpdatePossibleMoves( );
 
 			CHECK(CheckAndProcessMove(g, Move::AttackHero(0)));
-			CHECK(g.m_winner == EWinner::PlayerTwo);
+			CHECK(g.m_winner == Winner::PlayerTwo);
 			return true;
 
 		}
@@ -317,7 +317,7 @@ TestCase Tests[] =
 			CHECK(g.m_active_player_index == 0);
 			CHECK(CheckAndProcessMove(g, Move::AttackMinion(0, 0)));
 			CHECK(g.m_players[0].m_minions.Num( ) == 0);
-			CHECK(g.m_winner == EWinner::PlayerOne);
+			CHECK(g.m_winner == Winner::PlayerOne);
 
 			return true;
 		}
@@ -336,7 +336,7 @@ TestCase Tests[] =
 			CHECK(g.m_active_player_index == 1);
 			CHECK(CheckAndProcessMove(g, Move::AttackMinion(0, 0)));
 			CHECK(g.m_players[0].m_minions.Num( ) == 0);
-			CHECK(g.m_winner == EWinner::PlayerOne);
+			CHECK(g.m_winner == Winner::PlayerOne);
 
 			return true;
 		}
@@ -355,7 +355,7 @@ TestCase Tests[] =
 
 			CHECK(g.m_active_player_index == 1);
 			CHECK(CheckAndProcessMove(g, Move::AttackMinion(0, 0)));
-			CHECK(g.m_winner == EWinner::Draw);
+			CHECK(g.m_winner == Winner::Draw);
 
 			return true;
 		}
@@ -419,7 +419,7 @@ TestCase Tests[] =
 
 			CHECK(g.m_active_player_index == 0);
 			CHECK(CheckAndProcessMove(g, Move::PlayCard(Card::ElvenArcher, Move::TargetPlayer(1))));
-			CHECK(g.m_winner == EWinner::PlayerOne);
+			CHECK(g.m_winner == Winner::PlayerOne);
 
 			return true;
 		}
@@ -450,7 +450,7 @@ TestCase Tests[] =
 
 			CHECK(g.m_active_player_index == 0);
 			CHECK(CheckAndProcessMove(g, Move::PlayCard(Card::ElvenArcher, Move::TargetPlayer(0))));
-			CHECK(g.m_winner == EWinner::PlayerTwo);
+			CHECK(g.m_winner == Winner::PlayerTwo);
 
 			return true;
 		}
@@ -551,7 +551,7 @@ TestCase Tests[] =
 
 			CHECK(g.m_active_player_index == 0);
 			CHECK(CheckAndProcessMove(g, Move::PlayCard(Card::ElvenArcher, Move::TargetMinion(0, 0))));
-			CHECK(g.m_winner == EWinner::PlayerOne);
+			CHECK(g.m_winner == Winner::PlayerOne);
 
 			return true;
 		}
@@ -568,7 +568,7 @@ TestCase Tests[] =
 
 			CHECK(g.m_active_player_index == 0);
 			CHECK(CheckAndProcessMove(g, Move::PlayCard(Card::ElvenArcher, Move::TargetMinion(1, 0))));
-			CHECK(g.m_winner == EWinner::PlayerTwo);
+			CHECK(g.m_winner == Winner::PlayerTwo);
 
 			return true;
 		}
