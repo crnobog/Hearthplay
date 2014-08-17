@@ -223,9 +223,10 @@ enum class CardType : uint8_t
 enum class SpellEffect : uint8_t
 {
 	None,
-	AddMana,		// Coin and Innervate
-	DamageOpponent,	// Leper Gnome deathrattle, Mind Blast, Nightblade, Steady Shot
-	DamageCharacter, // Elven Archer, Stormpike Commando, Holy Smite, Arcane Shot
+	AddMana,			// Coin and Innervate
+	DamageOpponent,		// Leper Gnome deathrattle, Mind Blast, Nightblade, Steady Shot
+	DamageCharacter,	// Elven Archer, Stormpike Commando, Holy Smite, Arcane Shot
+	HealCharacter,		// Voodoo Doctor, Earthen Ring Farseer
 };
 
 #define IMPLEMENT_FLAGS( EnumType, UnderlyingType ) \

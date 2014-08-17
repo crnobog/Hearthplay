@@ -2,6 +2,9 @@
 
 #include <random>
 
+static const Battlecry Battlecry_VoodooDoctor = { SpellEffect::HealCharacter, 2 };
+static const Battlecry Battlecry_EarthenRingFarseer = { SpellEffect::HealCharacter, 3 };
+
 const CardData AllCards[] = {
 	{ CardType::Spell, 0, "The Coin", SpellEffect::AddMana, 1, SpellFlags::NoTarget },
 
@@ -26,7 +29,7 @@ const CardData AllCards[] = {
 	{ 1, "Southsea Deckhand",		2, 1 },
 	{ 1, "Stonetusk Boar",			1, 1, MinionAbilityFlags::Charge, CardFlags::CanBeInDecks },
 	{ 1, "Undertaker",				1, 2 },
-	{ 1, "Voodoo Doctor",			2, 1 },
+	{ 1, "Voodoo Doctor",			2, 1, Battlecry_VoodooDoctor, CardFlags::CanBeInDecks },
 	{ 1, "Worgen Infiltrator",		2, 1, MinionAbilityFlags::Stealth },
 	{ 1, "Young Dragonhawk",		1, 1, MinionAbilityFlags::Windfury, CardFlags::CanBeInDecks },
 	{ 1, "Young Priestess",			2, 1 },
@@ -83,7 +86,7 @@ const CardData AllCards[] = {
 	{ 3, "Dancing Swords",			4, 4 },
 	{ 3, "Deathlord",				2, 8 },
 	{ 3, "Demolisher",				1, 4 },
-	{ 3, "Earthen Ring Farseer",	3, 3 },
+	{ 3, "Earthen Ring Farseer",	3, 3, Battlecry_EarthenRingFarseer, CardFlags::CanBeInDecks },
 	{ 3, "Emperor Cobra",			2, 3 },
 	{ 3, "Flesheating Ghoul",		2, 3 },
 	{ 3, "Harvest Golem",			2, 3 },

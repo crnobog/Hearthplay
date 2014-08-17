@@ -124,7 +124,7 @@ IMPLEMENT_FLAGS(MinionFlags, uint8_t);
 struct Minion
 {
 	uint8_t				m_attack;
-	int8_t				m_health;
+	int8_t				m_health, m_max_health;
 	const CardData*		m_source_card;
 	MinionAbilityFlags	m_abilities;
 	MinionFlags			m_flags;
@@ -132,7 +132,9 @@ struct Minion
 	Minion( )
 		: m_attack(0)
 		, m_health(0)
+		, m_max_health(0)
 		, m_source_card(nullptr)
+		, m_abilities(MinionAbilityFlags::None)
 		, m_flags(MinionFlags::None)
 	{
 		
@@ -141,6 +143,7 @@ struct Minion
 	Minion(const CardData* source_card)
 		: m_attack(source_card->m_attack)
 		, m_health(source_card->m_health)
+		, m_max_health(source_card->m_health)
 		, m_source_card(source_card)
 		, m_flags(MinionFlags::SummonedThisTurn)
 		, m_abilities(source_card->m_minion_abilities)
@@ -227,6 +230,8 @@ struct Minion
 	{
 		return HasFlag(m_abilities, MinionAbilityFlags::Taunt);
 	}
+
+	inline void Heal( uint8_t amt );
 };
 
 struct Player
@@ -246,11 +251,14 @@ struct Player
 			m_hand.Add(m_deck.PopBack());
 		}
 	}
+
+	inline void Heal( uint8_t amt );
 };
 
 struct GameState
 {
-	static const int StartingHealth = 30;
+	static const uint8_t NoMinion = 0xF;
+	static const int8_t StartingHealth = 30;
 	static const uint8_t MaxPossibleMoves = 1 + 8 * 8 + 10 * 16;
 
 	Player m_players[2];

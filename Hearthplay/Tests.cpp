@@ -588,6 +588,89 @@ TestCase Tests[] =
 
 			return true;
 		}
+	},
+	{
+		"Voodoo Doctor battlecry can target any character", []( )
+		{
+			GameState g;
+			AddMinion(g, 0, Card::BloodfenRaptor);
+			AddMinion(g, 0, Card::SenjinShieldMasta);
+			AddMinion(g, 1, Card::SenjinShieldMasta);
+			AddMinion(g, 1, Card::BloodfenRaptor);
+			AddCard(g, 0, Card::VoodooDoctor);
+			SetManaAndMax(g, 0, 1);
+			g.UpdatePossibleMoves( );
+
+			CHECK(g.m_active_player_index == 0);
+			CHECK(MovePossible(g, Move::PlayCard(Card::VoodooDoctor, Move::TargetMinion(0, 0))));
+			CHECK(MovePossible(g, Move::PlayCard(Card::VoodooDoctor, Move::TargetMinion(0, 1))));
+			CHECK(MovePossible(g, Move::PlayCard(Card::VoodooDoctor, Move::TargetMinion(1, 0))));
+			CHECK(MovePossible(g, Move::PlayCard(Card::VoodooDoctor, Move::TargetMinion(1, 1))));
+			CHECK(MovePossible(g, Move::PlayCard(Card::VoodooDoctor, Move::TargetPlayer(0))));
+			CHECK(MovePossible(g, Move::PlayCard(Card::VoodooDoctor, Move::TargetPlayer(1))));
+
+			return true;
+		}
+	},
+	{
+		"Voodoo Doctor battlecry must have a target", []( )
+		{
+			GameState g;
+			AddMinion(g, 0, Card::BloodfenRaptor);
+			AddMinion(g, 0, Card::SenjinShieldMasta);
+			AddMinion(g, 1, Card::SenjinShieldMasta);
+			AddMinion(g, 1, Card::BloodfenRaptor);
+			AddCard(g, 0, Card::VoodooDoctor);
+			SetManaAndMax(g, 0, 1);
+			g.UpdatePossibleMoves( );
+
+			CHECK(g.m_active_player_index == 0);
+			CHECK(!MovePossible(g, Move::PlayCard(Card::VoodooDoctor)));
+
+			return true;
+		}
+	},
+	{
+		"Voodoo Doctor heals either player", []( )
+		{
+			GameState g;
+			AddCard(g, 0, Card::VoodooDoctor);
+			AddCard(g, 0, Card::VoodooDoctor);
+			SetManaAndMax(g, 0, 2);
+			SetHealth(g, 0, 20);
+			SetHealth(g, 1, 20);
+			g.UpdatePossibleMoves( );
+
+			CHECK(g.m_active_player_index == 0);
+			CHECK(CheckAndProcessMove(g, Move::PlayCard(Card::VoodooDoctor, Move::TargetPlayer(0))));
+			CHECK(g.m_players[0].m_health == 22);
+			CHECK(CheckAndProcessMove(g, Move::PlayCard(Card::VoodooDoctor, Move::TargetPlayer(1))));
+			CHECK(g.m_players[1].m_health == 22);
+
+			return true;
+		}
+	},
+	{
+		"Voodoo Doctor heals a minion by 2 up to max health", []( )
+		{
+			GameState g;
+			AddCard(g, 0, Card::VoodooDoctor);
+			AddCard(g, 0, Card::VoodooDoctor);
+			SetManaAndMax(g, 0, 2);
+			AddMinion(g, 0, Card::SenjinShieldMasta);
+			AddMinion(g, 0, Card::SenjinShieldMasta);
+			g.m_players[0].m_minions[0].m_health = 2;
+			g.m_players[0].m_minions[1].m_health = 4;
+			g.UpdatePossibleMoves( );
+
+			CHECK(g.m_active_player_index == 0);
+			CHECK(CheckAndProcessMove(g, Move::PlayCard(Card::VoodooDoctor, Move::TargetMinion(0, 0))));
+			CHECK(g.m_players[0].m_minions[0].m_health == 4);
+			CHECK(CheckAndProcessMove(g, Move::PlayCard(Card::VoodooDoctor, Move::TargetMinion(0, 1))));
+			CHECK(g.m_players[0].m_minions[1].m_health == 5);
+
+			return true;
+		}
 	}
 };
 

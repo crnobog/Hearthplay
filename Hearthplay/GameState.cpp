@@ -4,6 +4,18 @@
 #include <random>
 #include <algorithm>
 
+void Player::Heal( uint8_t amt )
+{
+	m_health = std::min<int8_t>(m_health + amt, GameState::StartingHealth);
+}
+
+void Minion::Heal(uint8_t amt)
+{
+	m_health = std::min<int8_t>(m_health + amt, m_max_health);
+}
+
+
+
 GameState::GameState()
 {
 	memset(this, 0, sizeof(GameState));
@@ -257,7 +269,7 @@ void GameState::HandleSpell(SpellEffect effect, uint8_t spell_param, uint8_t tar
 	{
 	case SpellEffect::DamageCharacter:
 	{ 
-		if (target_minion == 0xF)
+		if (target_minion == NoMinion)
 		{
 			// Target hero
 			m_players[target_player].m_health -= spell_param;
@@ -270,6 +282,16 @@ void GameState::HandleSpell(SpellEffect effect, uint8_t spell_param, uint8_t tar
 
 		CheckVictory( );
 	}
+		break;
+	case SpellEffect::HealCharacter:
+		if (target_minion == NoMinion)
+		{
+			m_players[target_player].Heal(spell_param);
+		}
+		else
+		{
+			m_players[target_player].m_minions[target_minion].Heal(spell_param);
+		}
 		break;
 	}
 }
