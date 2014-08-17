@@ -2,25 +2,34 @@
 
 #include <random>
 
-static const Battlecry Battlecry_VoodooDoctor = { SpellEffect::HealCharacter, 2 };
-static const Battlecry Battlecry_EarthenRingFarseer = { SpellEffect::HealCharacter, 3 };
+static const MinionAura Aura_PlusTwoAttack = { MinionAuraEffect::BonusAttack, 2, AuraDuration::EndOfTurn };
+
+static const Battlecry Battlecry_AbusiveSergeant = { Aura_PlusTwoAttack, TargetType::AnyMinion };
+static const Battlecry Battlecry_ElvenArcher = { SpellEffect::DamageCharacter, 1, TargetType::AnyCharacter };
+static const Battlecry Battlecry_VoodooDoctor = { SpellEffect::HealCharacter, 2, TargetType::AnyCharacter };
+static const Battlecry Battlecry_EarthenRingFarseer = { SpellEffect::HealCharacter, 3, TargetType::AnyCharacter };
+static const Battlecry Battlecry_IronforgeRifleman = Battlecry_ElvenArcher;
+static const Battlecry Battlecry_StormpikeCommando = { SpellEffect::DamageCharacter, 2, TargetType::AnyCharacter };
+static const Battlecry Battlecry_Nightblade = { SpellEffect::DamageCharacter, 3, TargetType::Opponent };
+
+static const Deathrattle Deathrattle_LeperGnome = { SpellEffect::DamageCharacter, 2, TargetType::Opponent };
 
 const CardData AllCards[] = {
-	{ CardType::Spell, 0, "The Coin", SpellEffect::AddMana, 1, SpellFlags::NoTarget },
+	{ CardType::Spell, 0, "The Coin", SpellEffect::AddMana, 1, TargetType::Self },
 
 	// 0-mana neutral cards
 	{ 0, "Wisp",					1, 1, CardFlags::CanBeInDecks }, // Wisp
 
 	// 1-mana neutral cards
-	{ 1, "Abusive Sergeant",		2, 1 },
+	{ 1, "Abusive Sergeant",		2, 1, Battlecry_AbusiveSergeant, CardFlags::CanBeInDecks },
 	{ 1, "Angry Chicken",			1, 1 },
 	{ 1, "Argent Squire",			1, 1, MinionAbilityFlags::DivineShield, CardFlags::CanBeInDecks },
 	{ 1, "Bloodsail Corsair",		1, 2 },
-	{ 1, "Elven Archer",			1, 1, Battlecry{ SpellEffect::DamageCharacter, 1 }, CardFlags::CanBeInDecks },
+	{ 1, "Elven Archer",			1, 1, Battlecry_ElvenArcher, CardFlags::CanBeInDecks },
 	{ 1, "Goldshire Footman",		1, 2, MinionAbilityFlags::Taunt, CardFlags::CanBeInDecks },
 	{ 1, "Grimscale Oracle",		1, 1 },
 	{ 1, "Hungry Crab",				1, 2 },
-	{ 1, "Leper Gnome",				2, 1, Deathrattle{ SpellEffect::DamageOpponent, 2 }, CardFlags::CanBeInDecks },
+	{ 1, "Leper Gnome",				2, 1, Deathrattle_LeperGnome, CardFlags::CanBeInDecks },
 	{ 1, "Lightwarden",				1, 2 },
 	{ 1, "Murloc Raider",			2, 1, CardFlags::CanBeInDecks },
 	{ 1, "Murloc Tidecaller",		1, 2 },
@@ -92,7 +101,7 @@ const CardData AllCards[] = {
 	{ 3, "Harvest Golem",			2, 3 },
 	{ 3, "Imp Master",				1, 5 },
 	{ 3, "Injured Blademaster",		4, 7 },
-	{ 3, "Ironforge Rifleman",		2, 2, Battlecry{ SpellEffect::DamageCharacter, 1 }, CardFlags::CanBeInDecks },
+	{ 3, "Ironforge Rifleman",		2, 2, Battlecry_IronforgeRifleman, CardFlags::CanBeInDecks },
 	{ 3, "Ironfur Grizzly",			3, 3, MinionAbilityFlags::Taunt, CardFlags::CanBeInDecks },
 	{ 3, "Jungle Panther",			4, 2, MinionAbilityFlags::Stealth },
 	{ 3, "King Mukla",				5, 5 },
@@ -153,14 +162,14 @@ const CardData AllCards[] = {
 	{ 5, "Gurubashi Berserker",		2, 7 },
 	{ 5, "Harrison Jones",			5, 4 },
 	{ 5, "Loatheb",					5, 5 },
-	{ 5, "Nightblade",				4, 4, Battlecry{ SpellEffect::DamageOpponent, 3, SpellFlags::NoTarget }, CardFlags::CanBeInDecks },
+	{ 5, "Nightblade",				4, 4, Battlecry_Nightblade, CardFlags::CanBeInDecks },
 	{ 5, "Silver Hand Knight",		4, 4 },
 	{ 5, "Sludge Belcher",			3, 5, MinionAbilityFlags::Taunt },
 	{ 5, "Spectral Knight",			4, 6, MinionAbilityFlags::CannotBeTargeted },
 	{ 5, "Spiteful Smith",			4, 6 },
 	{ 5, "Stalaag",					7, 4 },
 	{ 5, "Stampeding Kodo",			3, 5 },
-	{ 5, "Stormpike Commando",		5, 2, Battlecry{ SpellEffect::DamageCharacter, 2 }, CardFlags::CanBeInDecks },
+	{ 5, "Stormpike Commando",		5, 2, Battlecry_StormpikeCommando, CardFlags::CanBeInDecks },
 	{ 5, "Stranglethorn Tiger",		5, 5, MinionAbilityFlags::Stealth },
 	{ 5, "Venture Co. Mercenary",	7, 6 },
 
@@ -227,8 +236,7 @@ CardData::CardData(uint8_t mana_cost, const char* name, uint8_t attack, uint8_t 
 	, m_health(health)
 	, m_minion_abilities(MinionAbilityFlags::None)
 	, m_effect(SpellEffect::None)
-	, m_spell_flags(SpellFlags::None)
-	, m_minion_deathrattle(Deathrattle{ SpellEffect::None, 0 })
+	, m_minion_deathrattle(Deathrattle{ })
 	, m_flags(card_flags)
 {
 
@@ -242,8 +250,9 @@ CardData::CardData(uint8_t mana_cost, const char* name, uint8_t attack, uint8_t 
 	, m_health(health)
 	, m_minion_abilities(flags)
 	, m_effect(SpellEffect::None)
-	, m_spell_flags(SpellFlags::None)
-	, m_minion_deathrattle(Deathrattle{ SpellEffect::None, 0 })
+	, m_effect_param(0)
+	, m_target_type(TargetType::None)
+	, m_minion_deathrattle(Deathrattle{ })
 	, m_flags(card_flags)
 {
 
@@ -257,7 +266,8 @@ CardData::CardData(uint8_t mana_cost, const char* name, uint8_t attack, uint8_t 
 	, m_health(health)
 	, m_minion_abilities(MinionAbilityFlags::None)
 	, m_effect(SpellEffect::None)
-	, m_spell_flags(SpellFlags::None)
+	, m_effect_param(0)
+	, m_target_type(TargetType::None)
 	, m_minion_deathrattle(deathrattle)
 	, m_flags(card_flags)
 {
@@ -272,8 +282,9 @@ CardData::CardData(uint8_t mana_cost, const char* name, uint8_t attack, uint8_t 
 	, m_health(health)
 	, m_minion_abilities(MinionAbilityFlags::None)
 	, m_effect(SpellEffect::None)
-	, m_spell_flags(SpellFlags::None)
-	, m_minion_deathrattle(Deathrattle{ SpellEffect::None, 0 })
+	, m_effect_param(0)
+	, m_target_type(TargetType::None)
+	, m_minion_deathrattle(Deathrattle{ })
 	, m_minion_battlecry(battlecry)
 	, m_flags(card_flags)
 {
@@ -283,7 +294,7 @@ CardData::CardData(uint8_t mana_cost, const char* name, uint8_t attack, uint8_t 
 
 
 // Spell constructor
-CardData::CardData(CardType type, uint8_t mana_cost, const char* name, SpellEffect effect, uint8_t effect_param, SpellFlags spell_flags, CardFlags card_flags )
+CardData::CardData(CardType type, uint8_t mana_cost, const char* name, SpellEffect effect, uint8_t effect_param, TargetType target_type, CardFlags card_flags )
 	: m_type(type)
 	, m_mana_cost(mana_cost)
 	, m_name(name)
@@ -292,41 +303,22 @@ CardData::CardData(CardType type, uint8_t mana_cost, const char* name, SpellEffe
 	, m_minion_abilities(MinionAbilityFlags::None)
 	, m_effect(effect)
 	, m_effect_param(effect_param)
-	, m_spell_flags(spell_flags)
-	, m_minion_deathrattle(Deathrattle{ SpellEffect::None, 0 })
+	, m_target_type(target_type)
+	, m_minion_deathrattle(Deathrattle{  })
 	, m_flags(card_flags)
 {
 }
 
-bool CardData::HasUntargetedBattlecry( ) const
+bool CardData::HasBattlecry( ) const
 {
 	if (m_type == CardType::Spell)
 		return false;
 
 	if (m_minion_battlecry.m_effect == SpellEffect::None)
 		return false;
-
-	if (HasFlag(m_minion_battlecry.m_spell_flags, SpellFlags::NoTarget))
-		return true;
-
-	return false;
-}
-
-
-bool CardData::HasTargetedBattlecry( ) const
-{
-	if (m_type == CardType::Spell)
-		return false;
-
-	if (m_minion_battlecry.m_effect == SpellEffect::None)
-		return false;
-
-	if (HasFlag(m_minion_battlecry.m_spell_flags, SpellFlags::NoTarget))
-		return false;
-
+	
 	return true;
 }
-
 
 std::vector<Card> DeckPossibleCards;
 

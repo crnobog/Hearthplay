@@ -25,17 +25,33 @@ enum class MoveType
 	PlayCard,
 };
 
+struct PackedTarget
+{
+	uint8_t m_player : 4;
+	uint8_t m_minion : 4;
+
+	inline bool operator==(const PackedTarget& other) const
+	{
+		return m_player == other.m_player && m_minion == other.m_minion;
+	}
+
+	inline bool operator<(const PackedTarget& other) const
+	{
+		return m_player < other.m_player || m_minion < other.m_minion;
+	}
+};
+
 struct Move
 {
-	MoveType m_type;
-	uint8_t m_source_index;
-	uint8_t m_target_packed;
-	Card m_card;
+	MoveType		m_type;
+	uint8_t			m_source_index;
+	PackedTarget	m_target_packed;
+	Card			m_card;
 
 	Move( )
 		: m_type( MoveType::EndTurn )
 		, m_source_index( 0 )
-		, m_target_packed( 0 )
+		, m_target_packed({ 0xF, 0xF })
 		, m_card( Card::MAX )
 	{
 	}
@@ -50,48 +66,54 @@ struct Move
 
 	static Move AttackHero(uint8_t with_minion)
 	{
-		return Move{ MoveType::AttackHero, with_minion, 0, Card::MAX };
+		return Move{ MoveType::AttackHero, with_minion, TargetNone(), Card::MAX };
 	}
 
 	static Move AttackMinion(uint8_t attacker, uint8_t defender)
 	{
-		return Move{ MoveType::AttackMinion, attacker, defender, Card::MAX };
+		// Technically target player index is wrong here
+		return Move{ MoveType::AttackMinion, attacker, TargetMinion(0, defender), Card::MAX };
 	}
 
 	static Move EndTurn( )
 	{
-		return Move{ MoveType::EndTurn, 0xFF, 0xFF, Card::MAX };
+		return Move{ MoveType::EndTurn, 0xFF, TargetNone(), Card::MAX };
 	}
 
 	static Move PlayCard(Card c)
 	{
-		return Move{ MoveType::PlayCard, 0xFF, 0xFF, c };
+		return Move{ MoveType::PlayCard, 0xFF, TargetNone(), c };
 	}
 	
-	static Move PlayCard(Card c, uint8_t target_index)
+	static Move PlayCard(Card c, PackedTarget packed_target)
 	{
-		return Move{ MoveType::PlayCard, 0xFF, target_index, c };
+		return Move{ MoveType::PlayCard, 0xFF, packed_target, c };
 	}
 
 	// Static methods to make targets for spells
-	static uint8_t TargetPlayer(uint8_t player_index)
+	static PackedTarget TargetPlayer(uint8_t player_index)
 	{
-		return (player_index << 4) | 0xF;
+		return{ player_index & 0xF, 0xF };
 	}
 
-	static uint8_t TargetMinion(uint8_t player_index, uint8_t minion_index)
+	static PackedTarget TargetMinion(uint8_t player_index, uint8_t minion_index)
 	{
-		return (player_index << 4) | (minion_index & 0xF);
+		return{ player_index & 0xF, minion_index & 0xF };
 	}
 
-	static void UnpackTarget(uint8_t packed, uint8_t& out_player, uint8_t& out_minion)
+	static PackedTarget TargetNone( )
 	{
-		out_player = (packed & 0xF0) >> 4;
-		out_minion = packed & 0xF;
+		return{ 0xF, 0xF };
+	}
+
+	static void UnpackTarget(PackedTarget packed, uint8_t& out_player, uint8_t& out_minion)
+	{
+		out_player = packed.m_player;
+		out_minion = packed.m_minion;
 	}
 
 protected:
-	Move( MoveType type, uint8_t source, uint8_t target, Card c)
+	Move( MoveType type, uint8_t source, PackedTarget target, Card c)
 		: m_type(type), m_source_index( source ), m_target_packed(target), m_card(c)
 	{
 	}
@@ -260,6 +282,7 @@ struct GameState
 	static const uint8_t NoMinion = 0xF;
 	static const int8_t StartingHealth = 30;
 	static const uint8_t MaxPossibleMoves = 1 + 8 * 8 + 10 * 16;
+	static const uint8_t MaxTargets = 7 + 7 + 1 + 1; // Each character
 
 	Player m_players[2];
 	Winner m_winner;
@@ -283,15 +306,15 @@ struct GameState
 
 protected:
 	void EndTurn();
-	void PlayCard(Card c, uint8_t target_index);
+	void PlayCard(Card c, PackedTarget packed_target);
 	void AttackHero(uint8_t SourceIndex);
 	void AttackMinion(uint8_t SourceIndex, uint8_t TargetIndex);
 
 	void CheckDeadMinion(uint8_t player_index, uint8_t minion_index);
 	void HandleDeathrattle(Deathrattle deathrattle, uint8_t owner_index);
-	void HandleSpell(SpellEffect effect, uint8_t spell_param, uint8_t target_packed);
+	void HandleSpell(SpellEffect effect, uint8_t spell_param, PackedTarget target_packed);
 	void HandleSpellNoTarget(SpellEffect effect, uint8_t spell_param, uint8_t owner_index);
-	void PlayMinion(Card c, uint8_t target_index);
+	void PlayMinion(Card c, PackedTarget packed_target);
 
 	void CheckVictory( );
 };

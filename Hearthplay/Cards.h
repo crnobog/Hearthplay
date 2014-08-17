@@ -220,13 +220,43 @@ enum class CardType : uint8_t
 	Spell,
 };
 
+enum class TargetType : uint8_t
+{
+	None,
+	AnyCharacter,
+	AnyMinion,
+	Opponent,
+	Self,
+
+	MAX,
+};
+
 enum class SpellEffect : uint8_t
 {
 	None,
 	AddMana,			// Coin and Innervate
-	DamageOpponent,		// Leper Gnome deathrattle, Mind Blast, Nightblade, Steady Shot
 	DamageCharacter,	// Elven Archer, Stormpike Commando, Holy Smite, Arcane Shot
 	HealCharacter,		// Voodoo Doctor, Earthen Ring Farseer
+	AddMinionAura,		// Abusive Sergeant, Dark Iron Dwarf
+};
+
+enum class MinionAuraEffect : uint8_t
+{
+	None,
+	BonusAttack,
+};
+
+enum class AuraDuration : uint8_t
+{
+	None,
+	EndOfTurn,
+};
+
+struct MinionAura
+{
+	MinionAuraEffect	m_effect;
+	uint8_t				m_param;
+	AuraDuration		m_duration;
 };
 
 #define IMPLEMENT_FLAGS( EnumType, UnderlyingType ) \
@@ -242,14 +272,6 @@ enum class SpellEffect : uint8_t
 		{ return (l&r) != EnumType::None; } \
 	inline EnumType operator~(EnumType r) \
 		{ return (EnumType)(~(UnderlyingType)r); } 
-
-enum class SpellFlags : uint8_t
-{
-	None,
-	NoTarget = 0x1,
-};
-
-IMPLEMENT_FLAGS(SpellFlags, uint8_t)
 
 enum class CardFlags : uint8_t
 {
@@ -277,16 +299,19 @@ struct Deathrattle
 {
 	SpellEffect m_effect;
 	uint8_t		m_param;
+	TargetType  m_target_type;
 
 	Deathrattle( )
 		: m_effect(SpellEffect::None)
 		, m_param(0)
+		, m_target_type(TargetType::None)
 	{
 	}
 
-	Deathrattle(SpellEffect effect, uint8_t param)
+	Deathrattle(SpellEffect effect, uint8_t param, TargetType target_type)
 		: m_effect(effect)
 		, m_param(param)
+		, m_target_type(target_type)
 	{
 	}
 };
@@ -295,27 +320,30 @@ struct Battlecry
 {
 	SpellEffect m_effect;
 	uint8_t		m_param;
-	SpellFlags	m_spell_flags;
+	MinionAura  m_aura;
+	TargetType  m_target_type;
 
 	Battlecry( )
 		: m_effect(SpellEffect::None)
 		, m_param(0)
-		, m_spell_flags(SpellFlags::None)
+		, m_target_type(TargetType::None)
 	{
 	}
 
-	Battlecry( SpellEffect effect, uint8_t param )
+	Battlecry( SpellEffect effect, uint8_t param, TargetType target_type )
 		: m_effect(effect)
 		, m_param(param)
-		, m_spell_flags(SpellFlags::None)
+		, m_target_type(target_type)
 	{
 	}
-	
-	Battlecry(SpellEffect effect, uint8_t param, SpellFlags spell_flags)
-		: m_effect(effect)
-		, m_param(param)
-		, m_spell_flags(spell_flags)
+
+	Battlecry(MinionAura aura, TargetType target_type)
+		: m_effect(SpellEffect::AddMinionAura)
+		, m_param(0)
+		, m_aura(aura)
+		, m_target_type(target_type)
 	{
+
 	}
 };
 
@@ -331,7 +359,7 @@ struct CardData
 
 	SpellEffect			m_effect;
 	uint8_t				m_effect_param;
-	SpellFlags			m_spell_flags;
+	TargetType			m_target_type;
 
 	Deathrattle			m_minion_deathrattle;
 	Battlecry			m_minion_battlecry;
@@ -348,10 +376,9 @@ struct CardData
 	CardData(uint8_t mana_cost, const char* name, uint8_t attack, uint8_t health, Battlecry battlecry, CardFlags card_flags = CardFlags::None);
 
 	// Spell constructor
-	CardData(CardType type, uint8_t mana_cost, const char* name, SpellEffect effect, uint8_t effect_param, SpellFlags spell_flags = SpellFlags::None, CardFlags card_flag = CardFlags::None );
+	CardData(CardType type, uint8_t mana_cost, const char* name, SpellEffect effect, uint8_t effect_param, TargetType target_type, CardFlags card_flag = CardFlags::None );
 
-	bool HasUntargetedBattlecry( ) const;
-	bool HasTargetedBattlecry( ) const;
+	bool HasBattlecry( ) const;
 
 };
 

@@ -368,7 +368,7 @@ TestCase Tests[] =
 			g.UpdatePossibleMoves( );
 
 			auto mana = g.m_players[0].m_mana;
-			CHECK(CheckAndProcessMove(g, Move::PlayCard(Card::Coin)));
+			CHECK(CheckAndProcessMove(g, Move::PlayCard(Card::Coin, Move::TargetPlayer(g.m_active_player_index))));
 			CHECK(g.m_players[0].m_mana == mana + 1);
 
 			return true;
@@ -583,7 +583,7 @@ TestCase Tests[] =
 			g.UpdatePossibleMoves( );
 
 			CHECK(g.m_active_player_index == 0);
-			CHECK(CheckAndProcessMove(g, Move::PlayCard(Card::Nightblade)));
+			CHECK(CheckAndProcessMove(g, Move::PlayCard(Card::Nightblade, Move::TargetPlayer(1))));
 			CHECK(g.m_winner == Winner::PlayerOne);
 
 			return true;
@@ -668,6 +668,94 @@ TestCase Tests[] =
 			CHECK(g.m_players[0].m_minions[0].m_health == 4);
 			CHECK(CheckAndProcessMove(g, Move::PlayCard(Card::VoodooDoctor, Move::TargetMinion(0, 1))));
 			CHECK(g.m_players[0].m_minions[1].m_health == 5);
+
+			return true;
+		}
+	},
+	{
+		"Abusive Sergeant can target any minion", []( )
+		{
+			GameState g;
+			AddCard(g, 0, Card::AbusiveSergeant);
+			SetManaAndMax(g, 0, 1);
+			AddMinion(g, 0, Card::SenjinShieldMasta);
+			AddMinion(g, 1, Card::SenjinShieldMasta);
+			g.UpdatePossibleMoves( );
+
+			CHECK(!MovePossible(g, Move::PlayCard(Card::AbusiveSergeant)));
+			CHECK(MovePossible(g, Move::PlayCard(Card::AbusiveSergeant, Move::TargetMinion(0, 0))));
+			CHECK(MovePossible(g, Move::PlayCard(Card::AbusiveSergeant, Move::TargetMinion(1, 0))));
+
+			return true;
+		}
+	},
+	{
+		"Abusive Sergeant has no target on empty board", []( )
+		{
+			GameState g;
+			AddCard(g, 0, Card::AbusiveSergeant);
+			SetManaAndMax(g, 0, 1);
+			g.UpdatePossibleMoves( );
+
+			CHECK(CheckAndProcessMove(g, Move::PlayCard(Card::AbusiveSergeant)));
+
+			return true;
+		}
+	},
+	{
+		"Minion affected by Abusive Sergeant does more damage", []( )
+		{
+			GameState g;
+			AddCard(g, 0, Card::AbusiveSergeant);
+			SetManaAndMax(g, 0, 1);
+			AddMinion(g, 0, Card::BloodfenRaptor);
+			AddMinion(g, 1, Card::SenjinShieldMasta);
+			g.UpdatePossibleMoves( );
+
+			CHECK(CheckAndProcessMove(g, Move::PlayCard(Card::AbusiveSergeant, Move::TargetMinion(0, 0))));
+			CHECK(CheckAndProcessMove(g, Move::AttackMinion(0, 0)));
+			CHECK(g.m_players[1].m_minions.Num( ) == 0);
+
+			return true;
+		}
+	},
+	{
+		"Minion affected by Abusive Sergeant normal damage on opponent's next turn", []( )
+		{
+			GameState g;
+			AddCard(g, 0, Card::AbusiveSergeant);
+			SetManaAndMax(g, 0, 1);
+			AddMinion(g, 0, Card::BloodfenRaptor);
+			AddMinion(g, 1, Card::SenjinShieldMasta);
+			g.UpdatePossibleMoves( );
+
+			CHECK(CheckAndProcessMove(g, Move::PlayCard(Card::AbusiveSergeant, Move::TargetMinion(0, 0))));
+			CHECK(CheckAndProcessMove(g, Move::EndTurn( )));
+			CHECK(CheckAndProcessMove(g, Move::AttackMinion(0, 0)));
+			CHECK(g.m_players[0].m_minions.Num( ) == 1);
+			CHECK(g.m_players[1].m_minions.Num( ) == 1);
+			CHECK(g.m_players[1].m_minions[0].m_health == 2);
+
+			return true;
+		}
+	},
+	{
+		"Minion affected by Abusive Sergeant normal damage on owner's next turn", []( )
+		{
+			GameState g;
+			AddCard(g, 0, Card::AbusiveSergeant);
+			SetManaAndMax(g, 0, 1);
+			AddMinion(g, 0, Card::BloodfenRaptor);
+			AddMinion(g, 1, Card::SenjinShieldMasta);
+			g.UpdatePossibleMoves( );
+
+			CHECK(CheckAndProcessMove(g, Move::PlayCard(Card::AbusiveSergeant, Move::TargetMinion(0, 0))));
+			CHECK(CheckAndProcessMove(g, Move::EndTurn( )));
+			CHECK(CheckAndProcessMove(g, Move::EndTurn( )));
+			CHECK(CheckAndProcessMove(g, Move::AttackMinion(0, 0)));
+			CHECK(g.m_players[0].m_minions.Num( ) == 1);
+			CHECK(g.m_players[1].m_minions.Num( ) == 1);
+			CHECK(g.m_players[1].m_minions[0].m_health == 2);
 
 			return true;
 		}
