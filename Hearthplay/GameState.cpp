@@ -14,7 +14,43 @@ void Minion::Heal(uint8_t amt)
 	m_health = std::min<int8_t>(m_health + amt, m_max_health);
 }
 
+void Minion::AddAuraEffects(const MinionAura& aura)
+{
+	switch (aura.m_effect)
+	{
+	case MinionAuraEffect::BonusAttack:
+		m_attack += aura.m_param;
+		break;
+	} 
+}
 
+void Minion::RemoveAuraEffects(const MinionAura& aura)
+{
+	switch (aura.m_effect)
+	{
+	case MinionAuraEffect::BonusAttack:
+		m_attack -= aura.m_param;
+		break;
+	}
+}
+
+void Minion::RemoveEndOfTurnAuras( )
+{
+	if (m_auras.Num( ) == 0)
+		return;
+
+	for (uint8_t i = m_auras.Num( ) - 1; ; --i)
+	{
+		if (m_auras[i].m_duration == AuraDuration::EndOfTurn)
+		{
+			RemoveAuraEffects(m_auras[i]);
+			m_auras.RemoveSwap(i);
+		}
+
+		if (i == 0)
+			break;
+	}
+}
 
 GameState::GameState()
 {
@@ -138,7 +174,7 @@ void GameState::UpdatePossibleMoves( )
 			break;
 		case CardType::Spell:
 		{
-			const auto& targets = target_map[(uint8_t)data->m_target_type];
+			const auto& targets = target_map[(uint8_t)data->m_spell_data.m_target_type];
 
 			for (uint8_t target_index = 0; target_index < targets.Num( ); ++target_index)
 			{
@@ -160,10 +196,15 @@ void GameState::EndTurn()
 	ActivePlayer.DrawOne();
 	ActivePlayer.m_max_mana = (uint8_t)std::min(10, ActivePlayer.m_max_mana + 1);
 	ActivePlayer.m_mana = ActivePlayer.m_max_mana;
-	for (uint8_t i = 0; i < ActivePlayer.m_minions.Num(); ++i)
+
+	for (uint8_t player_idx = 0; player_idx < 2; ++player_idx)
 	{
-		Minion& m = ActivePlayer.m_minions[i];
-		m.BeginTurn();
+		for (uint8_t i = 0; i < m_players[player_idx].m_minions.Num( ); ++i)
+		{
+			Minion& m = m_players[player_idx].m_minions[i];
+			m.ClearAttackFlags( );
+			m.RemoveEndOfTurnAuras( );
+		}
 	}
 
 	// HACK before fatigue goes in
@@ -191,7 +232,7 @@ void GameState::PlayCard(Card c, PackedTarget packed_target)
 	}
 	else
 	{
-		HandleSpell(ToPlay->m_effect, ToPlay->m_effect_param, packed_target);
+		HandleSpell(ToPlay->m_spell_data, packed_target);
 	}
 }
 
@@ -214,7 +255,7 @@ void GameState::AttackHero(uint8_t SourceIndex)
 void GameState::CheckDeadMinion(uint8_t player_index, uint8_t minion_index)
 {
 	Player& owner = m_players[player_index];
-	Minion dead_minion = owner.m_minions[minion_index];
+	Minion& dead_minion = owner.m_minions[minion_index];
 	if (dead_minion.m_health <= 0)
 	{
 		if (dead_minion.m_source_card->m_minion_deathrattle.m_effect != SpellEffect::None)
@@ -256,19 +297,19 @@ void GameState::HandleDeathrattle(Deathrattle deathrattle, uint8_t owner_index)
 		target = Move::TargetPlayer(opponent_index);
 		break;
 	}
-	HandleSpell(deathrattle.m_effect, deathrattle.m_param, target);
+	HandleSpell(deathrattle, target);
 }
 
-void GameState::HandleSpell(SpellEffect effect, uint8_t spell_param, PackedTarget target_packed)
+void GameState::HandleSpell(const SpellData& spell_data, PackedTarget target_packed)
 {
 	uint8_t target_player, target_minion;
 	Move::UnpackTarget(target_packed, target_player, target_minion);
-	switch (effect)
+	switch (spell_data.m_effect)
 	{
 	case SpellEffect::AddMana:
 	{
 		Player& p = m_players[target_player];
-		p.m_mana += spell_param;
+		p.m_mana += spell_data.m_param;
 	}
 		break;
 	case SpellEffect::DamageCharacter:
@@ -276,11 +317,11 @@ void GameState::HandleSpell(SpellEffect effect, uint8_t spell_param, PackedTarge
 		if (target_minion == NoMinion)
 		{
 			// Target hero
-			m_players[target_player].m_health -= spell_param;
+			m_players[target_player].m_health -= spell_data.m_param;
 		}
 		else
 		{
-			m_players[target_player].m_minions[target_minion].m_health -= spell_param;
+			m_players[target_player].m_minions[target_minion].m_health -= spell_data.m_param;
 			CheckDeadMinion(target_player, target_minion);
 		}
 
@@ -290,12 +331,19 @@ void GameState::HandleSpell(SpellEffect effect, uint8_t spell_param, PackedTarge
 	case SpellEffect::HealCharacter:
 		if (target_minion == NoMinion)
 		{
-			m_players[target_player].Heal(spell_param);
+			m_players[target_player].Heal(spell_data.m_param);
 		}
 		else
 		{
-			m_players[target_player].m_minions[target_minion].Heal(spell_param);
+			m_players[target_player].m_minions[target_minion].Heal(spell_data.m_param);
 		}
+		break;
+	case SpellEffect::AddMinionAura:
+	{
+		Minion& m = m_players[target_player].m_minions[target_minion];
+		m.m_auras.Add(spell_data.m_aura);
+		m.AddAuraEffects(spell_data.m_aura);
+	}
 		break;
 	}
 }
@@ -306,7 +354,7 @@ void GameState::PlayMinion(Card c, PackedTarget target_packed)
 
 	if (data->HasBattlecry())
 	{
-		HandleSpell(data->m_minion_battlecry.m_effect, data->m_minion_battlecry.m_param, target_packed);
+		HandleSpell(data->m_minion_battlecry, target_packed);
 	}
 
 	m_players[m_active_player_index].m_minions.Add({ data });

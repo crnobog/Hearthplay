@@ -257,6 +257,20 @@ struct MinionAura
 	MinionAuraEffect	m_effect;
 	uint8_t				m_param;
 	AuraDuration		m_duration;
+
+	MinionAura( )
+		: m_effect( MinionAuraEffect::None )
+		, m_param(0)
+		, m_duration( AuraDuration::None )
+	{
+	}
+
+	MinionAura(MinionAuraEffect effect, uint8_t param, AuraDuration duration)
+		: m_effect(effect)
+		, m_param(param)
+		, m_duration(duration)
+	{
+	}
 };
 
 #define IMPLEMENT_FLAGS( EnumType, UnderlyingType ) \
@@ -295,53 +309,63 @@ enum class MinionAbilityFlags : uint8_t
 
 IMPLEMENT_FLAGS(MinionAbilityFlags, uint8_t);
 
-struct Deathrattle
-{
-	SpellEffect m_effect;
-	uint8_t		m_param;
-	TargetType  m_target_type;
-
-	Deathrattle( )
-		: m_effect(SpellEffect::None)
-		, m_param(0)
-		, m_target_type(TargetType::None)
-	{
-	}
-
-	Deathrattle(SpellEffect effect, uint8_t param, TargetType target_type)
-		: m_effect(effect)
-		, m_param(param)
-		, m_target_type(target_type)
-	{
-	}
-};
-
-struct Battlecry
+struct SpellData
 {
 	SpellEffect m_effect;
 	uint8_t		m_param;
 	MinionAura  m_aura;
 	TargetType  m_target_type;
 
-	Battlecry( )
+	SpellData( )
 		: m_effect(SpellEffect::None)
 		, m_param(0)
+		, m_aura()
 		, m_target_type(TargetType::None)
 	{
 	}
 
-	Battlecry( SpellEffect effect, uint8_t param, TargetType target_type )
+	SpellData( SpellEffect effect, uint8_t param, TargetType target_type)
 		: m_effect(effect)
 		, m_param(param)
+		, m_aura( )
 		, m_target_type(target_type)
 	{
 	}
 
-	Battlecry(MinionAura aura, TargetType target_type)
-		: m_effect(SpellEffect::AddMinionAura)
-		, m_param(0)
+	SpellData(SpellEffect effect, uint8_t param, TargetType target_type, MinionAura aura)
+		: m_effect(effect)
+		, m_param(param)
 		, m_aura(aura)
 		, m_target_type(target_type)
+	{
+	}
+};
+
+struct Deathrattle : SpellData
+{
+	Deathrattle( )
+	{
+	}
+
+	Deathrattle(SpellEffect effect, uint8_t param, TargetType target_type)
+		: SpellData(effect, param, target_type)
+	{
+	}
+};
+
+struct Battlecry : SpellData
+{
+	Battlecry( )
+	{
+	}
+
+	Battlecry( SpellEffect effect, uint8_t param, TargetType target_type )
+		: SpellData(effect, param, target_type)
+	{
+	}
+
+	Battlecry(MinionAura aura, TargetType target_type)
+		: SpellData(SpellEffect::AddMinionAura, 0, target_type, aura)
 	{
 
 	}
@@ -357,9 +381,7 @@ struct CardData
 	int8_t				m_health;
 	MinionAbilityFlags	m_minion_abilities;
 
-	SpellEffect			m_effect;
-	uint8_t				m_effect_param;
-	TargetType			m_target_type;
+	SpellData			m_spell_data;
 
 	Deathrattle			m_minion_deathrattle;
 	Battlecry			m_minion_battlecry;

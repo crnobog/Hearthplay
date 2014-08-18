@@ -145,11 +145,14 @@ IMPLEMENT_FLAGS(MinionFlags, uint8_t);
 
 struct Minion
 {
+	static const uint8_t MaxAuras = 10; // TODO: What is a reasonable max?
+
 	uint8_t				m_attack;
 	int8_t				m_health, m_max_health;
 	const CardData*		m_source_card;
 	MinionAbilityFlags	m_abilities;
 	MinionFlags			m_flags;
+	FixedVector<MinionAura, MaxAuras, uint8_t> m_auras;
 
 	Minion( )
 		: m_attack(0)
@@ -172,7 +175,7 @@ struct Minion
 	{
 	}
 
-	inline void BeginTurn()
+	inline void ClearAttackFlags()
 	{
 		m_flags &= ~( MinionFlags::AttackedThisTurn 
 				|	MinionFlags::WindfuryAttackedThisTurn
@@ -254,6 +257,9 @@ struct Minion
 	}
 
 	inline void Heal( uint8_t amt );
+	void AddAuraEffects(const MinionAura& aura);
+	void RemoveAuraEffects(const MinionAura& aura);
+	void RemoveEndOfTurnAuras( );
 };
 
 struct Player
@@ -312,7 +318,7 @@ protected:
 
 	void CheckDeadMinion(uint8_t player_index, uint8_t minion_index);
 	void HandleDeathrattle(Deathrattle deathrattle, uint8_t owner_index);
-	void HandleSpell(SpellEffect effect, uint8_t spell_param, PackedTarget target_packed);
+	void HandleSpell(const SpellData& spell_data, PackedTarget target_packed);
 	void HandleSpellNoTarget(SpellEffect effect, uint8_t spell_param, uint8_t owner_index);
 	void PlayMinion(Card c, PackedTarget packed_target);
 

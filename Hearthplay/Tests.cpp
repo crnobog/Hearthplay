@@ -708,7 +708,7 @@ TestCase Tests[] =
 			GameState g;
 			AddCard(g, 0, Card::AbusiveSergeant);
 			SetManaAndMax(g, 0, 1);
-			AddMinion(g, 0, Card::BloodfenRaptor);
+			AddMinionReadyToAttack(g, 0, Card::BloodfenRaptor);
 			AddMinion(g, 1, Card::SenjinShieldMasta);
 			g.UpdatePossibleMoves( );
 

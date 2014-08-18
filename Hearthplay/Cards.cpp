@@ -9,6 +9,7 @@ static const Battlecry Battlecry_ElvenArcher = { SpellEffect::DamageCharacter, 1
 static const Battlecry Battlecry_VoodooDoctor = { SpellEffect::HealCharacter, 2, TargetType::AnyCharacter };
 static const Battlecry Battlecry_EarthenRingFarseer = { SpellEffect::HealCharacter, 3, TargetType::AnyCharacter };
 static const Battlecry Battlecry_IronforgeRifleman = Battlecry_ElvenArcher;
+static const Battlecry Battlecry_DarkIronDwarf = Battlecry_AbusiveSergeant;
 static const Battlecry Battlecry_StormpikeCommando = { SpellEffect::DamageCharacter, 2, TargetType::AnyCharacter };
 static const Battlecry Battlecry_Nightblade = { SpellEffect::DamageCharacter, 3, TargetType::Opponent };
 
@@ -129,7 +130,7 @@ const CardData AllCards[] = {
 	{ 4, "Baron Riverdare",			1, 7 },
 	{ 4, "Chillwind Yeti",			4, 5, CardFlags::CanBeInDecks },
 	{ 4, "Cult Master",				4, 2 },
-	{ 4, "Dark Iron Dwarf",			4, 4 },
+	{ 4, "Dark Iron Dwarf",			4, 4, Battlecry_DarkIronDwarf, CardFlags::CanBeInDecks },
 	{ 4, "Defender Of Argus",		4, 4 },
 	{ 4, "Dragonling Mechanic",		2, 4 },
 	{ 4, "Dread Corsair",			3, 3, MinionAbilityFlags::Taunt },
@@ -235,7 +236,6 @@ CardData::CardData(uint8_t mana_cost, const char* name, uint8_t attack, uint8_t 
 	, m_attack(attack)
 	, m_health(health)
 	, m_minion_abilities(MinionAbilityFlags::None)
-	, m_effect(SpellEffect::None)
 	, m_minion_deathrattle(Deathrattle{ })
 	, m_flags(card_flags)
 {
@@ -249,9 +249,6 @@ CardData::CardData(uint8_t mana_cost, const char* name, uint8_t attack, uint8_t 
 	, m_attack(attack)
 	, m_health(health)
 	, m_minion_abilities(flags)
-	, m_effect(SpellEffect::None)
-	, m_effect_param(0)
-	, m_target_type(TargetType::None)
 	, m_minion_deathrattle(Deathrattle{ })
 	, m_flags(card_flags)
 {
@@ -265,9 +262,6 @@ CardData::CardData(uint8_t mana_cost, const char* name, uint8_t attack, uint8_t 
 	, m_attack(attack)
 	, m_health(health)
 	, m_minion_abilities(MinionAbilityFlags::None)
-	, m_effect(SpellEffect::None)
-	, m_effect_param(0)
-	, m_target_type(TargetType::None)
 	, m_minion_deathrattle(deathrattle)
 	, m_flags(card_flags)
 {
@@ -281,9 +275,6 @@ CardData::CardData(uint8_t mana_cost, const char* name, uint8_t attack, uint8_t 
 	, m_attack(attack)
 	, m_health(health)
 	, m_minion_abilities(MinionAbilityFlags::None)
-	, m_effect(SpellEffect::None)
-	, m_effect_param(0)
-	, m_target_type(TargetType::None)
 	, m_minion_deathrattle(Deathrattle{ })
 	, m_minion_battlecry(battlecry)
 	, m_flags(card_flags)
@@ -301,10 +292,9 @@ CardData::CardData(CardType type, uint8_t mana_cost, const char* name, SpellEffe
 	, m_attack(0)
 	, m_health(0)
 	, m_minion_abilities(MinionAbilityFlags::None)
-	, m_effect(effect)
-	, m_effect_param(effect_param)
-	, m_target_type(target_type)
+	, m_spell_data(SpellData{ effect, effect_param, target_type })
 	, m_minion_deathrattle(Deathrattle{  })
+	, m_minion_battlecry(Battlecry{ })
 	, m_flags(card_flags)
 {
 }
