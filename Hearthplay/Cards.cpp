@@ -69,7 +69,7 @@ const CardData AllCards[] = {
 	{ 2, "Haunted Creeper",			1, 2, CardFlags::None, MinionRace::Beast },
 	{ 2, "Ironbeak Owl",			2, 1, CardFlags::None, MinionRace::Beast },
 	{ 2, "Knife Juggler",			3, 2 },
-	{ 2, "Kobold Geomancer",		2, 2 },
+	{ 2, "Kobold Geomancer",		2, 2, CardFlags::CanBeInDecks, MinionRace::None, 1 },
 	{ 2, "Loot Hoarder",			2, 1 },
 	{ 2, "Lorewalker Cho",			0, 4 },
 	{ 2, "Mad Bomber",				3, 2 },
@@ -144,7 +144,7 @@ const CardData AllCards[] = {
 	{ 4, "Leeroy Jenkins",			6, 2, MinionAbilityFlags::Charge },
 	{ 4, "Mogu'shan Warden",		1, 7, MinionAbilityFlags::Taunt, CardFlags::CanBeInDecks },
 	{ 4, "Oasis Snapjaw",			2, 7, CardFlags::CanBeInDecks, MinionRace::Beast },
-	{ 4, "Ogre Magi",				4, 4 },
+	{ 4, "Ogre Magi",				4, 4, CardFlags::CanBeInDecks, MinionRace::None, 1},
 	{ 4, "Old Murk Eye",			2, 4, CardFlags::None, MinionRace::Murloc  },
 	{ 4, "Sen'jin Shieldmasta",		3, 5, MinionAbilityFlags::Taunt, CardFlags::CanBeInDecks },
 	{ 4, "Silvermoon Guardian",		3, 3, MinionAbilityFlags::DivineShield, CardFlags::CanBeInDecks },
@@ -237,7 +237,7 @@ const CardData* GetCardData(Card c)
 	return &AllCards[(unsigned)c];
 }
 
-CardData::CardData(uint8_t mana_cost, const char* name, uint8_t attack, uint8_t health, CardFlags card_flags, MinionRace race)
+CardData::CardData(uint8_t mana_cost, const char* name, uint8_t attack, uint8_t health, CardFlags card_flags, MinionRace race, uint8_t minion_spelldamage)
 	: m_type(CardType::Minion)
 	, m_mana_cost(mana_cost)
 	, m_name(name)
@@ -245,7 +245,7 @@ CardData::CardData(uint8_t mana_cost, const char* name, uint8_t attack, uint8_t 
 	, m_health(health)
 	, m_minion_abilities(MinionAbilityFlags::None)
 	, m_minion_race(race)
-	, m_minion_spelldamage(0)
+	, m_minion_spelldamage(minion_spelldamage)
 	, m_minion_deathrattle(Deathrattle{ })
 	, m_flags(card_flags)
 {
