@@ -191,6 +191,7 @@ struct Minion
 		}
 
 		m_flags |= MinionFlags::AttackedThisTurn;
+		RemoveStealth( );
 	}
 
 	inline void TakeDamage(uint8_t damage)
@@ -254,6 +255,16 @@ struct Minion
 	inline bool HasTaunt( ) const
 	{
 		return HasFlag(m_abilities, MinionAbilityFlags::Taunt);
+	}
+
+	inline bool HasStealth( ) const
+	{
+		return HasFlag(m_abilities, MinionAbilityFlags::Stealth);
+	}
+
+	inline void RemoveStealth( )
+	{
+		m_abilities &= ~MinionAbilityFlags::Stealth;
 	}
 
 	inline void Heal( uint8_t amt );

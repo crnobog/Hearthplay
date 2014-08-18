@@ -776,6 +776,20 @@ TestCase Tests[] =
 
 			return true;
 		}
+	},
+	{
+		"Stealth minion loses stealth when attacking", []( )
+		{
+			GameState g;
+			AddMinionReadyToAttack(g, 0, Card::WorgenInfiltrator);
+			g.UpdatePossibleMoves( );
+
+			CHECK(g.m_players[0].m_minions[0].HasStealth( ));
+			CHECK(CheckAndProcessMove(g, Move::AttackHero(0)));
+			CHECK(!g.m_players[0].m_minions[0].HasStealth( ));
+
+			return true;
+		}
 	}
 };
 
