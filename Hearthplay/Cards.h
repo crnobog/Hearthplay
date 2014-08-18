@@ -255,6 +255,7 @@ enum class SpellEffect : uint8_t
 	HealCharacter,		// Voodoo Doctor, Earthen Ring Farseer
 	AddMinionAura,		// Abusive Sergeant, Dark Iron Dwarf
 	DrawCard,
+	AddManaCrystal,		// Arcane Golem, Wild Growth
 };
 
 enum class MinionAuraEffect : uint8_t

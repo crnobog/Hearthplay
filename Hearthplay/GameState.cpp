@@ -327,6 +327,12 @@ void GameState::HandleSpell(const SpellData& spell_data, PackedTarget target_pac
 		p.m_mana += spell_data.m_param;
 	}
 	break;
+	case SpellEffect::AddManaCrystal:
+	{
+		Player& p = m_players[target_player];
+		p.m_max_mana += spell_data.m_param;
+	}
+	break;
 	case SpellEffect::DrawCard:
 	{
 		Player& p = m_players[target_player];

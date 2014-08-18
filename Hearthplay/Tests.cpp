@@ -1059,6 +1059,22 @@ TestCase Tests[] =
 
 			return true;
 		}
+	},
+	{
+		"Arcane Golem", []( )
+		{
+			GameState g;
+			AddCard(g, 0, Card::ArcaneGolem);
+			SetManaAndMax(g, 0, 3);
+			SetManaAndMax(g, 1, 3);
+			g.UpdatePossibleMoves( );
+
+			CHECK_DO_MOVE(Move::PlayCard(Card::ArcaneGolem, Move::TargetPlayer(1)));
+			CHECK(g.m_players[0].m_max_mana == 3);
+			CHECK(g.m_players[1].m_max_mana == 4);
+
+			return true;
+		}
 	}
 };
 

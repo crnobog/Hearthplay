@@ -8,6 +8,7 @@ static const Battlecry Battlecry_AbusiveSergeant = { Aura_PlusTwoAttack, TargetT
 static const Battlecry Battlecry_ElvenArcher = { SpellEffect::DamageCharacter, 1, TargetType::AnyCharacter };
 static const Battlecry Battlecry_VoodooDoctor = { SpellEffect::HealCharacter, 2, TargetType::AnyCharacter };
 static const Battlecry Battlecry_NoviceEngineer = { SpellEffect::DrawCard, 1, TargetType::SelfPlayer };
+static const Battlecry Battlecry_ArcaneGolem = { SpellEffect::AddManaCrystal, 1, TargetType::Opponent };
 static const Battlecry Battlecry_EarthenRingFarseer = { SpellEffect::HealCharacter, 3, TargetType::AnyCharacter };
 static const Battlecry Battlecry_IronforgeRifleman = Battlecry_ElvenArcher;
 static const Battlecry Battlecry_DarkIronDwarf = Battlecry_AbusiveSergeant;
@@ -95,7 +96,7 @@ const CardData AllCards[] = {
 	// 3-mana neutral cards
 	{ 3, "Acolyte Of Pain",			1, 3 },
 	{ 3, "Alarm-o-Bot",				0, 3 },
-	{ 3, "Arcane Golem",			4, 2 },
+	{ 3, "Arcane Golem",			4, 2, Battlecry_ArcaneGolem, MinionAbilityFlags::Charge, CardFlags::CanBeInDecks },
 	{ 3, "Big Game Hunter",			4, 2 },
 	{ 3, "Blood Knight",			3, 3 },
 	{ 3, "Coldlight Oracle",		2, 2, CardFlags::None, MinionRace::Murloc },
