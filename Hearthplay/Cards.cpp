@@ -18,6 +18,7 @@ static const Battlecry Battlecry_PriestessOfElune = { SpellEffect::HealCharacter
 
 static const Deathrattle Deathrattle_LeperGnome = { SpellEffect::DamageCharacter, 2, TargetType::Opponent };
 static const Deathrattle Deathrattle_ZombieChow = { SpellEffect::HealCharacter, 5, TargetType::Opponent };
+static const Deathrattle Deathrattle_BloodmageThalnos = { SpellEffect::DrawCard, 1, TargetType::SelfPlayer };
 static const Deathrattle Deathrattle_LootHoarder = { SpellEffect::DrawCard, 1, TargetType::SelfPlayer };
 static const Deathrattle Deathrattle_UnstableGhoul = { SpellEffect::DamageCharacter, 1, TargetType::AllMinions };
 static const Deathrattle Deathrattle_Abomination = { SpellEffect::DamageCharacter, 2, TargetType::AllCharacters };
@@ -57,7 +58,7 @@ const CardData AllCards[] = {
 	{ 2, "Amani Berserker",			2, 3 },
 	{ 2, "Ancient Watcher",			4, 5, MinionAbilityFlags::CannotAttack, CardFlags::CanBeInDecks },
 	{ 2, "Bloodfen Raptor",			3, 2, CardFlags::CanBeInDecks, MinionRace::Beast },
-	{ 2, "Bloodmage Thalnos",		1, 1 },
+	{ 2, "Bloodmage Thalnos",		1, 1, Deathrattle_BloodmageThalnos, MinionAbilityFlags::None, CardFlags::CanBeInDecks, MinionRace::None, 1 },
 	{ 2, "Bloodsail Raider",		2, 3, CardFlags::None, MinionRace::Pirate },
 	{ 2, "Bluegill Warrior",		2, 1, MinionAbilityFlags::Charge, CardFlags::CanBeInDecks, MinionRace::Murloc },
 	{ 2, "Captains Parrot",			1, 2, CardFlags::None, MinionRace::Beast },
@@ -268,7 +269,7 @@ CardData::CardData(uint8_t mana_cost, const char* name, uint8_t attack, uint8_t 
 
 }
 
-CardData::CardData(uint8_t mana_cost, const char* name, uint8_t attack, uint8_t health, Deathrattle deathrattle, MinionAbilityFlags minion_flags, CardFlags card_flags, MinionRace race)
+CardData::CardData(uint8_t mana_cost, const char* name, uint8_t attack, uint8_t health, Deathrattle deathrattle, MinionAbilityFlags minion_flags, CardFlags card_flags, MinionRace race, uint8_t minion_spelldamage)
 	: m_type(CardType::Minion)
 	, m_mana_cost(mana_cost)
 	, m_name(name)
@@ -276,7 +277,7 @@ CardData::CardData(uint8_t mana_cost, const char* name, uint8_t attack, uint8_t 
 	, m_health(health)
 	, m_minion_abilities(minion_flags)
 	, m_minion_race(race)
-	, m_minion_spelldamage(0)
+	, m_minion_spelldamage(minion_spelldamage)
 	, m_minion_deathrattle(deathrattle)
 	, m_flags(card_flags)
 {

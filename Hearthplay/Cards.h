@@ -413,7 +413,7 @@ struct CardData
 	// Minion with abilities constructor
 	CardData(uint8_t mana_cost, const char* name, uint8_t attack, uint8_t health, MinionAbilityFlags minion_flags, CardFlags card_flags = CardFlags::None, MinionRace race = MinionRace::None);
 	// Minion with deathrattle constructor
-	CardData(uint8_t mana_cost, const char* name, uint8_t attack, uint8_t health, Deathrattle deathrattle, MinionAbilityFlags minion_flags, CardFlags card_flags = CardFlags::None, MinionRace race = MinionRace::None);
+	CardData(uint8_t mana_cost, const char* name, uint8_t attack, uint8_t health, Deathrattle deathrattle, MinionAbilityFlags minion_flags, CardFlags card_flags = CardFlags::None, MinionRace race = MinionRace::None, uint8_t minion_spelldamage = 0);
 	// Minion with battlecry constructor
 	CardData(uint8_t mana_cost, const char* name, uint8_t attack, uint8_t health, Battlecry battlecry, MinionAbilityFlags minion_flags, CardFlags card_flags = CardFlags::None, MinionRace race = MinionRace::None, uint8_t minion_spelldamage = 0);
 
