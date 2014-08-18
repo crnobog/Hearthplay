@@ -41,7 +41,7 @@ const CardData AllCards[] = {
 	{ 1, "Stonetusk Boar",			1, 1, MinionAbilityFlags::Charge, CardFlags::CanBeInDecks, MinionRace::Beast },
 	{ 1, "Undertaker",				1, 2 },
 	{ 1, "Voodoo Doctor",			2, 1, Battlecry_VoodooDoctor, CardFlags::CanBeInDecks },
-	{ 1, "Worgen Infiltrator",		2, 1, MinionAbilityFlags::Stealth },
+	{ 1, "Worgen Infiltrator",		2, 1, MinionAbilityFlags::Stealth, CardFlags::CanBeInDecks },
 	{ 1, "Young Dragonhawk",		1, 1, MinionAbilityFlags::Windfury, CardFlags::CanBeInDecks, MinionRace::Beast },
 	{ 1, "Young Priestess",			2, 1 },
 	{ 1, "Zombie Chow",				2, 3, Deathrattle_ZombieChow, CardFlags::CanBeInDecks },
@@ -105,7 +105,7 @@ const CardData AllCards[] = {
 	{ 3, "Injured Blademaster",		4, 7 },
 	{ 3, "Ironforge Rifleman",		2, 2, Battlecry_IronforgeRifleman, CardFlags::CanBeInDecks },
 	{ 3, "Ironfur Grizzly",			3, 3, MinionAbilityFlags::Taunt, CardFlags::CanBeInDecks, MinionRace::Beast},
-	{ 3, "Jungle Panther",			4, 2, MinionAbilityFlags::Stealth, CardFlags::None, MinionRace::Beast},
+	{ 3, "Jungle Panther",			4, 2, MinionAbilityFlags::Stealth, CardFlags::CanBeInDecks, MinionRace::Beast},
 	{ 3, "King Mukla",				5, 5, CardFlags::None, MinionRace::Beast },
 	{ 3, "Magma Rager",				5, 1, CardFlags::CanBeInDecks },
 	{ 3, "Mind Control Tech",		3, 3 },
@@ -172,7 +172,7 @@ const CardData AllCards[] = {
 	{ 5, "Stalaag",					7, 4 },
 	{ 5, "Stampeding Kodo",			3, 5, CardFlags::None, MinionRace::Beast },
 	{ 5, "Stormpike Commando",		5, 2, Battlecry_StormpikeCommando, CardFlags::CanBeInDecks },
-	{ 5, "Stranglethorn Tiger",		5, 5, MinionAbilityFlags::Stealth, CardFlags::None, MinionRace::Beast },
+	{ 5, "Stranglethorn Tiger",		5, 5, MinionAbilityFlags::Stealth, CardFlags::CanBeInDecks, MinionRace::Beast },
 	{ 5, "Venture Co. Mercenary",	7, 6 },
 
 	// 6-mana neutral cards
@@ -197,7 +197,7 @@ const CardData AllCards[] = {
 	// 7-mana neutral cards
 	{ 7, "Baron Geddon",			7, 5 },
 	{ 7, "Core Hound",				9, 5, CardFlags::CanBeInDecks, MinionRace::Beast },
-	{ 7, "Ravenholdt Assassin",		7, 5, MinionAbilityFlags::Stealth },
+	{ 7, "Ravenholdt Assassin",		7, 5, MinionAbilityFlags::Stealth, CardFlags::CanBeInDecks },
 	{ 7, "Stormwind Champion",		6, 6 },
 	{ 7, "War Golem",				7, 7, CardFlags::CanBeInDecks },
 
