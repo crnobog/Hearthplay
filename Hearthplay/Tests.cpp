@@ -790,6 +790,20 @@ TestCase Tests[] =
 
 			return true;
 		}
+	},
+	{
+		"Stealth minion cannot be attacked", []( )
+		{
+			GameState g;
+			AddMinion(g, 0, Card::WorgenInfiltrator);
+			AddMinion(g, 1, Card::SenjinShieldMasta);
+			g.UpdatePossibleMoves( );
+
+			CHECK(CheckAndProcessMove(g, Move::EndTurn( )));
+			CHECK(!MovePossible(g, Move::AttackMinion(0, 0)));
+
+			return true;
+		}
 	}
 };
 

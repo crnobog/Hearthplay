@@ -135,6 +135,9 @@ void GameState::UpdatePossibleMoves( )
 			if( opponent_has_taunt && !Opponent.m_minions[j].HasTaunt() )
 				continue;
 
+			if( Opponent.m_minions[j].HasStealth() )
+				continue;
+
 			// Attack minion
 			m_possible_moves.Add(Move::AttackMinion(i, j));
 		}
