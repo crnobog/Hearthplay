@@ -14,6 +14,7 @@ static const Battlecry Battlecry_DarkIronDwarf = Battlecry_AbusiveSergeant;
 static const Battlecry Battlecry_AzureDrake = Battlecry_NoviceEngineer;
 static const Battlecry Battlecry_StormpikeCommando = { SpellEffect::DamageCharacter, 2, TargetType::AnyCharacter };
 static const Battlecry Battlecry_Nightblade = { SpellEffect::DamageCharacter, 3, TargetType::Opponent };
+static const Battlecry Battlecry_PriestessOfElune = { SpellEffect::HealCharacter, 4, TargetType::SelfPlayer };
 
 static const Deathrattle Deathrattle_LeperGnome = { SpellEffect::DamageCharacter, 2, TargetType::Opponent };
 static const Deathrattle Deathrattle_ZombieChow = { SpellEffect::HealCharacter, 5, TargetType::Opponent };
@@ -190,7 +191,7 @@ const CardData AllCards[] = {
 	{ 6, "Illidan Stormrage",		7, 5, CardFlags::None, MinionRace::Demon },
 	{ 6, "Lord of the Arena",		6, 5, MinionAbilityFlags::Taunt, CardFlags::CanBeInDecks },
 	{ 6, "Maexxna",					2, 8, CardFlags::None, MinionRace::Beast },
-	{ 6, "Priestess of Elune",		5, 4 },
+	{ 6, "Priestess of Elune",		5, 4, Battlecry_PriestessOfElune, MinionAbilityFlags::None, CardFlags::CanBeInDecks },
 	{ 6, "Reckless Rocketeer",		5, 2, MinionAbilityFlags::Charge, CardFlags::CanBeInDecks },
 	{ 6, "Sunwalker",				4, 5, MinionAbilityFlags::Taunt | MinionAbilityFlags::DivineShield, CardFlags::CanBeInDecks },
 	{ 6, "Sylvanas Windrunner",		5, 5 },

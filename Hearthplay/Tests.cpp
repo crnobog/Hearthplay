@@ -1028,6 +1028,21 @@ TestCase Tests[] =
 
 			return true;
 		}
+	},
+	{
+		"Priestess of Elune", []( )
+		{
+			GameState g;
+			AddCard(g, 0, Card::PriestessOfElune);
+			SetManaAndMax(g, 0, 6);
+			SetHealth(g, 0, 20);
+			g.UpdatePossibleMoves( );
+
+			CHECK_DO_MOVE(Move::PlayCard(Card::PriestessOfElune, Move::TargetPlayer(0)));
+			CHECK(GetPlayerHealth(g, 0) == 24);
+
+			return true;
+		}
 	}
 };
 
