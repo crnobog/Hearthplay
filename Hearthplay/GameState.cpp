@@ -244,7 +244,7 @@ void GameState::PlayCard(Card c, PackedTarget packed_target)
 	}
 	else
 	{
-		HandleSpell(ToPlay->m_spell_data, packed_target);
+		HandleSpell(ToPlay->m_spell_data, packed_target, true);
 	}
 }
 
@@ -312,7 +312,7 @@ void GameState::HandlePendingSpellEffect(const SpellData& data, uint8_t owner_in
 	HandleSpell(data, target);
 }
 
-void GameState::HandleSpell(const SpellData& spell_data, PackedTarget target_packed)
+void GameState::HandleSpell(const SpellData& spell_data, PackedTarget target_packed, bool affected_by_spelldamage)
 {
 	uint8_t target_player, target_minion;
 	Move::UnpackTarget(target_packed, target_player, target_minion);
@@ -335,25 +335,26 @@ void GameState::HandleSpell(const SpellData& spell_data, PackedTarget target_pac
 	break;
 	case SpellEffect::DamageCharacter:
 	{ 
+		uint8_t dmg = spell_data.m_param + (affected_by_spelldamage ? m_players[m_active_player_index].CalculateSpelldamage( ) : 0);
 		if (spell_data.m_target_type == TargetType::AllMinions)
 		{
-			ForEachMinion([=](Minion& m){ m.m_health -= spell_data.m_param; });
+			ForEachMinion([=](Minion& m){ m.m_health -= dmg; });
 			CheckDeadMinions( );
 		}
 		else if (spell_data.m_target_type == TargetType::AllCharacters)
 		{
-			ForEachPlayer([=](Player& p){ p.m_health -= spell_data.m_param; });
-			ForEachMinion([=](Minion& m){ m.m_health -= spell_data.m_param; });
+			ForEachPlayer([=](Player& p){ p.m_health -= dmg; });
+			ForEachMinion([=](Minion& m){ m.m_health -= dmg; });
 			CheckDeadMinions( );
 		}
 		else if (target_minion == NoMinion)
 		{
 			// Target hero
-			m_players[target_player].m_health -= spell_data.m_param;
+			m_players[target_player].m_health -= dmg;
 		}
 		else
 		{
-			m_players[target_player].m_minions[target_minion].m_health -= spell_data.m_param;
+			m_players[target_player].m_minions[target_minion].m_health -= dmg;
 			CheckDeadMinion(target_player, target_minion);
 		}
 

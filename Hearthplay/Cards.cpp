@@ -11,6 +11,7 @@ static const Battlecry Battlecry_NoviceEngineer = { SpellEffect::DrawCard, 1, Ta
 static const Battlecry Battlecry_EarthenRingFarseer = { SpellEffect::HealCharacter, 3, TargetType::AnyCharacter };
 static const Battlecry Battlecry_IronforgeRifleman = Battlecry_ElvenArcher;
 static const Battlecry Battlecry_DarkIronDwarf = Battlecry_AbusiveSergeant;
+static const Battlecry Battlecry_AzureDrake = Battlecry_NoviceEngineer;
 static const Battlecry Battlecry_StormpikeCommando = { SpellEffect::DamageCharacter, 2, TargetType::AnyCharacter };
 static const Battlecry Battlecry_Nightblade = { SpellEffect::DamageCharacter, 3, TargetType::Opponent };
 
@@ -154,7 +155,7 @@ const CardData AllCards[] = {
 
 	// 5-mana neutral cards
 	{ 5, "Abomination",				4, 4, Deathrattle_Abomination, MinionAbilityFlags::Taunt, CardFlags::CanBeInDecks },
-	{ 5, "Azure Drake",				4, 4, CardFlags::None, MinionRace::Dragon },
+	{ 5, "Azure Drake",				4, 4, Battlecry_AzureDrake, MinionAbilityFlags::None, CardFlags::CanBeInDecks, MinionRace::Dragon, 1 },
 	{ 5, "Booty Bay Bodyguard",		5, 4, MinionAbilityFlags::Taunt, CardFlags::CanBeInDecks },
 	{ 5, "Captain Greenskin",		5, 4, CardFlags::None, MinionRace::Pirate },
 	{ 5, "Darkscale Healer",		4, 5 },
@@ -226,6 +227,8 @@ const CardData AllCards[] = {
 	// 20-mana neutral cards
 	{ 20, "Molten Giant",			8, 8 },
 
+	// Priest cards
+	{ CardType::Spell, 1, "Holy Smite", SpellEffect::DamageCharacter, 2, TargetType::AnyCharacter },
 };
 
 const CardData* GetCardData(Card c)
@@ -241,6 +244,7 @@ CardData::CardData(uint8_t mana_cost, const char* name, uint8_t attack, uint8_t 
 	, m_health(health)
 	, m_minion_abilities(MinionAbilityFlags::None)
 	, m_minion_race(race)
+	, m_minion_spelldamage(0)
 	, m_minion_deathrattle(Deathrattle{ })
 	, m_flags(card_flags)
 {
@@ -255,6 +259,7 @@ CardData::CardData(uint8_t mana_cost, const char* name, uint8_t attack, uint8_t 
 	, m_health(health)
 	, m_minion_abilities(flags)
 	, m_minion_race(race)
+	, m_minion_spelldamage(0)
 	, m_minion_deathrattle(Deathrattle{ })
 	, m_flags(card_flags)
 {
@@ -269,13 +274,14 @@ CardData::CardData(uint8_t mana_cost, const char* name, uint8_t attack, uint8_t 
 	, m_health(health)
 	, m_minion_abilities(minion_flags)
 	, m_minion_race(race)
+	, m_minion_spelldamage(0)
 	, m_minion_deathrattle(deathrattle)
 	, m_flags(card_flags)
 {
 
 }
 
-CardData::CardData(uint8_t mana_cost, const char* name, uint8_t attack, uint8_t health, Battlecry battlecry, MinionAbilityFlags minion_flags, CardFlags card_flags, MinionRace race)
+CardData::CardData(uint8_t mana_cost, const char* name, uint8_t attack, uint8_t health, Battlecry battlecry, MinionAbilityFlags minion_flags, CardFlags card_flags, MinionRace race, uint8_t minion_spelldamage)
 	: m_type(CardType::Minion)
 	, m_mana_cost(mana_cost)
 	, m_name(name)
@@ -283,6 +289,7 @@ CardData::CardData(uint8_t mana_cost, const char* name, uint8_t attack, uint8_t 
 	, m_health(health)
 	, m_minion_abilities(minion_flags)
 	, m_minion_race(race)
+	, m_minion_spelldamage(minion_spelldamage)
 	, m_minion_deathrattle(Deathrattle{ })
 	, m_minion_battlecry(battlecry)
 	, m_flags(card_flags)
@@ -301,6 +308,7 @@ CardData::CardData(CardType type, uint8_t mana_cost, const char* name, SpellEffe
 	, m_health(0)
 	, m_minion_abilities(MinionAbilityFlags::None)
 	, m_minion_race(MinionRace::None)
+	, m_minion_spelldamage(0)
 	, m_spell_data(SpellData{ effect, effect_param, target_type })
 	, m_minion_deathrattle(Deathrattle{  })
 	, m_minion_battlecry(Battlecry{ })

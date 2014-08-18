@@ -211,6 +211,9 @@ enum class Card
 	// 20-mana neutral cards
 	MoltenGiant,
 
+	// Priest cards
+	HolySmite,
+
 	MAX
 };
 
@@ -396,6 +399,7 @@ struct CardData
 	int8_t				m_health;
 	MinionAbilityFlags	m_minion_abilities;
 	MinionRace			m_minion_race;
+	uint8_t				m_minion_spelldamage;
 
 	SpellData			m_spell_data;
 
@@ -411,7 +415,7 @@ struct CardData
 	// Minion with deathrattle constructor
 	CardData(uint8_t mana_cost, const char* name, uint8_t attack, uint8_t health, Deathrattle deathrattle, MinionAbilityFlags minion_flags, CardFlags card_flags = CardFlags::None, MinionRace race = MinionRace::None);
 	// Minion with battlecry constructor
-	CardData(uint8_t mana_cost, const char* name, uint8_t attack, uint8_t health, Battlecry battlecry, MinionAbilityFlags minion_flags, CardFlags card_flags = CardFlags::None, MinionRace race = MinionRace::None);
+	CardData(uint8_t mana_cost, const char* name, uint8_t attack, uint8_t health, Battlecry battlecry, MinionAbilityFlags minion_flags, CardFlags card_flags = CardFlags::None, MinionRace race = MinionRace::None, uint8_t minion_spelldamage = 0);
 
 	// Spell constructor
 	CardData(CardType type, uint8_t mana_cost, const char* name, SpellEffect effect, uint8_t effect_param, TargetType target_type, CardFlags card_flag = CardFlags::None );

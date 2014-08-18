@@ -983,6 +983,36 @@ TestCase Tests[] =
 
 			return true;
 		}
+	},
+	{
+		"Battlecries are unaffected by spell damage", []( )
+		{
+			GameState g;
+			AddCard(g, 0, Card::ElvenArcher);
+			AddMinion(g, 0, Card::AzureDrake);
+			SetManaAndMax(g, 0, 1);
+			g.UpdatePossibleMoves( );
+
+			CHECK_DO_MOVE(Move::PlayCard(Card::ElvenArcher, Move::TargetPlayer(1)));
+			CHECK(GetPlayerHealth(g, 1) == 29);
+			
+			return true;
+		}
+	},
+	{
+		"Spells are affected by spell damage", []( )
+		{
+			GameState g;
+			AddCard(g, 0, Card::HolySmite);
+			AddMinion(g, 0, Card::AzureDrake);
+			SetManaAndMax(g, 0, 1);
+			g.UpdatePossibleMoves( );
+
+			CHECK_DO_MOVE(Move::PlayCard(Card::HolySmite, Move::TargetPlayer(1)));
+			CHECK(GetPlayerHealth(g, 1) == 27);
+
+			return true;
+		}
 	}
 };
 

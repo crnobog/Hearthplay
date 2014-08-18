@@ -149,6 +149,7 @@ struct Minion
 
 	uint8_t				m_attack;
 	int8_t				m_health, m_max_health;
+	uint8_t				m_spelldamage;
 	const CardData*		m_source_card;
 	MinionAbilityFlags	m_abilities;
 	MinionFlags			m_flags;
@@ -158,6 +159,7 @@ struct Minion
 		: m_attack(0)
 		, m_health(0)
 		, m_max_health(0)
+		, m_spelldamage(0)
 		, m_source_card(nullptr)
 		, m_abilities(MinionAbilityFlags::None)
 		, m_flags(MinionFlags::None)
@@ -169,6 +171,7 @@ struct Minion
 		: m_attack(source_card->m_attack)
 		, m_health(source_card->m_health)
 		, m_max_health(source_card->m_health)
+		, m_spelldamage(source_card->m_minion_spelldamage)
 		, m_source_card(source_card)
 		, m_flags(MinionFlags::SummonedThisTurn)
 		, m_abilities(source_card->m_minion_abilities)
@@ -302,6 +305,16 @@ struct Player
 	}
 
 	inline void Heal( uint8_t amt );
+
+	uint8_t CalculateSpelldamage( ) const
+	{
+		uint8_t spelldamage = 0;
+		for (uint8_t i = 0; i < m_minions.Num( ); ++i)
+		{
+			spelldamage += m_minions[i].m_spelldamage;
+		}
+		return spelldamage;
+	}
 };
 
 struct PendingSpellEffect
@@ -346,8 +359,7 @@ protected:
 
 	void CheckDeadMinion(uint8_t player_index, uint8_t minion_index);
 	void HandlePendingSpellEffect(const SpellData& data, uint8_t owner_index);
-	void HandleSpell(const SpellData& spell_data, PackedTarget target_packed);
-	void HandleSpellNoTarget(SpellEffect effect, uint8_t spell_param, uint8_t owner_index);
+	void HandleSpell(const SpellData& spell_data, PackedTarget target_packed, bool affected_by_spelldamage=false);
 	void PlayMinion(Card c, PackedTarget packed_target);
 
 	void CheckVictory( );
