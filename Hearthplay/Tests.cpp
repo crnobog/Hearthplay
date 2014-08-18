@@ -920,6 +920,48 @@ TestCase Tests[] =
 
 			return true;
 		}
+	},
+	{
+		"Abomination deathrattle kills leper gnomes", []( )
+		{
+			GameState g;
+			AddMinion(g, 0, Card::Abomination);
+			AddMinion(g, 0, Card::LeperGnome);
+			AddMinion(g, 0, Card::LeperGnome);
+			AddMinion(g, 1, Card::SpitefulSmith);
+			AddMinion(g, 1, Card::BloodfenRaptor);
+			g.UpdatePossibleMoves( );
+
+			CHECK_DO_MOVE(Move::EndTurn( ));
+			CHECK_DO_MOVE(Move::AttackMinion(0, 0));
+			CHECK(GetNumMinions(g, 0) == 0);
+			CHECK(GetNumMinions(g, 1) == 0);
+			CHECK(GetPlayerHealth(g, 0) == GameState::StartingHealth - 2);
+			CHECK(GetPlayerHealth(g, 1) == GameState::StartingHealth - 2 - 2 - 2);
+
+			return true;
+		}
+	},
+	{
+		"Abominations kill each other", []( )
+		{
+			GameState g;
+			AddMinion(g, 0, Card::Abomination);
+			AddMinion(g, 0, Card::DarkIronDwarf);
+			AddMinion(g, 0, Card::DarkIronDwarf);
+			AddMinion(g, 1, Card::Abomination);
+			AddMinion(g, 1, Card::RiverCrocolisk);
+			g.UpdatePossibleMoves( );
+
+			CHECK_DO_MOVE(Move::EndTurn( ));
+			CHECK_DO_MOVE(Move::AttackMinion(0, 0));
+			CHECK(GetNumMinions(g, 0) == 0);
+			CHECK(GetNumMinions(g, 1) == 0);
+			CHECK(GetPlayerHealth(g, 0) == GameState::StartingHealth - 2 - 2);
+			CHECK(GetPlayerHealth(g, 1) == GameState::StartingHealth - 2 - 2);
+
+			return true;
+		}
 	}
 };
 
