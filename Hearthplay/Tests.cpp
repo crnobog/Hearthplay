@@ -14,6 +14,15 @@ if( !(foo) ) { \
 	return false;\
 }
 
+#define CHECK_MOVE_POSSIBLE( move ) \
+	CHECK( MovePossible(g, move) )
+
+#define CHECK_MOVE_IMPOSSIBLE( move ) \
+	CHECK( !MovePossible(g, move) )
+
+#define CHECK_DO_MOVE( move ) \
+	CHECK( ProcessMove(g, move) )
+
 Minion& AddMinion(GameState& g, uint8_t player, Card c)
 {
 	const CardData* data = GetCardData(c);
@@ -45,7 +54,7 @@ void AddCard(GameState& g, uint8_t player, Card c)
 	g.m_players[player].m_hand.Add(c);
 }
 
-bool CheckAndProcessMove(GameState& g, Move m)
+bool ProcessMove(GameState& g, Move m)
 {
 	if (!g.m_possible_moves.Contains(m))
 	{
@@ -58,6 +67,16 @@ bool CheckAndProcessMove(GameState& g, Move m)
 bool MovePossible(const GameState& g, Move m)
 {
 	return g.m_possible_moves.Contains(m);
+}
+
+Minion& GetMinion(GameState& g, uint8_t player_idx, uint8_t minion_idx)
+{
+	return g.m_players[player_idx].m_minions[minion_idx];
+}
+
+uint8_t GetNumMinions(const GameState& g, uint8_t player_idx)
+{
+	return g.m_players[player_idx].m_minions.Num( );
 }
 
 typedef bool(*TestFunc)();
@@ -81,7 +100,7 @@ TestCase Tests[] =
 
 			g.UpdatePossibleMoves( );
 
-			CHECK(CheckAndProcessMove(g, Move::AttackHero(0)));
+			CHECK_DO_MOVE(Move::AttackHero(0));
 			CHECK(g.m_winner == Winner::PlayerOne);
 
 			return true;
@@ -98,7 +117,7 @@ TestCase Tests[] =
 
 			g.UpdatePossibleMoves( );
 
-			CHECK(CheckAndProcessMove(g, Move::AttackHero(0)));
+			CHECK_DO_MOVE(Move::AttackHero(0));
 			CHECK(g.m_winner == Winner::PlayerTwo);
 			return true;
 
@@ -113,7 +132,7 @@ TestCase Tests[] =
 
 			g.UpdatePossibleMoves( );
 
-			CHECK(CheckAndProcessMove(g, Move::AttackHero(0)));
+			CHECK_DO_MOVE(Move::AttackHero(0));
 			CHECK(g.m_players[1].m_health == GameState::StartingHealth - GetCardData(Card::BluegillWarrior)->m_attack);
 			return true;
 		}
@@ -125,10 +144,10 @@ TestCase Tests[] =
 			AddMinion(g, 0, Card::BloodfenRaptor);
 			g.UpdatePossibleMoves( );
 
-			CHECK(!MovePossible(g, Move::AttackHero(0)));
-			CHECK(CheckAndProcessMove(g, Move::EndTurn( )));
-			CHECK(CheckAndProcessMove(g, Move::EndTurn( )));
-			CHECK(CheckAndProcessMove(g, Move::AttackHero(0)));
+			CHECK_MOVE_IMPOSSIBLE(Move::AttackHero(0));
+			CHECK_DO_MOVE(Move::EndTurn( ));
+			CHECK_DO_MOVE(Move::EndTurn( ));
+			CHECK_DO_MOVE(Move::AttackHero(0));
 
 			return true;
 		}
@@ -138,17 +157,17 @@ TestCase Tests[] =
 		{
 			GameState g;
 			AddMinion(g, 0, Card::ArgentSquire);
-			CHECK(g.m_players[0].m_minions[0].HasDivineShield( ) == true);
+			CHECK(GetMinion(g,0,0).HasDivineShield( ) == true);
 
 			AddMinion(g, 1, Card::BloodfenRaptor);
 			g.UpdatePossibleMoves( );
 
-			CheckAndProcessMove(g, Move::EndTurn( ));
-			CheckAndProcessMove(g, Move::EndTurn( ));
+			ProcessMove(g, Move::EndTurn( ));
+			ProcessMove(g, Move::EndTurn( ));
 
-			CHECK(CheckAndProcessMove(g, Move::AttackMinion(0, 0)));
-			CHECK(g.m_players[0].m_minions.Num( ) == 1);
-			CHECK(g.m_players[0].m_minions[0].HasDivineShield( ) == false);
+			CHECK_DO_MOVE(Move::AttackMinion(0, 0));
+			CHECK(GetNumMinions(g, 0) == 1);
+			CHECK(GetMinion(g, 0, 0).HasDivineShield( ) == false);
 
 			return true;
 		}
@@ -161,11 +180,11 @@ TestCase Tests[] =
 			AddMinion(g, 0, Card::AncientWatcher);
 			g.UpdatePossibleMoves( );
 
-			CHECK(CheckAndProcessMove(g, Move::EndTurn( )));
-			CHECK(CheckAndProcessMove(g, Move::EndTurn( )));
+			CHECK_DO_MOVE(Move::EndTurn( ));
+			CHECK_DO_MOVE(Move::EndTurn( ));
 
-			CHECK(!MovePossible(g, Move::AttackHero(0)));
-			CHECK(!MovePossible(g, Move::AttackHero(1)));
+			CHECK_MOVE_IMPOSSIBLE(Move::AttackHero(0));
+			CHECK_MOVE_IMPOSSIBLE(Move::AttackHero(1));
 
 			return true;
 		}
@@ -181,11 +200,11 @@ TestCase Tests[] =
 
 			CHECK(g.m_players[1].m_minions[0].HasTaunt( ));
 
-			CHECK(CheckAndProcessMove(g, Move::EndTurn( )));
-			CHECK(CheckAndProcessMove(g, Move::EndTurn( )));
+			CHECK_DO_MOVE(Move::EndTurn( ));
+			CHECK_DO_MOVE(Move::EndTurn( ));
 
-			CHECK(MovePossible(g, Move::AttackMinion(0, 0)));
-			CHECK(!MovePossible(g, Move::AttackHero(0)));
+			CHECK_MOVE_POSSIBLE(Move::AttackMinion(0, 0));
+			CHECK_MOVE_IMPOSSIBLE(Move::AttackHero(0));
 
 			return true;
 		}
@@ -200,14 +219,14 @@ TestCase Tests[] =
 			AddMinion(g, 1, Card::MurlocRaider);
 			g.UpdatePossibleMoves( );
 
-			CHECK(g.m_players[1].m_minions[0].HasTaunt( ));
-			CHECK(!g.m_players[1].m_minions[1].HasTaunt( ));
+			CHECK(GetMinion(g, 1, 0).HasTaunt( ));
+			CHECK(!GetMinion(g, 1, 1).HasTaunt( ));
 
-			CHECK(CheckAndProcessMove(g, Move::EndTurn( )));
-			CHECK(CheckAndProcessMove(g, Move::EndTurn( )));
+			CHECK_DO_MOVE(Move::EndTurn( ));
+			CHECK_DO_MOVE(Move::EndTurn( ));
 
-			CHECK(MovePossible(g, Move::AttackMinion(0, 0)));
-			CHECK(!MovePossible(g, Move::AttackMinion(0, 1)));
+			CHECK_MOVE_POSSIBLE(Move::AttackMinion(0, 0));
+			CHECK_MOVE_IMPOSSIBLE(Move::AttackMinion(0, 1));
 
 			return true;
 		}
@@ -221,13 +240,13 @@ TestCase Tests[] =
 			AddMinion(g, 1, Card::GoldshireFootman);
 			g.UpdatePossibleMoves( );
 
-			CHECK(g.m_players[1].m_minions[0].HasTaunt( ));
+			CHECK(GetMinion(g, 1, 0).HasTaunt( ));
 
-			CHECK(CheckAndProcessMove(g, Move::EndTurn( )));
-			CHECK(CheckAndProcessMove(g, Move::EndTurn( )));
+			CHECK_DO_MOVE(Move::EndTurn( ));
+			CHECK_DO_MOVE(Move::EndTurn( ));
 
-			CHECK(CheckAndProcessMove(g, Move::AttackMinion(0, 0)));
-			CHECK(CheckAndProcessMove(g, Move::AttackHero(1)));
+			CHECK_DO_MOVE(Move::AttackMinion(0, 0));
+			CHECK_DO_MOVE(Move::AttackHero(1));
 
 			return true;
 		}
@@ -239,11 +258,11 @@ TestCase Tests[] =
 			AddMinion(g, 0, Card::BloodfenRaptor);
 			g.UpdatePossibleMoves( );
 
-			CHECK(CheckAndProcessMove(g, Move::EndTurn( )));
-			CHECK(CheckAndProcessMove(g, Move::EndTurn( )));
+			CHECK_DO_MOVE(Move::EndTurn( ));
+			CHECK_DO_MOVE(Move::EndTurn( ));
 
-			CHECK(CheckAndProcessMove(g, Move::AttackHero(0)));
-			CHECK(!MovePossible(g, Move::AttackHero(0)));
+			CHECK_DO_MOVE(Move::AttackHero(0));
+			CHECK_MOVE_IMPOSSIBLE(Move::AttackHero(0));
 
 			return true;
 		}
@@ -255,12 +274,12 @@ TestCase Tests[] =
 			AddMinion(g, 0, Card::ThrallmarFarseer);
 			g.UpdatePossibleMoves( );
 
-			CHECK(CheckAndProcessMove(g, Move::EndTurn( )));
-			CHECK(CheckAndProcessMove(g, Move::EndTurn( )));
+			CHECK_DO_MOVE(Move::EndTurn( ));
+			CHECK_DO_MOVE(Move::EndTurn( ));
 
-			CHECK(CheckAndProcessMove(g, Move::AttackHero(0)));
-			CHECK(CheckAndProcessMove(g, Move::AttackHero(0)));
-			CHECK(!MovePossible(g, Move::AttackHero(0)));
+			CHECK_DO_MOVE(Move::AttackHero(0));
+			CHECK_DO_MOVE(Move::AttackHero(0));
+			CHECK_MOVE_IMPOSSIBLE(Move::AttackHero(0));
 
 			return true;
 		}
@@ -271,14 +290,14 @@ TestCase Tests[] =
 			GameState g;
 			AddMinion(g, 0, Card::LeperGnome);
 			AddMinion(g, 1, Card::SenjinShieldMasta);
-			g.UpdatePossibleMoves();
+			g.UpdatePossibleMoves( );
 
-			CHECK(CheckAndProcessMove(g, Move::EndTurn( )));
-			CHECK(CheckAndProcessMove(g, Move::EndTurn( )));
+			CHECK_DO_MOVE(Move::EndTurn( ));
+			CHECK_DO_MOVE(Move::EndTurn( ));
 
 			CHECK(g.m_active_player_index == 0);
-			CHECK(CheckAndProcessMove(g, Move::AttackMinion(0, 0)));
-			CHECK(g.m_players[0].m_minions.Num( ) == 0);
+			CHECK_DO_MOVE(Move::AttackMinion(0, 0));
+			CHECK(GetNumMinions(g, 0) == 0);
 			CHECK(g.m_players[1].m_health == GameState::StartingHealth - 2);
 
 			return true;
@@ -292,11 +311,11 @@ TestCase Tests[] =
 			AddMinion(g, 1, Card::SenjinShieldMasta);
 			g.UpdatePossibleMoves( );
 
-			CHECK(CheckAndProcessMove(g, Move::EndTurn( )));
+			CHECK_DO_MOVE(Move::EndTurn( ));
 
 			CHECK(g.m_active_player_index == 1);
-			CHECK(CheckAndProcessMove(g, Move::AttackMinion(0, 0)));
-			CHECK(g.m_players[0].m_minions.Num( ) == 0);
+			CHECK_DO_MOVE(Move::AttackMinion(0, 0));
+			CHECK(GetNumMinions(g, 0) == 0);
 			CHECK(g.m_players[1].m_health == GameState::StartingHealth - 2);
 
 			return true;
@@ -311,12 +330,12 @@ TestCase Tests[] =
 			g.m_players[1].m_health = 2;
 			g.UpdatePossibleMoves( );
 
-			CHECK(CheckAndProcessMove(g, Move::EndTurn( )));
-			CHECK(CheckAndProcessMove(g, Move::EndTurn( )));
+			CHECK_DO_MOVE(Move::EndTurn( ));
+			CHECK_DO_MOVE(Move::EndTurn( ));
 
 			CHECK(g.m_active_player_index == 0);
-			CHECK(CheckAndProcessMove(g, Move::AttackMinion(0, 0)));
-			CHECK(g.m_players[0].m_minions.Num( ) == 0);
+			CHECK_DO_MOVE(Move::AttackMinion(0, 0));
+			CHECK(GetNumMinions(g, 0) == 0);
 			CHECK(g.m_winner == Winner::PlayerOne);
 
 			return true;
@@ -331,11 +350,11 @@ TestCase Tests[] =
 			g.m_players[1].m_health = 2;
 			g.UpdatePossibleMoves( );
 
-			CHECK(CheckAndProcessMove(g, Move::EndTurn( )));
+			CHECK_DO_MOVE(Move::EndTurn( ));
 
 			CHECK(g.m_active_player_index == 1);
-			CHECK(CheckAndProcessMove(g, Move::AttackMinion(0, 0)));
-			CHECK(g.m_players[0].m_minions.Num( ) == 0);
+			CHECK_DO_MOVE(Move::AttackMinion(0, 0));
+			CHECK(GetNumMinions(g, 0) == 0);
 			CHECK(g.m_winner == Winner::PlayerOne);
 
 			return true;
@@ -351,10 +370,10 @@ TestCase Tests[] =
 			SetHealth(g, 1, 2);
 			g.UpdatePossibleMoves( );
 
-			CHECK(CheckAndProcessMove(g, Move::EndTurn( )));
+			CHECK_DO_MOVE(Move::EndTurn( ));
 
 			CHECK(g.m_active_player_index == 1);
-			CHECK(CheckAndProcessMove(g, Move::AttackMinion(0, 0)));
+			CHECK_DO_MOVE(Move::AttackMinion(0, 0));
 			CHECK(g.m_winner == Winner::Draw);
 
 			return true;
@@ -368,7 +387,7 @@ TestCase Tests[] =
 			g.UpdatePossibleMoves( );
 
 			auto mana = g.m_players[0].m_mana;
-			CHECK(CheckAndProcessMove(g, Move::PlayCard(Card::Coin, Move::TargetPlayer(g.m_active_player_index))));
+			CHECK_DO_MOVE(Move::PlayCard(Card::Coin, Move::TargetPlayer(g.m_active_player_index)));
 			CHECK(g.m_players[0].m_mana == mana + 1);
 
 			return true;
@@ -383,12 +402,12 @@ TestCase Tests[] =
 			g.UpdatePossibleMoves( );
 
 			CHECK(g.m_active_player_index == 0);
-			CHECK(CheckAndProcessMove(g, Move::PlayCard(Card::BloodfenRaptor)));
-			CHECK(g.m_players[0].m_minions.Num( ) == 1);
-			CHECK(g.m_players[0].m_minions[0].m_source_card == GetCardData(Card::BloodfenRaptor));
-			CHECK(g.m_players[0].m_minions[0].m_attack == 3);
-			CHECK(g.m_players[0].m_minions[0].m_health == 2);
-			CHECK(g.m_players[0].m_minions[0].CanAttack( ) == false);
+			CHECK_DO_MOVE(Move::PlayCard(Card::BloodfenRaptor));
+			CHECK(GetNumMinions(g, 0) == 1);
+			CHECK(GetMinion(g,0,0).m_source_card == GetCardData(Card::BloodfenRaptor));
+			CHECK(GetMinion(g,0,0).m_attack == 3);
+			CHECK(GetMinion(g,0,0).m_health == 2);
+			CHECK(GetMinion(g,0,0).CanAttack( ) == false);
 
 			return true;
 		}
@@ -402,7 +421,7 @@ TestCase Tests[] =
 			g.UpdatePossibleMoves( );
 
 			CHECK(g.m_active_player_index == 0);
-			CHECK(CheckAndProcessMove(g, Move::PlayCard(Card::ElvenArcher, Move::TargetPlayer(1))));
+			CHECK_DO_MOVE(Move::PlayCard(Card::ElvenArcher, Move::TargetPlayer(1)));
 			CHECK(g.m_players[1].m_health == GameState::StartingHealth - 1);
 
 			return true;
@@ -418,7 +437,7 @@ TestCase Tests[] =
 			g.UpdatePossibleMoves( );
 
 			CHECK(g.m_active_player_index == 0);
-			CHECK(CheckAndProcessMove(g, Move::PlayCard(Card::ElvenArcher, Move::TargetPlayer(1))));
+			CHECK_DO_MOVE(Move::PlayCard(Card::ElvenArcher, Move::TargetPlayer(1)));
 			CHECK(g.m_winner == Winner::PlayerOne);
 
 			return true;
@@ -433,7 +452,7 @@ TestCase Tests[] =
 			g.UpdatePossibleMoves( );
 
 			CHECK(g.m_active_player_index == 0);
-			CHECK(CheckAndProcessMove(g, Move::PlayCard(Card::ElvenArcher, Move::TargetPlayer(0))));
+			CHECK_DO_MOVE(Move::PlayCard(Card::ElvenArcher, Move::TargetPlayer(0)));
 			CHECK(g.m_players[0].m_health == GameState::StartingHealth - 1);
 
 			return true;
@@ -449,7 +468,7 @@ TestCase Tests[] =
 			g.UpdatePossibleMoves( );
 
 			CHECK(g.m_active_player_index == 0);
-			CHECK(CheckAndProcessMove(g, Move::PlayCard(Card::ElvenArcher, Move::TargetPlayer(0))));
+			CHECK_DO_MOVE(Move::PlayCard(Card::ElvenArcher, Move::TargetPlayer(0)));
 			CHECK(g.m_winner == Winner::PlayerTwo);
 
 			return true;
@@ -465,9 +484,9 @@ TestCase Tests[] =
 			g.UpdatePossibleMoves( );
 
 			CHECK(g.m_active_player_index == 0);
-			CHECK(CheckAndProcessMove(g, Move::PlayCard(Card::ElvenArcher, Move::TargetMinion(1, 0))));
-			CHECK(g.m_players[1].m_minions.Num() == 1);
-			CHECK(g.m_players[1].m_minions[0].m_health == 1);
+			CHECK_DO_MOVE(Move::PlayCard(Card::ElvenArcher, Move::TargetMinion(1, 0)));
+			CHECK(GetNumMinions(g, 1) == 1);
+			CHECK(GetMinion(g, 1, 0).m_health == 1);
 
 			return true;
 		}
@@ -482,8 +501,8 @@ TestCase Tests[] =
 			g.UpdatePossibleMoves( );
 
 			CHECK(g.m_active_player_index == 0);
-			CHECK(CheckAndProcessMove(g, Move::PlayCard(Card::ElvenArcher, Move::TargetMinion(1, 0))));
-			CHECK(g.m_players[1].m_minions.Num( ) == 0);
+			CHECK_DO_MOVE(Move::PlayCard(Card::ElvenArcher, Move::TargetMinion(1, 0)));
+			CHECK(GetNumMinions(g, 1) == 0);
 
 			return true;
 		}
@@ -498,10 +517,10 @@ TestCase Tests[] =
 			g.UpdatePossibleMoves( );
 
 			CHECK(g.m_active_player_index == 0);
-			CHECK(CheckAndProcessMove(g, Move::PlayCard(Card::ElvenArcher, Move::TargetMinion(0, 0))));
-			CHECK(g.m_players[0].m_minions.Num( ) == 2);
-			CHECK(g.m_players[0].m_minions[0].m_source_card == GetCardData(Card::BloodfenRaptor));
-			CHECK(g.m_players[0].m_minions[0].m_health == 1);
+			CHECK_DO_MOVE(Move::PlayCard(Card::ElvenArcher, Move::TargetMinion(0, 0)));
+			CHECK(GetNumMinions(g, 0) == 2);
+			CHECK(GetMinion(g,0,0).m_source_card == GetCardData(Card::BloodfenRaptor));
+			CHECK(GetMinion(g,0,0).m_health == 1);
 
 			return true;
 		}
@@ -516,9 +535,9 @@ TestCase Tests[] =
 			g.UpdatePossibleMoves( );
 
 			CHECK(g.m_active_player_index == 0);
-			CHECK(CheckAndProcessMove(g, Move::PlayCard(Card::ElvenArcher, Move::TargetMinion(0, 0))));
-			CHECK(g.m_players[0].m_minions.Num( ) == 1);
-			CHECK(g.m_players[0].m_minions[0].m_source_card == GetCardData(Card::ElvenArcher));
+			CHECK_DO_MOVE(Move::PlayCard(Card::ElvenArcher, Move::TargetMinion(0, 0)));
+			CHECK(GetNumMinions(g, 0) == 1);
+			CHECK(GetMinion(g,0,0).m_source_card == GetCardData(Card::ElvenArcher));
 
 			return true;
 		}
@@ -532,10 +551,10 @@ TestCase Tests[] =
 			SetManaAndMax(g, 0, 1);
 			g.UpdatePossibleMoves( );
 
-			CHECK( g.m_active_player_index == 0 );
-			CHECK(CheckAndProcessMove(g, Move::PlayCard(Card::ElvenArcher, Move::TargetMinion(0, 0))));
+			CHECK(g.m_active_player_index == 0);
+			CHECK_DO_MOVE(Move::PlayCard(Card::ElvenArcher, Move::TargetMinion(0, 0)));
 			CHECK(g.m_players[1].m_health == GameState::StartingHealth - 2);
-			
+
 			return true;
 		}
 	},
@@ -550,7 +569,7 @@ TestCase Tests[] =
 			g.UpdatePossibleMoves( );
 
 			CHECK(g.m_active_player_index == 0);
-			CHECK(CheckAndProcessMove(g, Move::PlayCard(Card::ElvenArcher, Move::TargetMinion(0, 0))));
+			CHECK_DO_MOVE(Move::PlayCard(Card::ElvenArcher, Move::TargetMinion(0, 0)));
 			CHECK(g.m_winner == Winner::PlayerOne);
 
 			return true;
@@ -567,7 +586,7 @@ TestCase Tests[] =
 			g.UpdatePossibleMoves( );
 
 			CHECK(g.m_active_player_index == 0);
-			CHECK(CheckAndProcessMove(g, Move::PlayCard(Card::ElvenArcher, Move::TargetMinion(1, 0))));
+			CHECK_DO_MOVE(Move::PlayCard(Card::ElvenArcher, Move::TargetMinion(1, 0)));
 			CHECK(g.m_winner == Winner::PlayerTwo);
 
 			return true;
@@ -583,7 +602,7 @@ TestCase Tests[] =
 			g.UpdatePossibleMoves( );
 
 			CHECK(g.m_active_player_index == 0);
-			CHECK(CheckAndProcessMove(g, Move::PlayCard(Card::Nightblade, Move::TargetPlayer(1))));
+			CHECK_DO_MOVE(Move::PlayCard(Card::Nightblade, Move::TargetPlayer(1)));
 			CHECK(g.m_winner == Winner::PlayerOne);
 
 			return true;
@@ -602,12 +621,12 @@ TestCase Tests[] =
 			g.UpdatePossibleMoves( );
 
 			CHECK(g.m_active_player_index == 0);
-			CHECK(MovePossible(g, Move::PlayCard(Card::VoodooDoctor, Move::TargetMinion(0, 0))));
-			CHECK(MovePossible(g, Move::PlayCard(Card::VoodooDoctor, Move::TargetMinion(0, 1))));
-			CHECK(MovePossible(g, Move::PlayCard(Card::VoodooDoctor, Move::TargetMinion(1, 0))));
-			CHECK(MovePossible(g, Move::PlayCard(Card::VoodooDoctor, Move::TargetMinion(1, 1))));
-			CHECK(MovePossible(g, Move::PlayCard(Card::VoodooDoctor, Move::TargetPlayer(0))));
-			CHECK(MovePossible(g, Move::PlayCard(Card::VoodooDoctor, Move::TargetPlayer(1))));
+			CHECK_MOVE_POSSIBLE(Move::PlayCard(Card::VoodooDoctor, Move::TargetMinion(0, 0)));
+			CHECK_MOVE_POSSIBLE(Move::PlayCard(Card::VoodooDoctor, Move::TargetMinion(0, 1)));
+			CHECK_MOVE_POSSIBLE(Move::PlayCard(Card::VoodooDoctor, Move::TargetMinion(1, 0)));
+			CHECK_MOVE_POSSIBLE(Move::PlayCard(Card::VoodooDoctor, Move::TargetMinion(1, 1)));
+			CHECK_MOVE_POSSIBLE(Move::PlayCard(Card::VoodooDoctor, Move::TargetPlayer(0)));
+			CHECK_MOVE_POSSIBLE(Move::PlayCard(Card::VoodooDoctor, Move::TargetPlayer(1)));
 
 			return true;
 		}
@@ -625,7 +644,7 @@ TestCase Tests[] =
 			g.UpdatePossibleMoves( );
 
 			CHECK(g.m_active_player_index == 0);
-			CHECK(!MovePossible(g, Move::PlayCard(Card::VoodooDoctor)));
+			CHECK_MOVE_IMPOSSIBLE(Move::PlayCard(Card::VoodooDoctor));
 
 			return true;
 		}
@@ -642,9 +661,9 @@ TestCase Tests[] =
 			g.UpdatePossibleMoves( );
 
 			CHECK(g.m_active_player_index == 0);
-			CHECK(CheckAndProcessMove(g, Move::PlayCard(Card::VoodooDoctor, Move::TargetPlayer(0))));
+			CHECK_DO_MOVE(Move::PlayCard(Card::VoodooDoctor, Move::TargetPlayer(0)));
 			CHECK(g.m_players[0].m_health == 22);
-			CHECK(CheckAndProcessMove(g, Move::PlayCard(Card::VoodooDoctor, Move::TargetPlayer(1))));
+			CHECK_DO_MOVE(Move::PlayCard(Card::VoodooDoctor, Move::TargetPlayer(1)));
 			CHECK(g.m_players[1].m_health == 22);
 
 			return true;
@@ -659,15 +678,15 @@ TestCase Tests[] =
 			SetManaAndMax(g, 0, 2);
 			AddMinion(g, 0, Card::SenjinShieldMasta);
 			AddMinion(g, 0, Card::SenjinShieldMasta);
-			g.m_players[0].m_minions[0].m_health = 2;
+			GetMinion(g,0,0).m_health = 2;
 			g.m_players[0].m_minions[1].m_health = 4;
 			g.UpdatePossibleMoves( );
 
 			CHECK(g.m_active_player_index == 0);
-			CHECK(CheckAndProcessMove(g, Move::PlayCard(Card::VoodooDoctor, Move::TargetMinion(0, 0))));
-			CHECK(g.m_players[0].m_minions[0].m_health == 4);
-			CHECK(CheckAndProcessMove(g, Move::PlayCard(Card::VoodooDoctor, Move::TargetMinion(0, 1))));
-			CHECK(g.m_players[0].m_minions[1].m_health == 5);
+			CHECK_DO_MOVE(Move::PlayCard(Card::VoodooDoctor, Move::TargetMinion(0, 0)));
+			CHECK(GetMinion(g,0,0).m_health == 4);
+			CHECK_DO_MOVE(Move::PlayCard(Card::VoodooDoctor, Move::TargetMinion(0, 1)));
+			CHECK(GetMinion(g, 0, 1).m_health == 5);
 
 			return true;
 		}
@@ -682,9 +701,9 @@ TestCase Tests[] =
 			AddMinion(g, 1, Card::SenjinShieldMasta);
 			g.UpdatePossibleMoves( );
 
-			CHECK(!MovePossible(g, Move::PlayCard(Card::AbusiveSergeant)));
-			CHECK(MovePossible(g, Move::PlayCard(Card::AbusiveSergeant, Move::TargetMinion(0, 0))));
-			CHECK(MovePossible(g, Move::PlayCard(Card::AbusiveSergeant, Move::TargetMinion(1, 0))));
+			CHECK_MOVE_IMPOSSIBLE(Move::PlayCard(Card::AbusiveSergeant));
+			CHECK_MOVE_POSSIBLE(Move::PlayCard(Card::AbusiveSergeant, Move::TargetMinion(0, 0)));
+			CHECK_MOVE_POSSIBLE(Move::PlayCard(Card::AbusiveSergeant, Move::TargetMinion(1, 0)));
 
 			return true;
 		}
@@ -697,7 +716,7 @@ TestCase Tests[] =
 			SetManaAndMax(g, 0, 1);
 			g.UpdatePossibleMoves( );
 
-			CHECK(CheckAndProcessMove(g, Move::PlayCard(Card::AbusiveSergeant)));
+			CHECK_DO_MOVE(Move::PlayCard(Card::AbusiveSergeant));
 
 			return true;
 		}
@@ -712,9 +731,9 @@ TestCase Tests[] =
 			AddMinion(g, 1, Card::SenjinShieldMasta);
 			g.UpdatePossibleMoves( );
 
-			CHECK(CheckAndProcessMove(g, Move::PlayCard(Card::AbusiveSergeant, Move::TargetMinion(0, 0))));
-			CHECK(CheckAndProcessMove(g, Move::AttackMinion(0, 0)));
-			CHECK(g.m_players[1].m_minions.Num( ) == 0);
+			CHECK_DO_MOVE(Move::PlayCard(Card::AbusiveSergeant, Move::TargetMinion(0, 0)));
+			CHECK_DO_MOVE(Move::AttackMinion(0, 0));
+			CHECK(GetNumMinions(g, 1) == 0);
 
 			return true;
 		}
@@ -729,12 +748,12 @@ TestCase Tests[] =
 			AddMinion(g, 1, Card::SenjinShieldMasta);
 			g.UpdatePossibleMoves( );
 
-			CHECK(CheckAndProcessMove(g, Move::PlayCard(Card::AbusiveSergeant, Move::TargetMinion(0, 0))));
-			CHECK(CheckAndProcessMove(g, Move::EndTurn( )));
-			CHECK(CheckAndProcessMove(g, Move::AttackMinion(0, 0)));
-			CHECK(g.m_players[0].m_minions.Num( ) == 1);
-			CHECK(g.m_players[1].m_minions.Num( ) == 1);
-			CHECK(g.m_players[1].m_minions[0].m_health == 2);
+			CHECK_DO_MOVE(Move::PlayCard(Card::AbusiveSergeant, Move::TargetMinion(0, 0)));
+			CHECK_DO_MOVE(Move::EndTurn( ));
+			CHECK_DO_MOVE(Move::AttackMinion(0, 0));
+			CHECK(GetNumMinions(g, 0) == 1);
+			CHECK(GetNumMinions(g, 1) == 1);
+			CHECK(GetMinion(g, 1, 0).m_health == 2);
 
 			return true;
 		}
@@ -749,13 +768,13 @@ TestCase Tests[] =
 			AddMinion(g, 1, Card::SenjinShieldMasta);
 			g.UpdatePossibleMoves( );
 
-			CHECK(CheckAndProcessMove(g, Move::PlayCard(Card::AbusiveSergeant, Move::TargetMinion(0, 0))));
-			CHECK(CheckAndProcessMove(g, Move::EndTurn( )));
-			CHECK(CheckAndProcessMove(g, Move::EndTurn( )));
-			CHECK(CheckAndProcessMove(g, Move::AttackMinion(0, 0)));
-			CHECK(g.m_players[0].m_minions.Num( ) == 1);
-			CHECK(g.m_players[1].m_minions.Num( ) == 1);
-			CHECK(g.m_players[1].m_minions[0].m_health == 2);
+			CHECK_DO_MOVE(Move::PlayCard(Card::AbusiveSergeant, Move::TargetMinion(0, 0)));
+			CHECK_DO_MOVE(Move::EndTurn( ));
+			CHECK_DO_MOVE(Move::EndTurn( ));
+			CHECK_DO_MOVE(Move::AttackMinion(0, 0));
+			CHECK(GetNumMinions(g, 0) == 1);
+			CHECK(GetNumMinions(g, 1) == 1);
+			CHECK(GetMinion(g, 1, 0).m_health == 2);
 
 			return true;
 		}
@@ -769,9 +788,9 @@ TestCase Tests[] =
 			SetHealth(g, 1, 25);
 			g.UpdatePossibleMoves( );
 
-			CHECK(CheckAndProcessMove(g, Move::EndTurn( )));
-			CHECK(CheckAndProcessMove(g, Move::AttackMinion(0, 0)));
-			CHECK(g.m_players[0].m_minions.Num( ) == 0);
+			CHECK_DO_MOVE(Move::EndTurn( ));
+			CHECK_DO_MOVE(Move::AttackMinion(0, 0));
+			CHECK(GetNumMinions(g, 0) == 0);
 			CHECK(g.m_players[1].m_health == 30);
 
 			return true;
@@ -784,9 +803,9 @@ TestCase Tests[] =
 			AddMinionReadyToAttack(g, 0, Card::WorgenInfiltrator);
 			g.UpdatePossibleMoves( );
 
-			CHECK(g.m_players[0].m_minions[0].HasStealth( ));
-			CHECK(CheckAndProcessMove(g, Move::AttackHero(0)));
-			CHECK(!g.m_players[0].m_minions[0].HasStealth( ));
+			CHECK(GetMinion(g,0,0).HasStealth( ));
+			CHECK_DO_MOVE(Move::AttackHero(0));
+			CHECK(!GetMinion(g,0,0).HasStealth( ));
 
 			return true;
 		}
@@ -799,8 +818,8 @@ TestCase Tests[] =
 			AddMinion(g, 1, Card::SenjinShieldMasta);
 			g.UpdatePossibleMoves( );
 
-			CHECK(CheckAndProcessMove(g, Move::EndTurn( )));
-			CHECK(!MovePossible(g, Move::AttackMinion(0, 0)));
+			CHECK_DO_MOVE(Move::EndTurn( ));
+			CHECK_MOVE_IMPOSSIBLE(Move::AttackMinion(0, 0));
 
 			return true;
 		}
@@ -811,16 +830,16 @@ TestCase Tests[] =
 			GameState g;
 			AddMinion(g, 0, Card::WorgenInfiltrator);
 			AddMinion(g, 0, Card::BloodfenRaptor);
-			g.m_players[0].m_minions[0].AddAbility(MinionAbilityFlags::Taunt);
+			GetMinion(g,0,0).AddAbility(MinionAbilityFlags::Taunt);
 			AddMinion(g, 1, Card::SenjinShieldMasta);
 			g.UpdatePossibleMoves( );
 
-			CHECK(g.m_players[0].m_minions[0].HasStealth( ));
-			CHECK(g.m_players[0].m_minions[0].HasTaunt( ));
-			CHECK(CheckAndProcessMove(g, Move::EndTurn( )));
-			CHECK(MovePossible(g, Move::AttackHero(0)));
-			CHECK(MovePossible(g, Move::AttackMinion(0, 1)));
-			CHECK(!MovePossible(g, Move::AttackMinion(0, 0)));
+			CHECK(GetMinion(g,0,0).HasStealth( ));
+			CHECK(GetMinion(g,0,0).HasTaunt( ));
+			CHECK_DO_MOVE(Move::EndTurn( ));
+			CHECK_MOVE_POSSIBLE(Move::AttackHero(0));
+			CHECK_MOVE_POSSIBLE(Move::AttackMinion(0, 1));
+			CHECK_MOVE_IMPOSSIBLE(Move::AttackMinion(0, 0));
 
 			return true;
 		}
@@ -834,8 +853,8 @@ TestCase Tests[] =
 			SetManaAndMax(g, 1, 1);
 			g.UpdatePossibleMoves( );
 
-			CHECK(CheckAndProcessMove(g, Move::EndTurn( )));
-			CHECK(!MovePossible(g, Move::PlayCard(Card::ElvenArcher, Move::TargetMinion(0, 0))));
+			CHECK_DO_MOVE(Move::EndTurn( ));
+			CHECK_MOVE_IMPOSSIBLE(Move::PlayCard(Card::ElvenArcher, Move::TargetMinion(0, 0)));
 
 			return true;
 		}
@@ -849,7 +868,7 @@ TestCase Tests[] =
 			SetManaAndMax(g, 0, 1);
 			g.UpdatePossibleMoves( );
 
-			CHECK(CheckAndProcessMove(g, Move::PlayCard(Card::ElvenArcher, Move::TargetMinion(0, 0))));
+			CHECK_DO_MOVE(Move::PlayCard(Card::ElvenArcher, Move::TargetMinion(0, 0)));
 			CHECK(g.m_players[0].m_minions.Num( ) == 1);
 
 			return true;
