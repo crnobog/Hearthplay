@@ -759,6 +759,23 @@ TestCase Tests[] =
 
 			return true;
 		}
+	},
+	{
+		"Zombie chow heals opponent", []( )
+		{
+			GameState g;
+			AddMinion(g, 0, Card::ZombieChow);
+			AddMinion(g, 1, Card::SenjinShieldMasta);
+			SetHealth(g, 1, 25);
+			g.UpdatePossibleMoves( );
+
+			CHECK(CheckAndProcessMove(g, Move::EndTurn( )));
+			CHECK(CheckAndProcessMove(g, Move::AttackMinion(0, 0)));
+			CHECK(g.m_players[0].m_minions.Num( ) == 0);
+			CHECK(g.m_players[1].m_health == 30);
+
+			return true;
+		}
 	}
 };
 

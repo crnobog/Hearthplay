@@ -14,6 +14,7 @@ static const Battlecry Battlecry_StormpikeCommando = { SpellEffect::DamageCharac
 static const Battlecry Battlecry_Nightblade = { SpellEffect::DamageCharacter, 3, TargetType::Opponent };
 
 static const Deathrattle Deathrattle_LeperGnome = { SpellEffect::DamageCharacter, 2, TargetType::Opponent };
+static const Deathrattle Deathrattle_ZombieChow = { SpellEffect::HealCharacter, 5, TargetType::Opponent };
 
 const CardData AllCards[] = {
 	{ CardType::Spell, 0, "The Coin", SpellEffect::AddMana, 1, TargetType::Self },
@@ -43,7 +44,7 @@ const CardData AllCards[] = {
 	{ 1, "Worgen Infiltrator",		2, 1, MinionAbilityFlags::Stealth },
 	{ 1, "Young Dragonhawk",		1, 1, MinionAbilityFlags::Windfury, CardFlags::CanBeInDecks },
 	{ 1, "Young Priestess",			2, 1 },
-	{ 1, "Zombie Chow",				2, 3 },
+	{ 1, "Zombie Chow",				2, 3, Deathrattle_ZombieChow, CardFlags::CanBeInDecks },
 
 	// 2-mana neutral cards
 	{ 2, "Acidic Swamp Ooze",		3, 2 },
