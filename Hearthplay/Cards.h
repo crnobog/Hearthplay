@@ -220,6 +220,17 @@ enum class CardType : uint8_t
 	Spell,
 };
 
+enum class MinionRace : uint8_t
+{
+	None,
+	Beast,
+	Murloc,
+	Demon,
+	Dragon,
+	Pirate,
+	Totem,
+};
+
 enum class TargetType : uint8_t
 {
 	None,
@@ -380,6 +391,7 @@ struct CardData
 	uint8_t				m_attack;
 	int8_t				m_health;
 	MinionAbilityFlags	m_minion_abilities;
+	MinionRace			m_minion_race;
 
 	SpellData			m_spell_data;
 
@@ -389,13 +401,13 @@ struct CardData
 	CardFlags			m_flags;
 
 	// Vanilla minion constructor
-	CardData(uint8_t mana_cost, const char* name, uint8_t attack, uint8_t health, CardFlags card_flags = CardFlags::None );
+	CardData(uint8_t mana_cost, const char* name, uint8_t attack, uint8_t health, CardFlags card_flags = CardFlags::None, MinionRace race = MinionRace::None );
 	// Minion with abilities constructor
-	CardData(uint8_t mana_cost, const char* name, uint8_t attack, uint8_t health, MinionAbilityFlags minion_flags, CardFlags card_flags = CardFlags::None);
+	CardData(uint8_t mana_cost, const char* name, uint8_t attack, uint8_t health, MinionAbilityFlags minion_flags, CardFlags card_flags = CardFlags::None, MinionRace race = MinionRace::None);
 	// Minion with deathrattle constructor
-	CardData(uint8_t mana_cost, const char* name, uint8_t attack, uint8_t health, Deathrattle deathrattle, CardFlags card_flags = CardFlags::None);
+	CardData(uint8_t mana_cost, const char* name, uint8_t attack, uint8_t health, Deathrattle deathrattle, CardFlags card_flags = CardFlags::None, MinionRace race = MinionRace::None);
 	// Minion with battlecry constructor
-	CardData(uint8_t mana_cost, const char* name, uint8_t attack, uint8_t health, Battlecry battlecry, CardFlags card_flags = CardFlags::None);
+	CardData(uint8_t mana_cost, const char* name, uint8_t attack, uint8_t health, Battlecry battlecry, CardFlags card_flags = CardFlags::None, MinionRace race = MinionRace::None);
 
 	// Spell constructor
 	CardData(CardType type, uint8_t mana_cost, const char* name, SpellEffect effect, uint8_t effect_param, TargetType target_type, CardFlags card_flag = CardFlags::None );

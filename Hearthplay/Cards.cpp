@@ -24,25 +24,25 @@ const CardData AllCards[] = {
 
 	// 1-mana neutral cards
 	{ 1, "Abusive Sergeant",		2, 1, Battlecry_AbusiveSergeant, CardFlags::CanBeInDecks },
-	{ 1, "Angry Chicken",			1, 1 },
+	{ 1, "Angry Chicken",			1, 1, CardFlags::None, MinionRace::Beast },
 	{ 1, "Argent Squire",			1, 1, MinionAbilityFlags::DivineShield, CardFlags::CanBeInDecks },
-	{ 1, "Bloodsail Corsair",		1, 2 },
+	{ 1, "Bloodsail Corsair",		1, 2, CardFlags::None, MinionRace::Pirate},
 	{ 1, "Elven Archer",			1, 1, Battlecry_ElvenArcher, CardFlags::CanBeInDecks },
 	{ 1, "Goldshire Footman",		1, 2, MinionAbilityFlags::Taunt, CardFlags::CanBeInDecks },
-	{ 1, "Grimscale Oracle",		1, 1 },
-	{ 1, "Hungry Crab",				1, 2 },
+	{ 1, "Grimscale Oracle",		1, 1, CardFlags::None, MinionRace::Murloc },
+	{ 1, "Hungry Crab",				1, 2, CardFlags::None, MinionRace::Beast },
 	{ 1, "Leper Gnome",				2, 1, Deathrattle_LeperGnome, CardFlags::CanBeInDecks },
 	{ 1, "Lightwarden",				1, 2 },
-	{ 1, "Murloc Raider",			2, 1, CardFlags::CanBeInDecks },
-	{ 1, "Murloc Tidecaller",		1, 2 },
+	{ 1, "Murloc Raider",			2, 1, CardFlags::CanBeInDecks, MinionRace::Murloc },
+	{ 1, "Murloc Tidecaller",		1, 2, CardFlags::None, MinionRace::Murloc },
 	{ 1, "Secretkeeper",			1, 2 },
 	{ 1, "Shieldbearer",			0, 4, MinionAbilityFlags::Taunt, CardFlags::CanBeInDecks },
-	{ 1, "Southsea Deckhand",		2, 1 },
-	{ 1, "Stonetusk Boar",			1, 1, MinionAbilityFlags::Charge, CardFlags::CanBeInDecks },
+	{ 1, "Southsea Deckhand",		2, 1, CardFlags::None, MinionRace::Murloc },
+	{ 1, "Stonetusk Boar",			1, 1, MinionAbilityFlags::Charge, CardFlags::CanBeInDecks, MinionRace::Beast },
 	{ 1, "Undertaker",				1, 2 },
 	{ 1, "Voodoo Doctor",			2, 1, Battlecry_VoodooDoctor, CardFlags::CanBeInDecks },
 	{ 1, "Worgen Infiltrator",		2, 1, MinionAbilityFlags::Stealth },
-	{ 1, "Young Dragonhawk",		1, 1, MinionAbilityFlags::Windfury, CardFlags::CanBeInDecks },
+	{ 1, "Young Dragonhawk",		1, 1, MinionAbilityFlags::Windfury, CardFlags::CanBeInDecks, MinionRace::Beast },
 	{ 1, "Young Priestess",			2, 1 },
 	{ 1, "Zombie Chow",				2, 3, Deathrattle_ZombieChow, CardFlags::CanBeInDecks },
 
@@ -50,19 +50,19 @@ const CardData AllCards[] = {
 	{ 2, "Acidic Swamp Ooze",		3, 2 },
 	{ 2, "Amani Berserker",			2, 3 },
 	{ 2, "Ancient Watcher",			4, 5, MinionAbilityFlags::CannotAttack, CardFlags::CanBeInDecks },
-	{ 2, "Bloodfen Raptor",			3, 2, CardFlags::CanBeInDecks },
+	{ 2, "Bloodfen Raptor",			3, 2, CardFlags::CanBeInDecks, MinionRace::Beast },
 	{ 2, "Bloodmage Thalnos",		1, 1 },
-	{ 2, "Bloodsail Raider",		2, 3 },
-	{ 2, "Bluegill Warrior",		2, 1, MinionAbilityFlags::Charge, CardFlags::CanBeInDecks },
-	{ 2, "Captains Parrot",			1, 2 },
+	{ 2, "Bloodsail Raider",		2, 3, CardFlags::None, MinionRace::Pirate },
+	{ 2, "Bluegill Warrior",		2, 1, MinionAbilityFlags::Charge, CardFlags::CanBeInDecks, MinionRace::Murloc },
+	{ 2, "Captains Parrot",			1, 2, CardFlags::None, MinionRace::Beast },
 	{ 2, "Crazed Alchemist",		2, 2 },
-	{ 2, "Dire Wolf Alpha",			2, 2 },
+	{ 2, "Dire Wolf Alpha",			2, 2, CardFlags::None, MinionRace::Beast },
 	{ 2, "Doomsayer",				0, 7 },
 	{ 2, "Echoing Ooze",			1, 2 },
-	{ 2, "Faerie Dragon",			3, 2, MinionAbilityFlags::CannotBeTargeted },
+	{ 2, "Faerie Dragon",			3, 2, MinionAbilityFlags::CannotBeTargeted, CardFlags::None, MinionRace::Dragon },
 	{ 2, "Frostwolf Grunt",			2, 2, MinionAbilityFlags::Taunt, CardFlags::CanBeInDecks },
-	{ 2, "Haunted Creeper",			1, 2 },
-	{ 2, "Ironbeak Owl",			2, 1 },
+	{ 2, "Haunted Creeper",			1, 2, CardFlags::None, MinionRace::Beast },
+	{ 2, "Ironbeak Owl",			2, 1, CardFlags::None, MinionRace::Beast },
 	{ 2, "Knife Juggler",			3, 2 },
 	{ 2, "Kobold Geomancer",		2, 2 },
 	{ 2, "Loot Hoarder",			2, 1 },
@@ -73,13 +73,13 @@ const CardData AllCards[] = {
 	{ 2, "Mana Wraith",				2, 2 },
 	{ 2, "Master Swordsmith",		1, 3 },
 	{ 2, "Millhouse Manastorm",		4, 4 },
-	{ 2, "Murloc Tidehunter",		2, 1 },
+	{ 2, "Murloc Tidehunter",		2, 1, CardFlags::None, MinionRace::Beast },
 	{ 2, "Nat Pagle",				0, 4 },
 	{ 2, "Nerubar Weblord",			1, 4 },
 	{ 2, "Nerubian Egg",			0, 2 },
 	{ 2, "Novice Engineer",			1, 1 },
 	{ 2, "Pint-Sized Summoner",		2, 2 },
-	{ 2, "River Crocolisk",			2, 3, CardFlags::CanBeInDecks },
+	{ 2, "River Crocolisk",			2, 3, CardFlags::CanBeInDecks, MinionRace::Beast },
 	{ 2, "Sunfury Protector",		2, 3 },
 	{ 2, "Unstable Ghoul",			1, 3, MinionAbilityFlags::Taunt },
 	{ 2, "Wild Pyromancer",			3, 2 },
@@ -91,25 +91,25 @@ const CardData AllCards[] = {
 	{ 3, "Arcane Golem",			4, 2 },
 	{ 3, "Big Game Hunter",			4, 2 },
 	{ 3, "Blood Knight",			3, 3 },
-	{ 3, "Coldlight Oracle",		2, 2 },
-	{ 3, "Coldlight Seer",			2, 3 },
+	{ 3, "Coldlight Oracle",		2, 2, CardFlags::None, MinionRace::Murloc },
+	{ 3, "Coldlight Seer",			2, 3, CardFlags::None, MinionRace::Murloc  },
 	{ 3, "Dalaran Mage",			1, 4 },
 	{ 3, "Dancing Swords",			4, 4 },
 	{ 3, "Deathlord",				2, 8 },
 	{ 3, "Demolisher",				1, 4 },
 	{ 3, "Earthen Ring Farseer",	3, 3, Battlecry_EarthenRingFarseer, CardFlags::CanBeInDecks },
-	{ 3, "Emperor Cobra",			2, 3 },
+	{ 3, "Emperor Cobra",			2, 3, CardFlags::None, MinionRace::Beast },
 	{ 3, "Flesheating Ghoul",		2, 3 },
 	{ 3, "Harvest Golem",			2, 3 },
 	{ 3, "Imp Master",				1, 5 },
 	{ 3, "Injured Blademaster",		4, 7 },
 	{ 3, "Ironforge Rifleman",		2, 2, Battlecry_IronforgeRifleman, CardFlags::CanBeInDecks },
-	{ 3, "Ironfur Grizzly",			3, 3, MinionAbilityFlags::Taunt, CardFlags::CanBeInDecks },
-	{ 3, "Jungle Panther",			4, 2, MinionAbilityFlags::Stealth },
-	{ 3, "King Mukla",				5, 5 },
+	{ 3, "Ironfur Grizzly",			3, 3, MinionAbilityFlags::Taunt, CardFlags::CanBeInDecks, MinionRace::Beast},
+	{ 3, "Jungle Panther",			4, 2, MinionAbilityFlags::Stealth, CardFlags::None, MinionRace::Beast},
+	{ 3, "King Mukla",				5, 5, CardFlags::None, MinionRace::Beast },
 	{ 3, "Magma Rager",				5, 1, CardFlags::CanBeInDecks },
 	{ 3, "Mind Control Tech",		3, 3 },
-	{ 3, "Murloc Warleader",		3, 3 },
+	{ 3, "Murloc Warleader",		3, 3, CardFlags::None, MinionRace::Murloc },
 	{ 3, "Questing Adventurer",		2, 2 },
 	{ 3, "Raging Worgen",			3, 3 },
 	{ 3, "Raid Leader",				2, 2 },
@@ -117,8 +117,8 @@ const CardData AllCards[] = {
 	{ 3, "Scarlet Crusader",		3, 1, MinionAbilityFlags::DivineShield, CardFlags::CanBeInDecks },
 	{ 3, "Shade Of Naxxramas",		2, 2 },
 	{ 3, "Shattered Sun Cleric",	3, 2 },
-	{ 3, "Silverback Patriarch",	1, 4, MinionAbilityFlags::Taunt, CardFlags::CanBeInDecks },
-	{ 3, "Southsea Captain",		3, 3 },
+	{ 3, "Silverback Patriarch",	1, 4, MinionAbilityFlags::Taunt, CardFlags::CanBeInDecks, MinionRace::Beast },
+	{ 3, "Southsea Captain",		3, 3,CardFlags::None, MinionRace::Pirate },
 	{ 3, "Stoneskin Gargoyle",		1, 4 },
 	{ 3, "Tauren Warrior",			2, 3, MinionAbilityFlags::Taunt },
 	{ 3, "Thrallmar Farseer",		2, 3, MinionAbilityFlags::Windfury, CardFlags::CanBeInDecks },
@@ -134,26 +134,26 @@ const CardData AllCards[] = {
 	{ 4, "Dark Iron Dwarf",			4, 4, Battlecry_DarkIronDwarf, CardFlags::CanBeInDecks },
 	{ 4, "Defender Of Argus",		4, 4 },
 	{ 4, "Dragonling Mechanic",		2, 4 },
-	{ 4, "Dread Corsair",			3, 3, MinionAbilityFlags::Taunt },
+	{ 4, "Dread Corsair",			3, 3, MinionAbilityFlags::Taunt, CardFlags::None, MinionRace::Pirate },
 	{ 4, "Gnomish Inventor",		2, 4 },
 	{ 4, "Leeroy Jenkins",			6, 2, MinionAbilityFlags::Charge },
 	{ 4, "Mogu'shan Warden",		1, 7, MinionAbilityFlags::Taunt, CardFlags::CanBeInDecks },
-	{ 4, "Oasis Snapjaw",			2, 7, CardFlags::CanBeInDecks },
+	{ 4, "Oasis Snapjaw",			2, 7, CardFlags::CanBeInDecks, MinionRace::Beast },
 	{ 4, "Ogre Magi",				4, 4 },
-	{ 4, "Old Murk Eye",			2, 4 },
+	{ 4, "Old Murk Eye",			2, 4, CardFlags::None, MinionRace::Murloc  },
 	{ 4, "Sen'jin Shieldmasta",		3, 5, MinionAbilityFlags::Taunt, CardFlags::CanBeInDecks },
 	{ 4, "Silvermoon Guardian",		3, 3, MinionAbilityFlags::DivineShield, CardFlags::CanBeInDecks },
 	{ 4, "Spellbreaker",			4, 3 },
 	{ 4, "Stormwind Knight",		2, 5, MinionAbilityFlags::Charge, CardFlags::CanBeInDecks },
-	{ 4, "Twilight Drake",			4, 1 },
+	{ 4, "Twilight Drake",			4, 1, CardFlags::None, MinionRace::Dragon },
 	{ 4, "Violet Teacher",			3, 5 },
 	{ 4, "Wailing Soul",			3, 5 },
 
 	// 5-mana neutral cards
 	{ 5, "Abomination",				4, 4, MinionAbilityFlags::Taunt },
-	{ 5, "Azure Drake",				4, 4 },
+	{ 5, "Azure Drake",				4, 4, CardFlags::None, MinionRace::Dragon },
 	{ 5, "Booty Bay Bodyguard",		5, 4, MinionAbilityFlags::Taunt, CardFlags::CanBeInDecks },
-	{ 5, "Captain Greenskin",		5, 4 },
+	{ 5, "Captain Greenskin",		5, 4, CardFlags::None, MinionRace::Pirate },
 	{ 5, "Darkscale Healer",		4, 5 },
 	{ 5, "Elite Tauren Chieftan",	5, 5 },
 	{ 5, "Faceless Manipulator",	3, 3 },
@@ -170,9 +170,9 @@ const CardData AllCards[] = {
 	{ 5, "Spectral Knight",			4, 6, MinionAbilityFlags::CannotBeTargeted },
 	{ 5, "Spiteful Smith",			4, 6 },
 	{ 5, "Stalaag",					7, 4 },
-	{ 5, "Stampeding Kodo",			3, 5 },
+	{ 5, "Stampeding Kodo",			3, 5, CardFlags::None, MinionRace::Beast },
 	{ 5, "Stormpike Commando",		5, 2, Battlecry_StormpikeCommando, CardFlags::CanBeInDecks },
-	{ 5, "Stranglethorn Tiger",		5, 5, MinionAbilityFlags::Stealth },
+	{ 5, "Stranglethorn Tiger",		5, 5, MinionAbilityFlags::Stealth, CardFlags::None, MinionRace::Beast },
 	{ 5, "Venture Co. Mercenary",	7, 6 },
 
 	// 6-mana neutral cards
@@ -183,20 +183,20 @@ const CardData AllCards[] = {
 	{ 6, "Frost Elemental",			5, 5 },
 	{ 6, "Gelbin Mekkatorque",		6, 6 },
 	{ 6, "Hogger",					4, 4 },
-	{ 6, "Illidan Stormrage",		7, 5 },
+	{ 6, "Illidan Stormrage",		7, 5, CardFlags::None, MinionRace::Demon },
 	{ 6, "Lord of the Arena",		6, 5, MinionAbilityFlags::Taunt, CardFlags::CanBeInDecks },
-	{ 6, "Maexxna",					2, 8 },
+	{ 6, "Maexxna",					2, 8, CardFlags::None, MinionRace::Beast },
 	{ 6, "Priestess of Elune",		5, 4 },
 	{ 6, "Reckless Rocketeer",		5, 2, MinionAbilityFlags::Charge, CardFlags::CanBeInDecks },
 	{ 6, "Sunwalker",				4, 5, MinionAbilityFlags::Taunt | MinionAbilityFlags::DivineShield, CardFlags::CanBeInDecks },
 	{ 6, "Sylvanas Windrunner",		5, 5 },
-	{ 6, "The Beast",				9, 7 },
+	{ 6, "The Beast",				9, 7, CardFlags::None, MinionRace::Beast },
 	{ 6, "The Black Knight",		4, 5 },
 	{ 6, "Windfury Harpy",			4, 5, MinionAbilityFlags::Windfury, CardFlags::CanBeInDecks },
 
 	// 7-mana neutral cards
 	{ 7, "Baron Geddon",			7, 5 },
-	{ 7, "Core Hound",				9, 5, CardFlags::CanBeInDecks },
+	{ 7, "Core Hound",				9, 5, CardFlags::CanBeInDecks, MinionRace::Beast },
 	{ 7, "Ravenholdt Assassin",		7, 5, MinionAbilityFlags::Stealth },
 	{ 7, "Stormwind Champion",		6, 6 },
 	{ 7, "War Golem",				7, 7, CardFlags::CanBeInDecks },
@@ -207,15 +207,15 @@ const CardData AllCards[] = {
 	{ 8, "Ragnaros the Firelord",	8, 8, MinionAbilityFlags::CannotAttack },
 
 	// 9-mana neutral cards
-	{ 9, "Alexstrasza",				8, 8 },
-	{ 9, "Malygos",					4, 12 },
-	{ 9, "Nozdormu",				8, 8 },
-	{ 9, "Onyxia",					8, 8 },
-	{ 9, "Ysera",					4, 12 },
+	{ 9, "Alexstrasza",				8, 8, CardFlags::None, MinionRace::Dragon },
+	{ 9, "Malygos",					4, 12, CardFlags::None, MinionRace::Dragon },
+	{ 9, "Nozdormu",				8, 8, CardFlags::None, MinionRace::Dragon },
+	{ 9, "Onyxia",					8, 8, CardFlags::None, MinionRace::Dragon },
+	{ 9, "Ysera",					4, 12, CardFlags::None, MinionRace::Dragon },
 
 	// 10-mana neutral cards
 	{ 10, "Deathwing",				12, 12 },
-	{ 10, "Sea Giant",				8, 8 },
+	{ 10, "Sea Giant",				8, 8, CardFlags::None, MinionRace::Dragon },
 
 	// 12-mana neutral cards
 	{ 12, "Mountain Giant",			8, 8 },
@@ -230,52 +230,56 @@ const CardData* GetCardData(Card c)
 	return &AllCards[(unsigned)c];
 }
 
-CardData::CardData(uint8_t mana_cost, const char* name, uint8_t attack, uint8_t health, CardFlags card_flags)
+CardData::CardData(uint8_t mana_cost, const char* name, uint8_t attack, uint8_t health, CardFlags card_flags, MinionRace race)
 	: m_type(CardType::Minion)
 	, m_mana_cost(mana_cost)
 	, m_name(name)
 	, m_attack(attack)
 	, m_health(health)
 	, m_minion_abilities(MinionAbilityFlags::None)
+	, m_minion_race(race)
 	, m_minion_deathrattle(Deathrattle{ })
 	, m_flags(card_flags)
 {
 
 }
 
-CardData::CardData(uint8_t mana_cost, const char* name, uint8_t attack, uint8_t health, MinionAbilityFlags flags, CardFlags card_flags)
+CardData::CardData(uint8_t mana_cost, const char* name, uint8_t attack, uint8_t health, MinionAbilityFlags flags, CardFlags card_flags, MinionRace race)
 	: m_type(CardType::Minion)
 	, m_mana_cost(mana_cost)
 	, m_name(name)
 	, m_attack(attack)
 	, m_health(health)
 	, m_minion_abilities(flags)
+	, m_minion_race(race)
 	, m_minion_deathrattle(Deathrattle{ })
 	, m_flags(card_flags)
 {
 
 }
 
-CardData::CardData(uint8_t mana_cost, const char* name, uint8_t attack, uint8_t health, Deathrattle deathrattle, CardFlags card_flags)
+CardData::CardData(uint8_t mana_cost, const char* name, uint8_t attack, uint8_t health, Deathrattle deathrattle, CardFlags card_flags, MinionRace race)
 	: m_type(CardType::Minion)
 	, m_mana_cost(mana_cost)
 	, m_name(name)
 	, m_attack(attack)
 	, m_health(health)
 	, m_minion_abilities(MinionAbilityFlags::None)
+	, m_minion_race(race)
 	, m_minion_deathrattle(deathrattle)
 	, m_flags(card_flags)
 {
 
 }
 
-CardData::CardData(uint8_t mana_cost, const char* name, uint8_t attack, uint8_t health, Battlecry battlecry, CardFlags card_flags)
+CardData::CardData(uint8_t mana_cost, const char* name, uint8_t attack, uint8_t health, Battlecry battlecry, CardFlags card_flags, MinionRace race)
 	: m_type(CardType::Minion)
 	, m_mana_cost(mana_cost)
 	, m_name(name)
 	, m_attack(attack)
 	, m_health(health)
 	, m_minion_abilities(MinionAbilityFlags::None)
+	, m_minion_race(race)
 	, m_minion_deathrattle(Deathrattle{ })
 	, m_minion_battlecry(battlecry)
 	, m_flags(card_flags)
@@ -293,6 +297,7 @@ CardData::CardData(CardType type, uint8_t mana_cost, const char* name, SpellEffe
 	, m_attack(0)
 	, m_health(0)
 	, m_minion_abilities(MinionAbilityFlags::None)
+	, m_minion_race(MinionRace::None)
 	, m_spell_data(SpellData{ effect, effect_param, target_type })
 	, m_minion_deathrattle(Deathrattle{  })
 	, m_minion_battlecry(Battlecry{ })
