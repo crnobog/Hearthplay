@@ -356,6 +356,15 @@ protected:
 	void PushDeathrattle(uint8_t owner_idx, const Minion& m);
 
 	template<typename FuncType>
+	void ForEachPlayer(FuncType func)
+	{
+		for (uint8_t player_idx = 0; player_idx < 2; ++player_idx)
+		{
+			func(m_players[player_idx]);
+		}
+	}
+
+	template<typename FuncType>
 	void ForEachMinion(FuncType func)
 	{
 		for (uint8_t player_idx = 0; player_idx < 2; ++player_idx)

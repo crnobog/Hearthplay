@@ -16,6 +16,7 @@ static const Battlecry Battlecry_Nightblade = { SpellEffect::DamageCharacter, 3,
 static const Deathrattle Deathrattle_LeperGnome = { SpellEffect::DamageCharacter, 2, TargetType::Opponent };
 static const Deathrattle Deathrattle_ZombieChow = { SpellEffect::HealCharacter, 5, TargetType::Opponent };
 static const Deathrattle Deathrattle_UnstableGhoul = { SpellEffect::DamageCharacter, 1, TargetType::AllMinions };
+static const Deathrattle Deathrattle_Abomination = { SpellEffect::DamageCharacter, 2, TargetType::AllCharacters };
 
 const CardData AllCards[] = {
 	{ CardType::Spell, 0, "The Coin", SpellEffect::AddMana, 1, TargetType::Self },
@@ -151,7 +152,7 @@ const CardData AllCards[] = {
 	{ 4, "Wailing Soul",			3, 5 },
 
 	// 5-mana neutral cards
-	{ 5, "Abomination",				4, 4, MinionAbilityFlags::Taunt },
+	{ 5, "Abomination",				4, 4, Deathrattle_Abomination, MinionAbilityFlags::Taunt, CardFlags::CanBeInDecks },
 	{ 5, "Azure Drake",				4, 4, CardFlags::None, MinionRace::Dragon },
 	{ 5, "Booty Bay Bodyguard",		5, 4, MinionAbilityFlags::Taunt, CardFlags::CanBeInDecks },
 	{ 5, "Captain Greenskin",		5, 4, CardFlags::None, MinionRace::Pirate },

@@ -331,6 +331,12 @@ void GameState::HandleSpell(const SpellData& spell_data, PackedTarget target_pac
 			ForEachMinion([=](Minion& m){ m.m_health -= spell_data.m_param; });
 			CheckDeadMinions( );
 		}
+		else if (spell_data.m_target_type == TargetType::AllCharacters)
+		{
+			ForEachPlayer([=](Player& p){ p.m_health -= spell_data.m_param; });
+			ForEachMinion([=](Minion& m){ m.m_health -= spell_data.m_param; });
+			CheckDeadMinions( );
+		}
 		else if (target_minion == NoMinion)
 		{
 			// Target hero

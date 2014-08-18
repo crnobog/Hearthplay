@@ -239,6 +239,7 @@ enum class TargetType : uint8_t
 	Opponent,
 	Self,
 	AllMinions,
+	AllCharacters,
 
 	MAX,
 };
