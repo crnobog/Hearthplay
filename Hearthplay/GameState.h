@@ -272,6 +272,11 @@ struct Minion
 		m_abilities |= ability;
 	}
 
+	inline bool HasDeathrattle( ) const
+	{
+		return m_source_card->m_minion_deathrattle.m_effect != SpellEffect::None;
+	}
+
 	inline void Heal( uint8_t amt );
 	void AddAuraEffects(const MinionAura& aura);
 	void RemoveAuraEffects(const MinionAura& aura);
@@ -299,6 +304,12 @@ struct Player
 	inline void Heal( uint8_t amt );
 };
 
+struct PendingSpellEffect
+{
+	SpellData	m_spell_data;
+	uint8_t		m_owner_index;
+};
+
 struct GameState
 {
 	static const uint8_t NoMinion = 0xF;
@@ -310,6 +321,7 @@ struct GameState
 	Winner m_winner;
 	int8_t m_active_player_index;
 	FixedVector<Move, MaxPossibleMoves, uint16_t> m_possible_moves;
+	FixedVector<PendingSpellEffect, MaxTargets, uint8_t> m_pending_spell_effects; // TODO: Count
 
 	GameState();
 	GameState(const GameState& other);
@@ -333,10 +345,25 @@ protected:
 	void AttackMinion(uint8_t SourceIndex, uint8_t TargetIndex);
 
 	void CheckDeadMinion(uint8_t player_index, uint8_t minion_index);
-	void HandleDeathrattle(Deathrattle deathrattle, uint8_t owner_index);
+	void HandlePendingSpellEffect(const SpellData& data, uint8_t owner_index);
 	void HandleSpell(const SpellData& spell_data, PackedTarget target_packed);
 	void HandleSpellNoTarget(SpellEffect effect, uint8_t spell_param, uint8_t owner_index);
 	void PlayMinion(Card c, PackedTarget packed_target);
 
 	void CheckVictory( );
+
+	void CheckDeadMinions( );
+	void PushDeathrattle(uint8_t owner_idx, const Minion& m);
+
+	template<typename FuncType>
+	void ForEachMinion(FuncType func)
+	{
+		for (uint8_t player_idx = 0; player_idx < 2; ++player_idx)
+		{
+			for (uint8_t minion_idx = 0; minion_idx < m_players[player_idx].m_minions.Num( ); ++minion_idx)
+			{
+				func(m_players[player_idx].m_minions[minion_idx]);
+			}
+		}
+	}
 };

@@ -76,6 +76,12 @@ void GameState::ProcessMove(const Move& m)
 	case MoveType::AttackMinion: AttackMinion(m.m_source_index, m.m_target_packed.m_minion); break;
 	}
 
+	while (m_pending_spell_effects.Num( ))
+	{
+		HandlePendingSpellEffect(m_pending_spell_effects[0].m_spell_data, m_pending_spell_effects[0].m_owner_index);
+		m_pending_spell_effects.RemoveAt(0);
+	}
+
 	UpdatePossibleMoves();
 }
 
@@ -264,9 +270,9 @@ void GameState::CheckDeadMinion(uint8_t player_index, uint8_t minion_index)
 	Minion& dead_minion = owner.m_minions[minion_index];
 	if (dead_minion.m_health <= 0)
 	{
-		if (dead_minion.m_source_card->m_minion_deathrattle.m_effect != SpellEffect::None)
+		if (dead_minion.HasDeathrattle())
 		{
-			HandleDeathrattle(dead_minion.m_source_card->m_minion_deathrattle, player_index);
+			PushDeathrattle(player_index, dead_minion);
 		}
 		owner.m_minions.RemoveAt(minion_index);
 	}
@@ -293,17 +299,17 @@ void GameState::AttackMinion(uint8_t SourceIndex, uint8_t TargetIndex)
 	CheckVictory( );
 }
 
-void GameState::HandleDeathrattle(Deathrattle deathrattle, uint8_t owner_index)
+void GameState::HandlePendingSpellEffect(const SpellData& data, uint8_t owner_index)
 {
 	uint8_t opponent_index = OppositePlayer(owner_index);
 	PackedTarget target = Move::TargetNone();
-	switch (deathrattle.m_target_type)
+	switch (data.m_target_type)
 	{
 	case TargetType::Opponent:
 		target = Move::TargetPlayer(opponent_index);
 		break;
 	}
-	HandleSpell(deathrattle, target);
+	HandleSpell(data, target);
 }
 
 void GameState::HandleSpell(const SpellData& spell_data, PackedTarget target_packed)
@@ -320,7 +326,12 @@ void GameState::HandleSpell(const SpellData& spell_data, PackedTarget target_pac
 		break;
 	case SpellEffect::DamageCharacter:
 	{ 
-		if (target_minion == NoMinion)
+		if (spell_data.m_target_type == TargetType::AllMinions)
+		{
+			ForEachMinion([=](Minion& m){ m.m_health -= spell_data.m_param; });
+			CheckDeadMinions( );
+		}
+		else if (target_minion == NoMinion)
 		{
 			// Target hero
 			m_players[target_player].m_health -= spell_data.m_param;
@@ -379,6 +390,34 @@ void GameState::CheckVictory( )
 	else if (m_players[1].m_health <= 0)
 	{
 		m_winner = Winner::PlayerOne;
+	}
+}
+
+void GameState::CheckDeadMinions( )
+{
+	for (uint8_t player_idx = 0; player_idx < 2; ++player_idx)
+	{
+		if (m_players[player_idx].m_minions.Num( ))
+		{
+			for (uint8_t minion_idx = m_players[player_idx].m_minions.Num( ) - 1;; --minion_idx)
+			{
+				if (m_players[player_idx].m_minions[minion_idx].m_health <= 0)
+				{
+					PushDeathrattle(player_idx, m_players[player_idx].m_minions[minion_idx]);
+					m_players[player_idx].m_minions.RemoveAt(minion_idx);
+				}
+				if (minion_idx == 0)
+					break;
+			}
+		}
+	}
+}
+
+void GameState::PushDeathrattle(uint8_t owner_idx, const Minion& m)
+{
+	if (m.HasDeathrattle( ))
+	{
+		m_pending_spell_effects.Add({ m.m_source_card->m_minion_deathrattle, owner_idx });
 	}
 }
 

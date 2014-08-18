@@ -79,6 +79,11 @@ uint8_t GetNumMinions(const GameState& g, uint8_t player_idx)
 	return g.m_players[player_idx].m_minions.Num( );
 }
 
+int8_t GetPlayerHealth(const GameState& g, uint8_t player_idx)
+{
+	return g.m_players[player_idx].m_health;
+}
+
 typedef bool(*TestFunc)();
 
 struct TestCase
@@ -870,6 +875,28 @@ TestCase Tests[] =
 
 			CHECK_DO_MOVE(Move::PlayCard(Card::ElvenArcher, Move::TargetMinion(0, 0)));
 			CHECK(g.m_players[0].m_minions.Num( ) == 1);
+
+			return true;
+		}
+	},
+	{
+		"Unstable Ghoul deathrattle", []( )
+		{
+			GameState g;
+			AddMinion(g, 0, Card::UnstableGhoul);
+			AddMinion(g, 0, Card::BloodfenRaptor);
+			AddMinion(g, 1, Card::BloodfenRaptor);
+			AddMinion(g, 1, Card::BloodfenRaptor);
+			g.UpdatePossibleMoves( );
+
+			CHECK_DO_MOVE(Move::EndTurn( ));
+			CHECK_DO_MOVE(Move::AttackMinion(0, 0));
+			CHECK(GetPlayerHealth(g, 0) == GameState::StartingHealth);
+			CHECK(GetPlayerHealth(g, 1) == GameState::StartingHealth);
+			CHECK(GetNumMinions(g, 0) == 1);
+			CHECK(GetNumMinions(g, 1) == 1);
+			CHECK(GetMinion(g, 0, 0).m_health == 1);
+			CHECK(GetMinion(g, 1, 0).m_health == 1);
 
 			return true;
 		}
