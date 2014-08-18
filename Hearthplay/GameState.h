@@ -267,6 +267,11 @@ struct Minion
 		m_abilities &= ~MinionAbilityFlags::Stealth;
 	}
 
+	inline void AddAbility( MinionAbilityFlags ability )
+	{
+		m_abilities |= ability;
+	}
+
 	inline void Heal( uint8_t amt );
 	void AddAuraEffects(const MinionAura& aura);
 	void RemoveAuraEffects(const MinionAura& aura);

@@ -804,6 +804,26 @@ TestCase Tests[] =
 
 			return true;
 		}
+	},
+	{
+		"Stealth minion with taunt does not prevent attacking hero or other minions", []( )
+		{
+			GameState g;
+			AddMinion(g, 0, Card::WorgenInfiltrator);
+			AddMinion(g, 0, Card::BloodfenRaptor);
+			g.m_players[0].m_minions[0].AddAbility(MinionAbilityFlags::Taunt);
+			AddMinion(g, 1, Card::SenjinShieldMasta);
+			g.UpdatePossibleMoves( );
+
+			CHECK(g.m_players[0].m_minions[0].HasStealth( ));
+			CHECK(g.m_players[0].m_minions[0].HasTaunt( ));
+			CHECK(CheckAndProcessMove(g, Move::EndTurn( )));
+			CHECK(MovePossible(g, Move::AttackHero(0)));
+			CHECK(MovePossible(g, Move::AttackMinion(0, 1)));
+			CHECK(!MovePossible(g, Move::AttackMinion(0, 0)));
+
+			return true;
+		}
 	}
 };
 

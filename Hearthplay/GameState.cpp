@@ -117,7 +117,7 @@ void GameState::UpdatePossibleMoves( )
 	bool opponent_has_taunt = false;
 	for (uint8_t i = 0; i < Opponent.m_minions.Num( ); ++i)
 	{
-		if (Opponent.m_minions[i].HasTaunt( ))
+		if (Opponent.m_minions[i].HasTaunt( ) && !Opponent.m_minions[i].HasStealth())
 		{
 			opponent_has_taunt = true;
 			break;
