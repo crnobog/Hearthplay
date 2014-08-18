@@ -824,6 +824,36 @@ TestCase Tests[] =
 
 			return true;
 		}
+	},
+	{
+		"Stealth minion cannot be targeted by enemy battlecry", []( )
+		{
+			GameState g;
+			AddMinion(g, 0, Card::WorgenInfiltrator);
+			AddCard(g, 1, Card::ElvenArcher);
+			SetManaAndMax(g, 1, 1);
+			g.UpdatePossibleMoves( );
+
+			CHECK(CheckAndProcessMove(g, Move::EndTurn( )));
+			CHECK(!MovePossible(g, Move::PlayCard(Card::ElvenArcher, Move::TargetMinion(0, 0))));
+
+			return true;
+		}
+	},
+	{
+		"Stealth minion can be targeted by friendly battlecry", []( )
+		{
+			GameState g;
+			AddMinion(g, 0, Card::WorgenInfiltrator);
+			AddCard(g, 0, Card::ElvenArcher);
+			SetManaAndMax(g, 0, 1);
+			g.UpdatePossibleMoves( );
+
+			CHECK(CheckAndProcessMove(g, Move::PlayCard(Card::ElvenArcher, Move::TargetMinion(0, 0))));
+			CHECK(g.m_players[0].m_minions.Num( ) == 1);
+
+			return true;
+		}
 	}
 };
 

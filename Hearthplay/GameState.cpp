@@ -102,8 +102,11 @@ void GameState::UpdatePossibleMoves( )
 	{
 		for (uint8_t minion_index = 0; minion_index < m_players[player_index].m_minions.Num( ); ++minion_index)
 		{
-			target_map[(uint8_t)TargetType::AnyCharacter].Add(Move::TargetMinion(player_index, minion_index));
-			target_map[(uint8_t)TargetType::AnyMinion].Add(Move::TargetMinion(player_index, minion_index));
+			if (player_index == m_active_player_index || !m_players[player_index].m_minions[minion_index].HasStealth( ))
+			{
+				target_map[(uint8_t)TargetType::AnyCharacter].Add(Move::TargetMinion(player_index, minion_index));
+				target_map[(uint8_t)TargetType::AnyMinion].Add(Move::TargetMinion(player_index, minion_index));
+			}
 		}
 
 		target_map[(uint8_t)TargetType::AnyCharacter].Add(Move::TargetPlayer(player_index));
