@@ -237,7 +237,7 @@ enum class TargetType : uint8_t
 	AnyCharacter,
 	AnyMinion,
 	Opponent,
-	Self,
+	SelfPlayer,
 	AllMinions,
 	AllCharacters,
 
@@ -251,6 +251,7 @@ enum class SpellEffect : uint8_t
 	DamageCharacter,	// Elven Archer, Stormpike Commando, Holy Smite, Arcane Shot
 	HealCharacter,		// Voodoo Doctor, Earthen Ring Farseer
 	AddMinionAura,		// Abusive Sergeant, Dark Iron Dwarf
+	DrawCard,
 };
 
 enum class MinionAuraEffect : uint8_t
@@ -263,6 +264,7 @@ enum class AuraDuration : uint8_t
 {
 	None,
 	EndOfTurn,
+	Permanent,
 };
 
 struct MinionAura

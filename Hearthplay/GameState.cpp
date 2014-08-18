@@ -103,7 +103,7 @@ void GameState::UpdatePossibleMoves( )
 
 	target_map[(uint8_t)TargetType::None].Add(Move::TargetNone());
 	target_map[(uint8_t)TargetType::Opponent].Add(Move::TargetPlayer(opponent_index));
-	target_map[(uint8_t)TargetType::Self].Add(Move::TargetPlayer(m_active_player_index));
+	target_map[(uint8_t)TargetType::SelfPlayer].Add(Move::TargetPlayer(m_active_player_index));
 	for (uint8_t player_index = 0; player_index < 2; ++player_index)
 	{
 		for (uint8_t minion_index = 0; minion_index < m_players[player_index].m_minions.Num( ); ++minion_index)
@@ -323,7 +323,16 @@ void GameState::HandleSpell(const SpellData& spell_data, PackedTarget target_pac
 		Player& p = m_players[target_player];
 		p.m_mana += spell_data.m_param;
 	}
-		break;
+	break;
+	case SpellEffect::DrawCard:
+	{
+		Player& p = m_players[target_player];
+		for (uint8_t i = 0; i < spell_data.m_param; ++i)
+		{
+			p.DrawOne( );
+		}
+	}
+	break;
 	case SpellEffect::DamageCharacter:
 	{ 
 		if (spell_data.m_target_type == TargetType::AllMinions)

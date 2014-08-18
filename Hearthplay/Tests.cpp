@@ -54,6 +54,11 @@ void AddCard(GameState& g, uint8_t player, Card c)
 	g.m_players[player].m_hand.Add(c);
 }
 
+void AddCardToDeck(GameState& g, uint8_t player, Card c)
+{
+	g.m_players[player].m_deck.Add(c);
+}
+
 bool ProcessMove(GameState& g, Move m)
 {
 	if (!g.m_possible_moves.Contains(m))
@@ -959,6 +964,22 @@ TestCase Tests[] =
 			CHECK(GetNumMinions(g, 1) == 0);
 			CHECK(GetPlayerHealth(g, 0) == GameState::StartingHealth - 2 - 2);
 			CHECK(GetPlayerHealth(g, 1) == GameState::StartingHealth - 2 - 2);
+
+			return true;
+		}
+	},
+	{
+		"Novice Engineer", []( )
+		{
+			GameState g;
+			AddCard(g, 0, Card::NoviceEngineer);
+			SetManaAndMax(g, 0, 2);
+			AddCardToDeck(g, 0, Card::Abomination);
+			g.UpdatePossibleMoves( );
+
+			CHECK_DO_MOVE(Move::PlayCard(Card::NoviceEngineer, Move::TargetPlayer(0)));
+			CHECK(g.m_players[0].m_hand.Num( ) == 1);
+			CHECK(g.m_players[0].m_hand[0] == Card::Abomination);
 
 			return true;
 		}

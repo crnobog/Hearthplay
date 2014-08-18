@@ -7,6 +7,7 @@ static const MinionAura Aura_PlusTwoAttack = { MinionAuraEffect::BonusAttack, 2,
 static const Battlecry Battlecry_AbusiveSergeant = { Aura_PlusTwoAttack, TargetType::AnyMinion };
 static const Battlecry Battlecry_ElvenArcher = { SpellEffect::DamageCharacter, 1, TargetType::AnyCharacter };
 static const Battlecry Battlecry_VoodooDoctor = { SpellEffect::HealCharacter, 2, TargetType::AnyCharacter };
+static const Battlecry Battlecry_NoviceEngineer = { SpellEffect::DrawCard, 1, TargetType::SelfPlayer };
 static const Battlecry Battlecry_EarthenRingFarseer = { SpellEffect::HealCharacter, 3, TargetType::AnyCharacter };
 static const Battlecry Battlecry_IronforgeRifleman = Battlecry_ElvenArcher;
 static const Battlecry Battlecry_DarkIronDwarf = Battlecry_AbusiveSergeant;
@@ -19,7 +20,7 @@ static const Deathrattle Deathrattle_UnstableGhoul = { SpellEffect::DamageCharac
 static const Deathrattle Deathrattle_Abomination = { SpellEffect::DamageCharacter, 2, TargetType::AllCharacters };
 
 const CardData AllCards[] = {
-	{ CardType::Spell, 0, "The Coin", SpellEffect::AddMana, 1, TargetType::Self },
+	{ CardType::Spell, 0, "The Coin", SpellEffect::AddMana, 1, TargetType::SelfPlayer },
 
 	// 0-mana neutral cards
 	{ 0, "Wisp",					1, 1, CardFlags::CanBeInDecks }, // Wisp
@@ -79,7 +80,7 @@ const CardData AllCards[] = {
 	{ 2, "Nat Pagle",				0, 4 },
 	{ 2, "Nerubar Weblord",			1, 4 },
 	{ 2, "Nerubian Egg",			0, 2 },
-	{ 2, "Novice Engineer",			1, 1 },
+	{ 2, "Novice Engineer",			1, 1, Battlecry_NoviceEngineer, MinionAbilityFlags::None, CardFlags::CanBeInDecks },
 	{ 2, "Pint-Sized Summoner",		2, 2 },
 	{ 2, "River Crocolisk",			2, 3, CardFlags::CanBeInDecks, MinionRace::Beast },
 	{ 2, "Sunfury Protector",		2, 3 },
