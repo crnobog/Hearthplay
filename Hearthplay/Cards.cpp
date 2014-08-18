@@ -18,6 +18,7 @@ static const Battlecry Battlecry_PriestessOfElune = { SpellEffect::HealCharacter
 
 static const Deathrattle Deathrattle_LeperGnome = { SpellEffect::DamageCharacter, 2, TargetType::Opponent };
 static const Deathrattle Deathrattle_ZombieChow = { SpellEffect::HealCharacter, 5, TargetType::Opponent };
+static const Deathrattle Deathrattle_LootHoarder = { SpellEffect::DrawCard, 1, TargetType::SelfPlayer };
 static const Deathrattle Deathrattle_UnstableGhoul = { SpellEffect::DamageCharacter, 1, TargetType::AllMinions };
 static const Deathrattle Deathrattle_Abomination = { SpellEffect::DamageCharacter, 2, TargetType::AllCharacters };
 
@@ -70,7 +71,7 @@ const CardData AllCards[] = {
 	{ 2, "Ironbeak Owl",			2, 1, CardFlags::None, MinionRace::Beast },
 	{ 2, "Knife Juggler",			3, 2 },
 	{ 2, "Kobold Geomancer",		2, 2, CardFlags::CanBeInDecks, MinionRace::None, 1 },
-	{ 2, "Loot Hoarder",			2, 1 },
+	{ 2, "Loot Hoarder",			2, 1, Deathrattle_LootHoarder, MinionAbilityFlags::None, CardFlags::CanBeInDecks },
 	{ 2, "Lorewalker Cho",			0, 4 },
 	{ 2, "Mad Bomber",				3, 2 },
 	{ 2, "Mad Scientist",			2, 2 },

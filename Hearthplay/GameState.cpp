@@ -308,6 +308,9 @@ void GameState::HandlePendingSpellEffect(const SpellData& data, uint8_t owner_in
 	case TargetType::Opponent:
 		target = Move::TargetPlayer(opponent_index);
 		break;
+	case TargetType::SelfPlayer:
+		target = Move::TargetPlayer(owner_index);
+		break;
 	}
 	HandleSpell(data, target);
 }

@@ -1043,6 +1043,22 @@ TestCase Tests[] =
 
 			return true;
 		}
+	},
+	{
+		"Loot Hoarder", []( )
+		{
+			GameState g;
+			AddMinionReadyToAttack(g, 0, Card::LootHoarder);
+			AddCardToDeck(g, 0, Card::AbusiveSergeant);
+			AddMinion(g, 1, Card::SenjinShieldMasta);
+			g.UpdatePossibleMoves( );
+
+			CHECK_DO_MOVE(Move::AttackMinion(0, 0));
+			CHECK(g.m_players[0].m_hand.Num( ) == 1);
+			CHECK(g.m_players[0].m_hand[0] == Card::AbusiveSergeant);
+
+			return true;
+		}
 	}
 };
 
