@@ -969,6 +969,21 @@ TestCase Tests[] =
 		}
 	},
 	{
+		"Abomination can win game", []( )
+		{
+			GameState g;
+			AddMinionReadyToAttack(g, 0, Card::Abomination);
+			SetHealth(g, 1, 2);
+			AddMinion(g, 1, Card::ChillwindYeti);
+			g.UpdatePossibleMoves( );
+
+			CHECK_DO_MOVE(Move::AttackMinion(0, 0));
+			CHECK(g.m_winner == Winner::PlayerOne);
+
+			return true;
+		}
+	},
+	{
 		"Novice Engineer", []( )
 		{
 			GameState g;
