@@ -1075,6 +1075,39 @@ TestCase Tests[] =
 
 			return true;
 		}
+	},
+	{
+		"Dancing Swords attacked", []( )
+		{
+			GameState g;
+			AddMinion(g, 0, Card::DancingSwords);
+			AddMinion(g, 1, Card::ChillwindYeti);
+			AddCardToDeck(g, 1, Card::Abomination);
+			g.UpdatePossibleMoves( );
+
+			CHECK_DO_MOVE(Move::EndTurn( ));
+			CHECK_DO_MOVE(Move::AttackMinion(0, 0));
+			CHECK(g.m_players[1].m_hand.Num( ) == 1);
+			CHECK(g.m_players[1].m_hand[0] == Card::Abomination);
+
+			return true;
+		}
+	},
+	{
+		"Dancing Swords attacking", []( )
+		{
+			GameState g;
+			AddMinionReadyToAttack(g, 0, Card::DancingSwords);
+			AddMinion(g, 1, Card::ChillwindYeti);
+			AddCardToDeck(g, 1, Card::Abomination);
+			g.UpdatePossibleMoves( );
+
+			CHECK_DO_MOVE(Move::AttackMinion(0, 0));
+			CHECK(g.m_players[1].m_hand.Num( ) == 1);
+			CHECK(g.m_players[1].m_hand[0] == Card::Abomination);
+
+			return true;
+		}
 	}
 };
 

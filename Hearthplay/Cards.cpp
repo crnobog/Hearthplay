@@ -22,6 +22,7 @@ static const Deathrattle Deathrattle_ZombieChow = { SpellEffect::HealCharacter, 
 static const Deathrattle Deathrattle_BloodmageThalnos = { SpellEffect::DrawCard, 1, TargetType::SelfPlayer };
 static const Deathrattle Deathrattle_LootHoarder = { SpellEffect::DrawCard, 1, TargetType::SelfPlayer };
 static const Deathrattle Deathrattle_UnstableGhoul = { SpellEffect::DamageCharacter, 1, TargetType::AllMinions };
+static const Deathrattle Deathrattle_DancingSwords = { SpellEffect::DrawCard, 1, TargetType::Opponent };
 static const Deathrattle Deathrattle_Abomination = { SpellEffect::DamageCharacter, 2, TargetType::AllCharacters };
 
 const CardData AllCards[] = {
@@ -102,7 +103,7 @@ const CardData AllCards[] = {
 	{ 3, "Coldlight Oracle",		2, 2, CardFlags::None, MinionRace::Murloc },
 	{ 3, "Coldlight Seer",			2, 3, CardFlags::None, MinionRace::Murloc  },
 	{ 3, "Dalaran Mage",			1, 4 },
-	{ 3, "Dancing Swords",			4, 4 },
+	{ 3, "Dancing Swords",			4, 4, Deathrattle_DancingSwords, MinionAbilityFlags::None, CardFlags::CanBeInDecks },
 	{ 3, "Deathlord",				2, 8 },
 	{ 3, "Demolisher",				1, 4 },
 	{ 3, "Earthen Ring Farseer",	3, 3, Battlecry_EarthenRingFarseer, MinionAbilityFlags::None, CardFlags::CanBeInDecks },
