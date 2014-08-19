@@ -104,6 +104,10 @@ void GameState::UpdatePossibleMoves( )
 	target_map[(uint8_t)TargetType::None].Add(Move::TargetNone());
 	target_map[(uint8_t)TargetType::Opponent].Add(Move::TargetPlayer(opponent_index));
 	target_map[(uint8_t)TargetType::SelfPlayer].Add(Move::TargetPlayer(m_active_player_index));
+	for (uint8_t i = 0; i < 2; ++i)
+	{
+		target_map[(uint8_t)TargetType::AnyPlayer].Add(Move::TargetPlayer(i));
+	}
 	for (uint8_t player_index = 0; player_index < 2; ++player_index)
 	{
 		for (uint8_t minion_index = 0; minion_index < m_players[player_index].m_minions.Num( ); ++minion_index)
@@ -402,6 +406,11 @@ void GameState::HandleSpell(const SpellData& spell_data, PackedTarget target_pac
 		{
 			m_players[target_player].m_minions[target_minion].Heal(spell_data.m_param);
 		}
+	}
+		break;
+	case SpellEffect::SetHealth:
+	{
+		m_players[target_player].m_health = spell_data.m_param;
 	}
 		break;
 	case SpellEffect::AddMinionAura:

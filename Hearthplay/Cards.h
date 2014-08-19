@@ -239,6 +239,7 @@ enum class TargetType : uint8_t
 	None,
 	AnyCharacter,
 	AnyMinion,
+	AnyPlayer,
 	Opponent,
 	SelfPlayer,
 	AllMinions,
@@ -257,6 +258,7 @@ enum class SpellEffect : uint8_t
 	AddMinionAura,		// Abusive Sergeant, Dark Iron Dwarf
 	DrawCard,
 	AddManaCrystal,		// Arcane Golem, Wild Growth
+	SetHealth,			// Alextrasza
 };
 
 enum class MinionAuraEffect : uint8_t

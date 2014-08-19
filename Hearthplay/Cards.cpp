@@ -17,6 +17,7 @@ static const Battlecry Battlecry_DarkscaleHealer = { SpellEffect::HealCharacter,
 static const Battlecry Battlecry_StormpikeCommando = { SpellEffect::DamageCharacter, 2, TargetType::AnyCharacter };
 static const Battlecry Battlecry_Nightblade = { SpellEffect::DamageCharacter, 3, TargetType::Opponent };
 static const Battlecry Battlecry_PriestessOfElune = { SpellEffect::HealCharacter, 4, TargetType::SelfPlayer };
+static const Battlecry Battlecry_Alextrasza = { SpellEffect::SetHealth, 15, TargetType::AnyPlayer };
 
 static const Deathrattle Deathrattle_LeperGnome = { SpellEffect::DamageCharacter, 2, TargetType::Opponent };
 static const Deathrattle Deathrattle_ZombieChow = { SpellEffect::HealCharacter, 5, TargetType::Opponent };
@@ -217,7 +218,7 @@ const CardData AllCards[] = {
 	{ 8, "Ragnaros the Firelord",	8, 8, MinionAbilityFlags::CannotAttack },
 
 	// 9-mana neutral cards
-	{ 9, "Alexstrasza",				8, 8, CardFlags::None, MinionRace::Dragon },
+	{ 9, "Alexstrasza",				8, 8, Battlecry_Alextrasza, MinionAbilityFlags::None, CardFlags::CanBeInDecks, MinionRace::Dragon },
 	{ 9, "Malygos",					4, 12, CardFlags::None, MinionRace::Dragon },
 	{ 9, "Nozdormu",				8, 8, CardFlags::None, MinionRace::Dragon },
 	{ 9, "Onyxia",					8, 8, CardFlags::None, MinionRace::Dragon },

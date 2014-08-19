@@ -1131,6 +1131,35 @@ TestCase Tests[] =
 
 			return true;
 		}
+	},
+	{
+		"Alextrasza on opponent", []( )
+		{
+			GameState g;
+			AddCard(g, 0, Card::Alexstrasza);
+			SetManaAndMax(g, 0, 9);
+			g.UpdatePossibleMoves( );
+
+			CHECK_DO_MOVE(Move::PlayCard(Card::Alexstrasza, Move::TargetPlayer(1)));
+			CHECK(GetPlayerHealth(g, 1) == 15);
+
+			return true;
+		}
+	},
+	{
+		"Alextrasza on self", []( )
+		{
+			GameState g;
+			AddCard(g, 0, Card::Alexstrasza);
+			SetManaAndMax(g, 0, 9);
+			SetHealth(g, 0, 5);
+			g.UpdatePossibleMoves( );
+
+			CHECK_DO_MOVE(Move::PlayCard(Card::Alexstrasza, Move::TargetPlayer(0)));
+			CHECK(GetPlayerHealth(g, 0) == 15);
+
+			return true;
+		}
 	}
 };
 
