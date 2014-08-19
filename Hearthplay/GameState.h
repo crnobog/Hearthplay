@@ -359,7 +359,7 @@ protected:
 
 	void CheckDeadMinion(uint8_t player_index, uint8_t minion_index);
 	void HandlePendingSpellEffect(const SpellData& data, uint8_t owner_index);
-	void HandleSpell(const SpellData& spell_data, PackedTarget target_packed, bool affected_by_spelldamage=false);
+	void HandleSpell(const SpellData& spell_data, PackedTarget target_packed, uint8_t owner_index, bool affected_by_spelldamage=false);
 	void PlayMinion(Card c, PackedTarget packed_target);
 
 	void CheckVictory( );
@@ -385,6 +385,15 @@ protected:
 			{
 				func(m_players[player_idx].m_minions[minion_idx]);
 			}
+		}
+	}
+
+	template<typename FuncType>
+	void ForEachMinion(uint8_t owner_idx, FuncType func)
+	{
+		for (uint8_t minion_idx = 0; minion_idx < m_players[owner_idx].m_minions.Num( ); ++minion_idx)
+		{
+			func(m_players[owner_idx].m_minions[minion_idx]);
 		}
 	}
 };

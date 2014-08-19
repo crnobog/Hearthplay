@@ -13,6 +13,7 @@ static const Battlecry Battlecry_EarthenRingFarseer = { SpellEffect::HealCharact
 static const Battlecry Battlecry_IronforgeRifleman = Battlecry_ElvenArcher;
 static const Battlecry Battlecry_DarkIronDwarf = Battlecry_AbusiveSergeant;
 static const Battlecry Battlecry_AzureDrake = Battlecry_NoviceEngineer;
+static const Battlecry Battlecry_DarkscaleHealer = { SpellEffect::HealCharacter, 2, TargetType::AllFriendlyCharacters };
 static const Battlecry Battlecry_StormpikeCommando = { SpellEffect::DamageCharacter, 2, TargetType::AnyCharacter };
 static const Battlecry Battlecry_Nightblade = { SpellEffect::DamageCharacter, 3, TargetType::Opponent };
 static const Battlecry Battlecry_PriestessOfElune = { SpellEffect::HealCharacter, 4, TargetType::SelfPlayer };
@@ -163,7 +164,7 @@ const CardData AllCards[] = {
 	{ 5, "Azure Drake",				4, 4, Battlecry_AzureDrake, MinionAbilityFlags::None, CardFlags::CanBeInDecks, MinionRace::Dragon, 1 },
 	{ 5, "Booty Bay Bodyguard",		5, 4, MinionAbilityFlags::Taunt, CardFlags::CanBeInDecks },
 	{ 5, "Captain Greenskin",		5, 4, CardFlags::None, MinionRace::Pirate },
-	{ 5, "Darkscale Healer",		4, 5 },
+	{ 5, "Darkscale Healer",		4, 5, Battlecry_DarkscaleHealer, MinionAbilityFlags::None, CardFlags::CanBeInDecks },
 	{ 5, "Elite Tauren Chieftan",	5, 5 },
 	{ 5, "Faceless Manipulator",	3, 3 },
 	{ 5, "Fen Creeper",				3, 6, MinionAbilityFlags::Taunt, CardFlags::CanBeInDecks },

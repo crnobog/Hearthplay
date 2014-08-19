@@ -1108,6 +1108,29 @@ TestCase Tests[] =
 
 			return true;
 		}
+	},
+	{
+		"Darkscale Healer", []( )
+		{
+			GameState g;
+			AddMinion(g, 0, Card::ChillwindYeti);
+			GetMinion(g, 0, 0).m_health = 3;
+			AddCard(g, 0, Card::DarkscaleHealer);
+			SetManaAndMax(g, 0, 5);
+			AddMinion(g, 1, Card::ChillwindYeti);
+			GetMinion(g, 1, 0).m_health = 3;
+			SetHealth(g, 0, 20);
+			SetHealth(g, 1, 20);
+			g.UpdatePossibleMoves( );
+
+			CHECK_DO_MOVE(Move::PlayCard(Card::DarkscaleHealer));
+			CHECK(GetMinion(g, 0, 0).m_health == 5);
+			CHECK(GetPlayerHealth(g, 0) == 22);
+			CHECK(GetPlayerHealth(g, 1) == 20);
+			CHECK(GetMinion(g, 1, 0).m_health == 3);
+
+			return true;
+		}
 	}
 };
 

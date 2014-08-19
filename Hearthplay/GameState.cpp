@@ -244,7 +244,7 @@ void GameState::PlayCard(Card c, PackedTarget packed_target)
 	}
 	else
 	{
-		HandleSpell(ToPlay->m_spell_data, packed_target, true);
+		HandleSpell(ToPlay->m_spell_data, packed_target, m_active_player_index, true);
 	}
 }
 
@@ -312,13 +312,14 @@ void GameState::HandlePendingSpellEffect(const SpellData& data, uint8_t owner_in
 		target = Move::TargetPlayer(owner_index);
 		break;
 	}
-	HandleSpell(data, target);
+	HandleSpell(data, target, owner_index);
 }
 
-void GameState::HandleSpell(const SpellData& spell_data, PackedTarget target_packed, bool affected_by_spelldamage)
+void GameState::HandleSpell(const SpellData& spell_data, PackedTarget target_packed, uint8_t owner_index, bool affected_by_spelldamage)
 {
 	uint8_t target_player, target_minion;
 	Move::UnpackTarget(target_packed, target_player, target_minion);
+	uint8_t spelldamage = affected_by_spelldamage ? m_players[owner_index].CalculateSpelldamage( ) : 0;
 	switch (spell_data.m_effect)
 	{
 	case SpellEffect::AddMana:
@@ -344,7 +345,7 @@ void GameState::HandleSpell(const SpellData& spell_data, PackedTarget target_pac
 	break;
 	case SpellEffect::DamageCharacter:
 	{ 
-		uint8_t dmg = spell_data.m_param + (affected_by_spelldamage ? m_players[m_active_player_index].CalculateSpelldamage( ) : 0);
+		uint8_t dmg = spell_data.m_param + spelldamage;
 		if (spell_data.m_target_type == TargetType::AllMinions)
 		{
 			ForEachMinion([=](Minion& m){ m.m_health -= dmg; });
@@ -355,6 +356,10 @@ void GameState::HandleSpell(const SpellData& spell_data, PackedTarget target_pac
 			ForEachPlayer([=](Player& p){ p.m_health -= dmg; });
 			ForEachMinion([=](Minion& m){ m.m_health -= dmg; });
 			CheckDeadMinions( );
+		}
+		else if (spell_data.m_target_type == TargetType::AllFriendlyCharacters)
+		{
+
 		}
 		else if (target_minion == NoMinion)
 		{
@@ -371,7 +376,25 @@ void GameState::HandleSpell(const SpellData& spell_data, PackedTarget target_pac
 	}
 		break;
 	case SpellEffect::HealCharacter:
-		if (target_minion == NoMinion)
+	{
+		uint8_t amt = spell_data.m_param + spelldamage;
+		if (spell_data.m_target_type == TargetType::AllMinions)
+		{
+			ForEachMinion([=](Minion& m){ m.Heal(amt); });
+			CheckDeadMinions( );
+		}
+		else if (spell_data.m_target_type == TargetType::AllCharacters)
+		{
+			ForEachPlayer([=](Player& p){ p.Heal(amt); });
+			ForEachMinion([=](Minion& m){ m.Heal(amt); });
+			CheckDeadMinions( );
+		}
+		else if (spell_data.m_target_type == TargetType::AllFriendlyCharacters)
+		{
+			m_players[owner_index].Heal(amt);
+			ForEachMinion(owner_index, [=](Minion& m){ m.Heal(amt); });
+		}
+		else if (target_minion == NoMinion)
 		{
 			m_players[target_player].Heal(spell_data.m_param);
 		}
@@ -379,6 +402,7 @@ void GameState::HandleSpell(const SpellData& spell_data, PackedTarget target_pac
 		{
 			m_players[target_player].m_minions[target_minion].Heal(spell_data.m_param);
 		}
+	}
 		break;
 	case SpellEffect::AddMinionAura:
 	{
@@ -396,7 +420,7 @@ void GameState::PlayMinion(Card c, PackedTarget target_packed)
 
 	if (data->HasBattlecry())
 	{
-		HandleSpell(data->m_minion_battlecry, target_packed);
+		HandleSpell(data->m_minion_battlecry, target_packed, m_active_player_index);
 	}
 
 	m_players[m_active_player_index].m_minions.Add({ data });

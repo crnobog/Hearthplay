@@ -243,6 +243,7 @@ enum class TargetType : uint8_t
 	SelfPlayer,
 	AllMinions,
 	AllCharacters,
+	AllFriendlyCharacters,
 
 	MAX,
 };
