@@ -2,7 +2,7 @@
 #include "GameState.h"
 
 #include <memory>
-#include <math.h>
+#include <cmath>
 
 #if 0
 #define MCTS_DEBUG(...) __VA_ARGS__
@@ -27,14 +27,14 @@ namespace CheatingMCTS
 		MCTSNode(const GameState& state)
 			: m_move(Move::EndTurn())
 		{
-			memset(this, 0, sizeof(MCTSNode));
+            std::memset(this, 0, sizeof(MCTSNode));
 			m_num_untried_moves = state.m_possible_moves;
 		}
 
 		MCTSNode(MCTSNode* parent, Move m, const GameState& state)
 			: m_move(Move::EndTurn( ))
 		{
-			memset(this, 0, sizeof(MCTSNode));
+            std::memset(this, 0, sizeof(MCTSNode));
 			m_num_untried_moves = state.m_possible_moves;
 			m_move = m;
 			m_parent = parent;
