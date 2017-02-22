@@ -4,6 +4,11 @@
 #include <random>
 #include <algorithm>
 
+const uint8_t GameState::NoMinion;
+const int8_t GameState::StartingHealth;
+const uint8_t GameState::MaxPossibleMoves;
+const uint8_t GameState::MaxTargets; // Each character
+
 void Player::Heal( uint8_t amt )
 {
 	m_health = std::min<int8_t>(m_health + amt, GameState::StartingHealth);

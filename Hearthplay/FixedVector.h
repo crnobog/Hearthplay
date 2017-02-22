@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <random>
+#include <cstring>
 
 template< typename T, unsigned _Capacity, typename _SizeType >
 class FixedVector
@@ -62,7 +63,7 @@ public:
 		--m_size;
 		if (Index != m_size)
 		{
-			memmove(&m_data[Index], &m_data[Index + 1], (m_size - Index) * sizeof(T));
+            std::memmove(&m_data[Index], &m_data[Index + 1], (m_size - Index) * sizeof(T));
 		}
 	}
 
@@ -86,7 +87,7 @@ public:
 
 	inline void Set(const T* source, SizeType num)
 	{
-		memcpy(&m_data[0], source, num * sizeof(T));
+        std::memcpy(&m_data[0], source, num * sizeof(T));
 		m_size = num;
 	}
 

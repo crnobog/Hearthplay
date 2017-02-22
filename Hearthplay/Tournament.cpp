@@ -1,7 +1,6 @@
 #include "Tournament.h"
 #include "GameState.h"
 #include "MCTS.h"
-#include "Clock.h"
 
 #include <thread>
 #include <future>
